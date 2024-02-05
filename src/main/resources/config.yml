@@ -1,0 +1,14 @@
+# Plugin version 1.0.0
+
+messages:
+  playermissing: '§4This player is not on the server'
+  msgpattern: '§b§l[§r§e%sender%§r §b§l->§r §e%recipient%§r§b§l]§r §e%message%§r'
+  # After the '§' sign the color code is indicated
+  # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
+  # Variables are indicated between '%' signs (I don't recommend changing them)
+  msgsound: 'ENTITY_PLAYER_LEVELUP'
+  # Notification sound is indicated here
+  # But before the name of the sound you should always write 'ENTITY'
+  # All sounds you can find here - https://github.com/Bukkit/Bukkit/blob/master/src/main/java/org/bukkit/Sound.java
+  # Unfortunately not all of these sounds can be reproduced correctly
+  # Therefore, if the sound doesn't work and gives an error, then you should change the sound
