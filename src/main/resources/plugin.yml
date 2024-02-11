@@ -13,3 +13,24 @@ commands:
       - msg
       - message
       - tell
+  changesound:
+    description: This command allows you to change the notification sound
+    usage: /<command> <sound>
+    aliases:
+      - cs
+      - csound
+  addblacklist:
+    description: This command allows you to add players to the blacklist
+    usage: /<command> <player>
+    aliases:
+      - addbl
+  removeblacklist:
+    description: This command allows you to remove players from the blacklist
+    usage: /<command> <player>
+    aliases:
+      - removebl
+  showblacklist:
+    description: This command allows you to display your blacklist
+    usage: /<command>
+    aliases:
+      - showbl

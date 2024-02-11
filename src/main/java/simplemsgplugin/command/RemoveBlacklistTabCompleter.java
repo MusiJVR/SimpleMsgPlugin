@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class PlayerMsgTabCompleter implements TabCompleter {
+public class RemoveBlacklistTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
@@ -28,8 +28,6 @@ public class PlayerMsgTabCompleter implements TabCompleter {
                 Collections.sort(onlinePlayerName);
             }
             return onlinePlayerName;
-        } else if (args.length == 2) {
-            return Arrays.asList("<message>");
         }
         return new ArrayList<>();
     }
