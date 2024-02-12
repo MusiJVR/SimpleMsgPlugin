@@ -40,15 +40,19 @@ public class PlayerMsgCommand implements CommandExecutor {
                     return true;
                 }
             }
-            ResultSet rsBlock1 = stmt.executeQuery( "SELECT * FROM BLACKLIST WHERE BlockedUUID IS '" + blockedSender.getUniqueId() + "';" );
-            if (Objects.equals(rsBlock1.getString("UUID"), argPlayer.getUniqueId().toString())) {
-                sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youinbl"));
-                return true;
+            ResultSet rsBlockFirst = stmt.executeQuery( "SELECT * FROM BLACKLIST WHERE BlockedUUID IS '" + blockedSender.getUniqueId() + "';" );
+            while (rsBlockFirst.next()) {
+                if (Objects.equals(rsBlockFirst.getString("UUID"), argPlayer.getUniqueId().toString())) {
+                    sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youinbl"));
+                    return true;
+                }
             }
-            ResultSet rsBlock2 = stmt.executeQuery( "SELECT * FROM BLACKLIST WHERE UUID IS '" + blockedSender.getUniqueId() + "';" );
-            if (Objects.equals(rsBlock2.getString("BlockedUUID"), argPlayer.getUniqueId().toString())) {
-                sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youbl"));
-                return true;
+            ResultSet rsBlockSecond = stmt.executeQuery( "SELECT * FROM BLACKLIST WHERE UUID IS '" + blockedSender.getUniqueId() + "';" );
+            while (rsBlockSecond.next()) {
+                if (Objects.equals(rsBlockSecond.getString("BlockedUUID"), argPlayer.getUniqueId().toString())) {
+                    sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youbl"));
+                    return true;
+                }
             }
 
             ResultSet rs = stmt.executeQuery( "SELECT * FROM SOUNDS WHERE UUID IS '" + argPlayer.getUniqueId() + "';" );
