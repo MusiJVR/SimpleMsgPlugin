@@ -1,7 +1,11 @@
+# Default ignored files
+
 .idea/
 
-target/
+src/main/resources/LICENSE.md
 
-pom.xml
+src/main/resources/README.md
+
+target/
 
 SimpleMsgPlugin.iml

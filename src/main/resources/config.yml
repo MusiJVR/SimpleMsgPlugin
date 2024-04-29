@@ -1,36 +1,41 @@
-# Plugin version 1.1.1
+# Plugin version 1.2.0
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
 # Accepts only values 'true' and 'false'
 
 messages:
-  error: '§cError'
-  notmsgyouself: '§eYou cannot send message yourself'
-  playermissing: '§cThis player is not on the server'
-  msgpattern: '§b§l[§r§e%sender%§r §b§l->§r §e%recipient%§r§b§l]§r §e%message%§r'
+  error: '&#ff5555Error'
+
+  configreloadsuccessfully: '&#55ff55The plugin config was successfully reloaded'
+  configreloaderror: '&#ff5555Plugin config could not be reloaded'
+
+  notmsgyouself: '&#ffff55You cannot send message yourself'
+  playermissing: '&#ff5555This player is not on the server'
+  msgpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%recipient%§r&#55ffff§l]§r &#ffff55%message%§r'
   # After the '§' sign the color code is indicated
   # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
   # Variables are indicated between '%' signs (I don't recommend changing them)
 
-  msgsound: 'ENTITY_PLAYER_LEVELUP'
-  # The default notification sound is here
-  # But before the name of the sound you should always write 'ENTITY'
+  msgsound: 'false'
+  # By default the sound is turned off 'false', but you can change it
+  # It is necessary to indicate the name of the sound in uppercase and with underscores
+  # Example - msgsound: 'ENTITY_PLAYER_LEVELUP'
   # All sounds you can find here - https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
   # Unfortunately not all of these sounds can be reproduced correctly
   # Therefore, if the sound doesn't work and gives an error, then you should change the sound
-  soundmissing: '§cInvalid sound value'
-  soundsuccess: '§aThe sound has been successfully changed'
+  soundmissing: '&#ff5555Invalid sound value'
+  soundsuccess: '&#55ff55The sound has been successfully changed'
 
-  blmissing: '§cInvalid player value'
-  blyourself: '§cYou cannot add yourself to the blacklist'
-  blsuccessblock: '§aThe player was successfully blocked'
-  blalreadyblock: '§cThis player is already blocked'
-  blnotblock: '§cThis player is not on the blacklist'
-  blsuccessunblock: '§aThe player has been successfully unblocked'
+  blmissing: '&#ff5555Invalid player value'
+  blyourself: '&#ff5555You cannot add yourself to the blacklist'
+  blsuccessblock: '&#55ff55The player was successfully blocked'
+  blalreadyblock: '&#ff5555This player is already blocked'
+  blnotblock: '&#ff5555This player is not on the blacklist'
+  blsuccessunblock: '&#55ff55The player has been successfully unblocked'
 
-  youinbl: '§cYou cannot send messages to this player'
-  youbl: '§eYou have blocked this player'
+  youinbl: '&#ff5555You cannot send messages to this player'
+  youbl: '&#ffff55You have blocked this player'
 
-  emptybl: '§eYour blacklist is empty'
-  playersbl: '§bPlayers from your blacklist: §r§e'
+  emptybl: '&#ffff55Your blacklist is empty'
+  playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55'

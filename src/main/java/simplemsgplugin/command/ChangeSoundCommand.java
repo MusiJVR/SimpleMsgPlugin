@@ -6,20 +6,24 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.SqliteDriver;
 
-import java.sql.*;
-import java.util.*;
+import java.util.Objects;
+import java.util.UUID;
 
 public class ChangeSoundCommand implements CommandExecutor {
-    private Connection con;
-    public ChangeSoundCommand(Connection con) {
-        this.con = con;
+    private SqliteDriver sql;
+    public ChangeSoundCommand(SqliteDriver sql) {
+        this.sql = sql;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length <= 0 || args.length >= 2) {
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing"));
+        if(!(sender instanceof Player)) return true;
+
+        if (args.length != 1) {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
             return false;
         }
         Player player = (Player) sender;
@@ -32,16 +36,13 @@ public class ChangeSoundCommand implements CommandExecutor {
             }
         }
         if (!valExist) {
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing"));
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
             return valExist;
         }
 
         try {
-            Statement stmt = con.createStatement();
-            String tableSOUNDS = "UPDATE SOUNDS SET Sound = '" + soundName + "' WHERE UUID IS '" + uuid + "';";
-            stmt.executeUpdate(tableSOUNDS);
-            stmt.close();
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess"));
+            sql.sqlUpdateData("SOUNDS", "Sound = '" + soundName + "'", "UUID = '" + uuid + "'");
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }

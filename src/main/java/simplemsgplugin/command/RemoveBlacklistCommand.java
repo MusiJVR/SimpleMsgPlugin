@@ -6,22 +6,28 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.SqliteDriver;
 
-import java.sql.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class RemoveBlacklistCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private Connection con;
-    public RemoveBlacklistCommand(JavaPlugin plugin, Connection con) {
+    private SqliteDriver sql;
+    public RemoveBlacklistCommand(JavaPlugin plugin, SqliteDriver sql) {
         this.plugin = plugin;
-        this.con = con;
+        this.sql = sql;
     }
 
     @Override
     public boolean onCommand( CommandSender sender, Command command, String label, String[] args) {
-        if (args.length <= 0 || args.length >= 2) {
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing"));
+        if(!(sender instanceof Player)) return true;
+
+        if (args.length != 1) {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
             return false;
         }
         Player player = (Player) sender;
@@ -29,21 +35,18 @@ public class RemoveBlacklistCommand implements CommandExecutor {
         String unblockPlayerInput = args[0];
         Player unblockPlayer = plugin.getServer().getPlayer(unblockPlayerInput);
         if (unblockPlayer == null || !Objects.equals(unblockPlayer.getName(), unblockPlayerInput)) {
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing"));
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
             return false;
         }
 
         try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT * FROM BLACKLIST WHERE UUID IS '" + uuid + "' AND BlockedUUID IS '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer IS '" + unblockPlayer.getName() + "';" );
-            if (!rs.next()) {
-                sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock"));
+            List<Map<String, Object>> rs = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + uuid + "', BlockedUUID = '" + unblockPlayer.getUniqueId() + "', BlockedPlayer = '" + unblockPlayer.getName() + "'");
+            if (rs.isEmpty()) {
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
                 return true;
             }
-            String tableBLACKLIST = "DELETE FROM BLACKLIST WHERE UUID IS '" + uuid + "' AND BlockedUUID IS '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer IS '" + unblockPlayer.getName() + "';";
-            stmt.executeUpdate(tableBLACKLIST);
-            stmt.close();
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock"));
+            sql.sqlDeleteData("BLACKLIST", "UUID = '" + uuid + "', BlockedUUID = '" + unblockPlayer.getUniqueId() + "', BlockedPlayer = '" + unblockPlayer.getName() + "'");
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }

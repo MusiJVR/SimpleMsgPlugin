@@ -5,36 +5,40 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.SqliteDriver;
 
-import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ShowBlacklistCommand implements CommandExecutor {
-    private Connection con;
-    public ShowBlacklistCommand(Connection con) {
-        this.con = con;
+    private SqliteDriver sql;
+    public ShowBlacklistCommand(SqliteDriver sql) {
+        this.sql = sql;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!(sender instanceof Player)) return true;
+
         if (args.length >= 1) {
             return false;
         }
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
         try {
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT BlockedPlayer FROM BLACKLIST WHERE UUID IS '" + uuid + "';" );
+            List<Map<String, Object>> rs = sql.sqlSelectData("BlockedPlayer", "BLACKLIST", "UUID = '" + uuid + "'");
             ArrayList<String> blockedPlayers = new ArrayList<>();
-            while (rs.next()) {
-                blockedPlayers.add(rs.getString("BlockedPlayer"));
+            for (Map<String, Object> i : rs) {
+                blockedPlayers.add(i.get("BlockedPlayer").toString());
             }
             if (blockedPlayers.isEmpty()) {
-                sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.emptybl"));
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.emptybl")));
                 return true;
             }
-            stmt.close();
-            sender.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playersbl") + blockedPlayers);
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playersbl") + blockedPlayers));
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
