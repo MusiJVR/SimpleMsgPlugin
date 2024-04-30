@@ -1,5 +1,5 @@
 # SimpleMsgPlugin
-**SimpleMsgPlugin** adds the ability to send private messages to other players. When receiving a message, the player plays the sound of gaining experience `minecraft:entity.player.levelup` (default sound).
+**SimpleMsgPlugin** adds the ability to send private messages to other players. The default sound value is `false`, but it can be changed to another existing sound, such as `ENTITY_PLAYER_LEVELUP`
 
 All technical settings and features presented here are for the latest version of the plugin and will not always work on older versions.
 
