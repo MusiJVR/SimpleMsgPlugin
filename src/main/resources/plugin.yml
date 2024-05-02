@@ -5,6 +5,11 @@ api-version: '1.20'
 authors: [ MouseJava ]
 description: Plugin for messages in the game
 commands:
+  msghelp:
+    description: This command allows you to display all possible plugin commands
+    usage: /<command>
+    aliases:
+      - msgh
   msgreloadconfig:
     description: This command allows you to reload the plugin config
     usage: /<command>
@@ -18,12 +23,23 @@ commands:
       - msg
       - message
       - tell
+  acceptsend:
+    description: This command allows you to accept sending an offline message
+    usage: /<command>
+    aliases:
+      - accsend
   changesound:
     description: This command allows you to change the notification sound
     usage: /<command> <sound>
     aliases:
       - cs
       - csound
+  changevolume:
+    description: This command allows you to change the notification volume
+    usage: /<command> <volume>
+    aliases:
+      - cv
+      - cvolume
   addblacklist:
     description: This command allows you to add players to the blacklist
     usage: /<command> <player>

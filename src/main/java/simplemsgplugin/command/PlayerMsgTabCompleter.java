@@ -1,37 +1,47 @@
 package simplemsgplugin.command;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 
 public class PlayerMsgTabCompleter implements TabCompleter {
+    private SqliteDriver sql;
+    public PlayerMsgTabCompleter(SqliteDriver sql) {
+        this.sql = sql;
+    }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            String inputPlayer = args[0].toLowerCase();
-            Collection<? extends Player> onlinePlayers = Bukkit.getServer().getOnlinePlayers();
-            List<String> onlinePlayerName = null;
-            for (Player onlinePlayer : onlinePlayers) {
-                if (onlinePlayer.toString().toLowerCase().startsWith(inputPlayer)) {
-                    if (onlinePlayerName == null) {
-                        onlinePlayerName = new ArrayList<>();
+            try {
+                String inputPlayer = args[0].toLowerCase();
+                List<Map<String, Object>> rsPlayerNames = sql.sqlSelectData("PlayerName", "SOUNDS");
+
+                List<String> allPlayerName = null;
+                for (Map<String, Object> player : rsPlayerNames) {
+                    if (player.get("PlayerName").toString().toLowerCase().startsWith(inputPlayer)) {
+                        if (allPlayerName == null) {
+                            allPlayerName = new ArrayList<>();
+                        }
+                        allPlayerName.add(player.get("PlayerName").toString());
                     }
-                    String name = onlinePlayer.getName();
-                    onlinePlayerName.add(name);
                 }
+
+                if (allPlayerName != null) {
+                    Collections.sort(allPlayerName);
+                }
+
+                return allPlayerName;
+            } catch (Exception e) {
+                System.err.println(e.getClass().getName() + ": " + e.getMessage());
             }
-            if (onlinePlayerName != null) {
-                Collections.sort(onlinePlayerName);
-            }
-            return onlinePlayerName;
         } else if (args.length == 2) {
             return Arrays.asList("<message>");
         }

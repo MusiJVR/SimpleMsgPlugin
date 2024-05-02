@@ -40,12 +40,12 @@ public class RemoveBlacklistCommand implements CommandExecutor {
         }
 
         try {
-            List<Map<String, Object>> rs = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + uuid + "', BlockedUUID = '" + unblockPlayer.getUniqueId() + "', BlockedPlayer = '" + unblockPlayer.getName() + "'");
+            List<Map<String, Object>> rs = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + unblockPlayer.getName() + "'");
             if (rs.isEmpty()) {
                 sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
                 return true;
             }
-            sql.sqlDeleteData("BLACKLIST", "UUID = '" + uuid + "', BlockedUUID = '" + unblockPlayer.getUniqueId() + "', BlockedPlayer = '" + unblockPlayer.getName() + "'");
+            sql.sqlDeleteData("BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + unblockPlayer.getName() + "'");
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());

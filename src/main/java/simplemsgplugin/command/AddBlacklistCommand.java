@@ -45,7 +45,7 @@ public class AddBlacklistCommand implements CommandExecutor {
         }
 
         try {
-            List<Map<String, Object>> rs = sql.sqlSelectData("UUID", "BLACKLIST", "UUID = '" + uuid + "', BlockedUUID = '" + blockPlayer.getUniqueId() + "', BlockedPlayer = '" + blockPlayer.getName() + "'");
+            List<Map<String, Object>> rs = sql.sqlSelectData("UUID", "BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + blockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + blockPlayer.getName() + "'");
             if (!rs.isEmpty()) {
                 sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blalreadyblock")));
                 return true;

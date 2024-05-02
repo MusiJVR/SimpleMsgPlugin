@@ -26,8 +26,10 @@ public class ChangeSoundCommand implements CommandExecutor {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
             return false;
         }
+
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
+
         String soundName = args[0];
         boolean valExist = false;
         for (Object valSound:Sound.values()) {

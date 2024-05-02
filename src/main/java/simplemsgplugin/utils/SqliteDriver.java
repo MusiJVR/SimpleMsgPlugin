@@ -25,7 +25,7 @@ public class SqliteDriver {
                 values.append(value);
             }
 
-            if (!key.contains(lastKey)) {
+            if (!key.equals(lastKey)) {
                 fields.append(", ");
                 values.append(", ");
             }
@@ -61,7 +61,8 @@ public class SqliteDriver {
 
     public void createDatabase() throws SQLException {
         Statement cursor = connection.createStatement();
-        cursor.execute("CREATE TABLE IF NOT EXISTS SOUNDS (UUID TEXT NOT NULL PRIMARY KEY, Sound TEXT);");
+        cursor.execute("CREATE TABLE IF NOT EXISTS SOUNDS (UUID TEXT NOT NULL PRIMARY KEY, PlayerName TEXT, Sound TEXT, Volume INTEGER);");
+        cursor.execute("CREATE TABLE IF NOT EXISTS OFFLINE_MSG (Sender TEXT, Receiver TEXT, Message TEXT);");
         cursor.execute("CREATE TABLE IF NOT EXISTS BLACKLIST (UUID TEXT, BlockedUUID TEXT, BlockedPlayer TEXT);");
         cursor.close();
     }

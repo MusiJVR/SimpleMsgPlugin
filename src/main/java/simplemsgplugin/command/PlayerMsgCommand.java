@@ -1,5 +1,10 @@
 package simplemsgplugin.command;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,6 +18,7 @@ import simplemsgplugin.utils.SqliteDriver;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class PlayerMsgCommand implements CommandExecutor {
     private final JavaPlugin plugin;
@@ -24,19 +30,28 @@ public class PlayerMsgCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String playerName = args[0];
-        Player argPlayer = plugin.getServer().getPlayer(playerName);
         if (args.length <= 1) {
             return false;
         }
-        if (argPlayer == null || !Objects.equals(argPlayer.getName(), playerName)) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playermissing")));
-            return false;
+
+        String playerName = args[0];
+        Player argPlayer = plugin.getServer().getPlayer(playerName);
+
+        StringBuilder message = new StringBuilder();
+        for (int i = 1; i < args.length; i++) {
+            message.append(" " + args[i]);
         }
 
         try {
+            List<Map<String, Object>> rsArgPlayer = sql.sqlSelectData("UUID", "SOUNDS", "PlayerName = '" + playerName + "'");
+            if (rsArgPlayer.isEmpty()) {
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
+                return true;
+            }
+            String uuidArgPlayer = (String) rsArgPlayer.get(0).get("UUID");
+
             Player blockedSender = (Player) sender;
-            if (Objects.equals(blockedSender.getUniqueId().toString(), argPlayer.getUniqueId().toString())) {
+            if (Objects.equals(blockedSender.getUniqueId().toString(), uuidArgPlayer)) {
                 if (!SimpleMsgPlugin.getInstance().getConfig().getBoolean("sendmsgyourself")) {
                     sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.notmsgyouself")));
                     return true;
@@ -44,7 +59,7 @@ public class PlayerMsgCommand implements CommandExecutor {
             }
             List<Map<String, Object>> rsBlockFirst = sql.sqlSelectData("UUID", "BLACKLIST", "BlockedUUID = '" + blockedSender.getUniqueId() + "'");
             for (Map<String, Object> i : rsBlockFirst) {
-                if (Objects.equals(i.get("UUID"), argPlayer.getUniqueId().toString())) {
+                if (Objects.equals(i.get("UUID"), uuidArgPlayer)) {
                     sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youinbl")));
                     return true;
                 }
@@ -52,19 +67,22 @@ public class PlayerMsgCommand implements CommandExecutor {
 
             List<Map<String, Object>> rsBlockSecond = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + blockedSender.getUniqueId() + "'");
             for (Map<String, Object> i : rsBlockSecond) {
-                if (Objects.equals(i.get("BlockedUUID"), argPlayer.getUniqueId().toString())) {
+                if (Objects.equals(i.get("BlockedUUID"), uuidArgPlayer)) {
                     sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youbl")));
                     return true;
                 }
             }
 
-            List<Map<String, Object>> rs = sql.sqlSelectData("Sound", "SOUNDS", "UUID = '" + argPlayer.getUniqueId() + "'");
-            String messageSound = (String) rs.get(0).get("Sound");
-
-            StringBuilder message = new StringBuilder();
-            for (int i=1; i<args.length; i++) {
-                message.append(" " + args[i]);
+            if (argPlayer == null && sender instanceof Player) {
+                Player player = (Player) sender;
+                UUID uuid = player.getUniqueId();
+                sendOfflineMessage(sender, uuid, playerName, message.toString());
+                return true;
             }
+
+            List<Map<String, Object>> rs = sql.sqlSelectData("Sound, Volume", "SOUNDS", "UUID = '" + argPlayer.getUniqueId() + "'");
+            String messageSound = (String) rs.get(0).get("Sound");
+            Integer volumeSound = (Integer) rs.get(0).get("Volume");
 
             String messagePattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgpattern"));
             sender.sendMessage(messagePattern.replace("%sender%",sender.getName()).replace("%recipient%",argPlayer.getName()).replace("%message%",message));
@@ -72,7 +90,7 @@ public class PlayerMsgCommand implements CommandExecutor {
             if (!messageSound.equals("false")) {
                 for (Sound sound : Sound.values()) {
                     if (messageSound.equals(sound.toString())) {
-                        argPlayer.playSound(argPlayer.getLocation(), Sound.valueOf(messageSound), 1.0f, 1.0f);
+                        argPlayer.playSound(argPlayer.getLocation(), Sound.valueOf(messageSound), (float) volumeSound / 100, (float) volumeSound / 100);
                         break;
                     }
                 }
@@ -81,5 +99,27 @@ public class PlayerMsgCommand implements CommandExecutor {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
         return true;
+    }
+
+    private void sendOfflineMessage(CommandSender sender, UUID uuid, String playerName, String message) {
+        SimpleMsgPlugin.getInstance().offlineReceiver.put(uuid, playerName);
+        SimpleMsgPlugin.getInstance().offlineMessages.put(uuid, message);
+
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playermissing")));
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendoffline")));
+        TextComponent msgSendOffline = new TextComponent(SimpleMsgPlugin.getInstance().getConfig().getString("messages.acceptsend"));
+        msgSendOffline.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendoffline"))));
+        msgSendOffline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/acceptsend"));
+        sender.sendMessage(msgSendOffline);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
+                    SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerName);
+                    SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, message);
+                }
+            }
+        }, 1200);
     }
 }
