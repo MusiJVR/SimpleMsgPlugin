@@ -1,12 +1,12 @@
 package simplemsgplugin.handler;
 
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.GeneralUtils;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.HashMap;
@@ -41,23 +41,14 @@ public class SimpleEventHandler implements Listener {
             List<Map<String, Object>> rsOfflineMessage = sql.sqlSelectData("Sender, Message", "OFFLINE_MSG", "Receiver = '" + player.getName() + "'");
             if (!rsOfflineMessage.isEmpty()) {
                 player.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.haveunreadmsg")));
+                String msgOfflienPattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgofflinepattern"));
                 for (Map<String, Object> i : rsOfflineMessage) {
                     String sender = (String) i.get("Sender");
                     String messages = (String) i.get("Message");
-                    player.sendMessage("§b§l[§r§e" + sender + "§r§b§l]§r " + "§b§l->§r" + "§e" + messages + "§r");
+                    player.sendMessage(msgOfflienPattern.replace("%sender%", sender).replace("%messages%", messages));
                 }
 
-                List<Map<String, Object>> rs = sql.sqlSelectData("Sound, Volume", "SOUNDS", "UUID = '" + player.getUniqueId() + "'");
-                String messageSound = (String) rs.get(0).get("Sound");
-                Integer volumeSound = (Integer) rs.get(0).get("Volume");
-                if (!messageSound.equals("false")) {
-                    for (Sound soundPlayer : Sound.values()) {
-                        if (messageSound.equals(soundPlayer.toString())) {
-                            player.playSound(player.getLocation(), Sound.valueOf(messageSound), (float) volumeSound / 100, (float) volumeSound / 100);
-                            break;
-                        }
-                    }
-                }
+                GeneralUtils.msgPlaySound(sql, player);
 
                 sql.sqlDeleteData("OFFLINE_MSG", "Receiver = '" + player.getName() + "'");
             }

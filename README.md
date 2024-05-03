@@ -19,14 +19,14 @@ Here are all the commands that can be used in the plugin:
 When the server starts, the config file will be automatically created in this path: `plugins/SimpleMsgPlugin/config.yml`
 
 ```yml
-# Plugin version 1.3.0
+# Plugin version 1.3.1
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
 # Accepts only values 'true' and 'false'
 
 msgsound: 'false'
-# By default the sound is turned off 'false', but you can change it
+# By default, the sound is turned off 'false', but you can change it
 # It is necessary to indicate the name of the sound in uppercase and with underscores
 # Example - msgsound: 'ENTITY_PLAYER_LEVELUP'
 # All sounds you can find here - https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
@@ -46,12 +46,18 @@ messages:
   notmsgyouself: '&#ffff55You cannot send message yourself'
   playermissing: '&#ff5555This player is not on the server'
   msgsendoffline: '&#ffff55Send this player an offline message?'
+
   acceptsend: '§eAccept§r §b§l[✔]§r'
+  # I don't recommend setting the color of this message using HEX encoding, as the color will be displayed incorrectly
+
   clickmsgsendoffline: 'Click to send offline message'
   msgsendofflinesuccessfully: "&#55ff55You have successfully sent an offline message"
 
   msgpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%recipient%§r&#55ffff§l]§r &#ffff55%message%§r'
-  # After the '§' sign the color code is indicated
+  msgofflinepattern: '&#55ffff§l[§r&#ffff55%sender%§r&#55ffff§l]§r &#55ffff§l->§r &#ffff55%messages%§r'
+  # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
+  # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
+  # The '§r' icon is used to reset the color and the '§l' icon is used to make the font bold
   # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
   # Variables are indicated between '%' signs (I don't recommend changing them)
 
@@ -78,7 +84,7 @@ messages:
 ```
 
 ## Change default sound
-By default the sound is turned off 'false', but you can change it. 
+By default, the sound is turned off 'false', but you can change it. 
 It is necessary to indicate the name of the sound in uppercase and with underscores. 
 Example - `msgsound: 'ENTITY_PLAYER_LEVELUP'`
 
@@ -92,9 +98,16 @@ The volume value must be specified in the range from `0` to `100`.
 
 ## Change message color
 In order to change the color of the message, you need to specify the `&` icon, followed by the color code in HEX format with `#` at the beginning.
+You can also change the color using standard Minecraft colors by specifying `§` at the beginning.
 The `§r` icon is used to reset the color and the `§l` icon is used to make the font bold.
+All codes you can find [here](https://minecraft.fandom.com/wiki/Formatting_codes).
+Variables are indicated between `%` signs (I don't recommend changing them).
 
 Example: `&#55ff55Message` - <span style="color:green">Message</span>
+
+## Settings for developers or administrators
+In the config you can configure sending messages to yourself `sendmsgyourself: false`.
+By default, the value is `false`, but can be changed to `true`
 
 ## Issues
 Please leave messages about any errors you find [here](https://github.com/MusiJVR/SimpleMsgPlugin/issues) or on the [Discord](https://discord.gg/xY8WJt7VGr)

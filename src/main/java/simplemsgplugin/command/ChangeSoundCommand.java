@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.GeneralUtils;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.Objects;
@@ -45,6 +46,7 @@ public class ChangeSoundCommand implements CommandExecutor {
         try {
             sql.sqlUpdateData("SOUNDS", "Sound = '" + soundName + "'", "UUID = '" + uuid + "'");
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
+            GeneralUtils.msgPlaySound(sql, player);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }

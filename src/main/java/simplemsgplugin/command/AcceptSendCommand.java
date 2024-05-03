@@ -1,16 +1,15 @@
 package simplemsgplugin.command;
 
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.GeneralUtils;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,17 +41,7 @@ public class AcceptSendCommand implements CommandExecutor {
                 sql.sqlInsertData("OFFLINE_MSG", insertMap);
 
                 sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendofflinesuccessfully")));
-                List<Map<String, Object>> rs = sql.sqlSelectData("Sound, Volume", "SOUNDS", "UUID = '" + player.getUniqueId() + "'");
-                String messageSound = (String) rs.get(0).get("Sound");
-                Integer volumeSound = (Integer) rs.get(0).get("Volume");
-                if (!messageSound.equals("false")) {
-                    for (Sound soundPlayer : Sound.values()) {
-                        if (messageSound.equals(soundPlayer.toString())) {
-                            player.playSound(player.getLocation(), Sound.valueOf(messageSound), (float) volumeSound / 100, (float) volumeSound / 100);
-                            break;
-                        }
-                    }
-                }
+                GeneralUtils.msgPlaySound(sql, player);
 
                 SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
                 SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);

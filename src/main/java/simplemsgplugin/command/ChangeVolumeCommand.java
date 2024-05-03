@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.GeneralUtils;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.UUID;
@@ -42,6 +43,7 @@ public class ChangeVolumeCommand implements CommandExecutor {
         try {
             sql.sqlUpdateData("SOUNDS", "Volume = " + volume, "UUID = '" + uuid + "'");
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumesuccess")));
+            GeneralUtils.msgPlaySound(sql, player);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }

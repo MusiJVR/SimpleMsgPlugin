@@ -5,7 +5,6 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.GeneralUtils;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.List;
@@ -80,21 +80,10 @@ public class PlayerMsgCommand implements CommandExecutor {
                 return true;
             }
 
-            List<Map<String, Object>> rs = sql.sqlSelectData("Sound, Volume", "SOUNDS", "UUID = '" + argPlayer.getUniqueId() + "'");
-            String messageSound = (String) rs.get(0).get("Sound");
-            Integer volumeSound = (Integer) rs.get(0).get("Volume");
-
             String messagePattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgpattern"));
             sender.sendMessage(messagePattern.replace("%sender%",sender.getName()).replace("%recipient%",argPlayer.getName()).replace("%message%",message));
             argPlayer.sendMessage(messagePattern.replace("%sender%",sender.getName()).replace("%recipient%",argPlayer.getName()).replace("%message%",message));
-            if (!messageSound.equals("false")) {
-                for (Sound sound : Sound.values()) {
-                    if (messageSound.equals(sound.toString())) {
-                        argPlayer.playSound(argPlayer.getLocation(), Sound.valueOf(messageSound), (float) volumeSound / 100, (float) volumeSound / 100);
-                        break;
-                    }
-                }
-            }
+            GeneralUtils.msgPlaySound(sql, argPlayer);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
