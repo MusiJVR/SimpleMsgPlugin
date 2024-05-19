@@ -7,16 +7,19 @@ description: Plugin for messages in the game
 commands:
   msghelp:
     description: This command allows you to display all possible plugin commands
+    permission: simplemsgplugin.msghelp
     usage: /<command>
     aliases:
       - msgh
   msgreloadconfig:
     description: This command allows you to reload the plugin config
+    permission: simplemsgplugin.msgreloadconfig
     usage: /<command>
     aliases:
       - msgrc
   playermsg:
     description: This command allows you to send private messages to the player
+    permission: simplemsgplugin.playermsg
     usage: /<command> <player> <message>
     aliases:
       - pm
@@ -25,33 +28,67 @@ commands:
       - tell
   acceptsend:
     description: This command allows you to accept sending an offline message
+    permission: simplemsgplugin.acceptsend
     usage: /<command>
     aliases:
       - accsend
   changesound:
     description: This command allows you to change the notification sound
+    permission: simplemsgplugin.changesound
     usage: /<command> <sound>
     aliases:
       - cs
       - csound
   changevolume:
     description: This command allows you to change the notification volume
+    permission: simplemsgplugin.changevolume
     usage: /<command> <volume>
     aliases:
       - cv
       - cvolume
   addblacklist:
     description: This command allows you to add players to the blacklist
+    permission: simplemsgplugin.addblacklist
     usage: /<command> <player>
     aliases:
       - addbl
   removeblacklist:
     description: This command allows you to remove players from the blacklist
+    permission: simplemsgplugin.removeblacklist
     usage: /<command> <player>
     aliases:
       - removebl
   showblacklist:
     description: This command allows you to display your blacklist
+    permission: simplemsgplugin.showblacklist
     usage: /<command>
     aliases:
       - showbl
+permissions:
+  simplemsgplugin.msghelp:
+    description: Permission to use command msghelp
+    default: true
+  simplemsgplugin.msgreloadconfig:
+    description: Permission to use command msgrc
+    default: op
+  simplemsgplugin.playermsg:
+    description: Permission to use command msg
+    default: true
+  simplemsgplugin.acceptsend:
+    description: Permission to use command acceptsend
+    default: true
+  simplemsgplugin.changesound:
+    description: Permission to use command csound
+    default: true
+  simplemsgplugin.changevolume:
+    description: Permission to use command cvolume
+    default: true
+  simplemsgplugin.addblacklist:
+    description: Permission to use command addbl
+    default: true
+  simplemsgplugin.removeblacklist:
+    description: Permission to use command removebl
+    default: true
+  simplemsgplugin.showblacklist:
+    description: Permission to use command showbl
+    default: true

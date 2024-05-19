@@ -19,7 +19,7 @@ Here are all the commands that can be used in the plugin:
 When the server starts, the config file will be automatically created in this path: `plugins/SimpleMsgPlugin/config.yml`
 
 ```yml
-# Plugin version 1.3.1
+# Plugin version 1.4.0
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
@@ -41,7 +41,6 @@ messages:
   error: '&#ff5555Error'
 
   configreloadsuccessfully: '&#55ff55The plugin config was successfully reloaded'
-  configreloaderror: '&#ff5555Plugin config could not be reloaded'
 
   notmsgyouself: '&#ffff55You cannot send message yourself'
   playermissing: '&#ff5555This player is not on the server'
@@ -53,6 +52,8 @@ messages:
   clickmsgsendoffline: 'Click to send offline message'
   msgsendofflinesuccessfully: "&#55ff55You have successfully sent an offline message"
 
+  msgsenderpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
+  msgreceiverpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
   msgpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%recipient%§r&#55ffff§l]§r &#ffff55%message%§r'
   msgofflinepattern: '&#55ffff§l[§r&#ffff55%sender%§r&#55ffff§l]§r &#55ffff§l->§r &#ffff55%messages%§r'
   # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
@@ -81,6 +82,146 @@ messages:
   playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55'
 
   haveunreadmsg: "&#55ffffYou have unread messages:"
+
+helpmessages:
+  consolehelplist: '[SimpleMsg] ⏴-------SimpleMsgPlugin-------⏵
+                    
+                    [SimpleMsg] Command: msghelp
+                    
+                    [SimpleMsg] Description: This command allows you to display all possible plugin commands
+                    
+                    [SimpleMsg] Usage: /<command>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: msgrc
+                    
+                    [SimpleMsg] Description: This command allows you to reload the plugin config
+                    
+                    [SimpleMsg] Usage: /<command>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: msg
+                    
+                    [SimpleMsg] Description: This command allows you to send private messages to the player
+                    
+                    [SimpleMsg] Usage: /<command> <player> <message>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: acceptsend
+                    
+                    [SimpleMsg] Description: This command allows you to accept sending an offline message
+                    
+                    [SimpleMsg] Usage: /<command>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: csound
+                    
+                    [SimpleMsg] Description: This command allows you to change the notification sound
+                    
+                    [SimpleMsg] Usage: /<command> <sound>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: cvolume
+                    
+                    [SimpleMsg] Description: This command allows you to change the notification volume
+                    
+                    [SimpleMsg] Usage: /<command> <volume>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: addbl
+                    
+                    [SimpleMsg] Description: This command allows you to add players to the blacklist
+                    
+                    [SimpleMsg] Usage: /<command> <player>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: removebl
+                    
+                    [SimpleMsg] Description: This command allows you to remove players from the blacklist
+                    
+                    [SimpleMsg] Usage: /<command> <player>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: showbl
+                    
+                    [SimpleMsg] Description: This command allows you to display your blacklist
+                    
+                    [SimpleMsg] Usage: /<command>
+                    
+                    [SimpleMsg] ⏴----------------------------⏵'
+  playerhelplist: '§b§l⏴-------§r§e§lSimpleMsgPlugin§r§b§l-------⏵§r
+  
+                    §bCommand:§r §emsghelp§r
+                    
+                    §bDescription:§r §eThis command allows you to display all possible plugin commands§r
+                    
+                    §bUsage:§r §e/<command>§r
+                    
+                    
+                    §bCommand:§r §emsgrc§r
+                    
+                    §bDescription:§r §eThis command allows you to reload the plugin config§r
+                    
+                    §bUsage:§r §e/<command>§r
+                    
+                    
+                    §bCommand:§r §emsg§r
+                    
+                    §bDescription:§r §eThis command allows you to send private messages to the player§r
+                    
+                    §bUsage:§r §e/<command> <player> <message>§r
+                    
+                    
+                    §bCommand:§r §eacceptsend§r
+                    
+                    §bDescription:§r §eThis command allows you to accept sending an offline message§r
+                    
+                    §bUsage:§r §e/<command>§r
+                    
+                    
+                    §bCommand:§r §ecsound§r
+                    
+                    §bDescription:§r §eThis command allows you to change the notification sound§r
+                    
+                    §bUsage:§r §e/<command> <sound>§r
+                    
+                    
+                    §bCommand:§r §ecvolume§r
+                    
+                    §bDescription:§r §eThis command allows you to change the notification volume§r
+                    
+                    §bUsage:§r §e/<command> <volume>§r
+                    
+                    
+                    §bCommand:§r §eaddbl§r
+                    
+                    §bDescription:§r §eThis command allows you to add players to the blacklist§r
+                    
+                    §bUsage:§r §e/<command> <player>§r
+                    
+                    
+                    §bCommand:§r §eremovebl§r
+                    
+                    §bDescription:§r §eThis command allows you to remove players from the blacklist§r
+                    
+                    §bUsage:§r §e/<command> <player>§r
+                    
+                    
+                    §bCommand:§r §eshowbl§r
+                    
+                    §bDescription:§r §eThis command allows you to display your blacklist§r
+                    
+                    §bUsage:§r §e/<command>§r
+                    
+                    §b§l⏴----------------------------⏵§r'
 ```
 
 ## Change default sound
@@ -108,6 +249,20 @@ Example: `&#55ff55Message` - <span style="color:green">Message</span>
 ## Settings for developers or administrators
 In the config you can configure sending messages to yourself `sendmsgyourself: false`.
 By default, the value is `false`, but can be changed to `true`
+
+The plugin has permissions:
+
+|            **Permissions**             |              **Meaning**               |
+|----------------------------------------|----------------------------------------|
+| `simplemsgplugin.msghelp`              | Permission to use command `msghelp`    |
+| `simplemsgplugin.msgreloadconfig`      | Permission to use command `msgrc`      |
+| `simplemsgplugin.playermsg`            | Permission to use command `msg`        |
+| `simplemsgplugin.acceptsend`           | Permission to use command `acceptsend` |
+| `simplemsgplugin.changesound`          | Permission to use command `csound`     |
+| `simplemsgplugin.changevolume`         | Permission to use command `cvolume`    |
+| `simplemsgplugin.addblacklist`         | Permission to use command `addbl`      |
+| `simplemsgplugin.removeblacklist`      | Permission to use command `removebl`   |
+| `simplemsgplugin.showblacklist`        | Permission to use command `showbl`     |
 
 ## Issues
 Please leave messages about any errors you find [here](https://github.com/MusiJVR/SimpleMsgPlugin/issues) or on the [Discord](https://discord.gg/xY8WJt7VGr)

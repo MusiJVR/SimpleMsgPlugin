@@ -80,9 +80,10 @@ public class PlayerMsgCommand implements CommandExecutor {
                 return true;
             }
 
-            String messagePattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgpattern"));
-            sender.sendMessage(messagePattern.replace("%sender%",sender.getName()).replace("%recipient%",argPlayer.getName()).replace("%message%",message));
-            argPlayer.sendMessage(messagePattern.replace("%sender%",sender.getName()).replace("%recipient%",argPlayer.getName()).replace("%message%",message));
+            String msgSenderPattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsenderpattern"));
+            sender.sendMessage(msgSenderPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message));
+            String msgRecipientPattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgreceiverpattern"));
+            argPlayer.sendMessage(msgRecipientPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message));
             GeneralUtils.msgPlaySound(sql, argPlayer);
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());

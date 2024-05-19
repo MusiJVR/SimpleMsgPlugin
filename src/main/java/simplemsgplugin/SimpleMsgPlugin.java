@@ -61,5 +61,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         }
     }
 
-    public static SimpleMsgPlugin getInstance() {return instance;}
+    public static SimpleMsgPlugin getInstance() {
+        return instance;
+    }
 }

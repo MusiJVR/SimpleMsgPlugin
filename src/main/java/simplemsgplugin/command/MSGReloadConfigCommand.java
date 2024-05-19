@@ -19,14 +19,8 @@ public class MSGReloadConfigCommand implements CommandExecutor {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.error")));
             return false;
         }
-
-        if(sender.isOp()) {
-            plugin.reloadConfig();
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.configreloadsuccessfully")));
-        } else {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.configreloaderror")));
-        }
-
+        plugin.reloadConfig();
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.configreloadsuccessfully")));
         return true;
     }
 }
