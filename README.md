@@ -19,7 +19,7 @@ Here are all the commands that can be used in the plugin:
 When the server starts, the config file will be automatically created in this path: `plugins/SimpleMsgPlugin/config.yml`
 
 ```yml
-# Plugin version 1.4.0
+# Plugin version 1.4.1
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
