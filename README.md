@@ -54,7 +54,6 @@ messages:
 
   msgsenderpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
   msgreceiverpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
-  msgpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%recipient%§r&#55ffff§l]§r &#ffff55%message%§r'
   msgofflinepattern: '&#55ffff§l[§r&#ffff55%sender%§r&#55ffff§l]§r &#55ffff§l->§r &#ffff55%messages%§r'
   # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
   # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
