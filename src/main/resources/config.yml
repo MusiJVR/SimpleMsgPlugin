@@ -32,9 +32,9 @@ messages:
   msgsendofflinesuccessfully: "&#55ff55You have successfully sent an offline message"
 
   acceptsend: '<color:#ffff55>Accept</color> <b><color:#55ffff>[✔]</color></b>'
-  msgsenderpattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
-  msgreceiverpattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
-  msgofflinepattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
+  msgsenderpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
+  msgreceiverpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
+  msgofflinepattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
 
   soundmissing: '&#ff5555Invalid sound value'
   soundsuccess: '&#55ff55The sound has been successfully changed'
