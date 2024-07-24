@@ -1,4 +1,4 @@
-# Plugin version 1.4.1
+# Plugin version 1.5.0
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
@@ -25,20 +25,16 @@ messages:
   playermissing: '&#ff5555This player is not on the server'
   msgsendoffline: '&#ffff55Send this player an offline message?'
 
-  acceptsend: '§eAccept§r §b§l[✔]§r'
-  # I don't recommend setting the color of this message using HEX encoding, as the color will be displayed incorrectly
+  clickmsgsendreply: 'Click to send reply message'
+  nolastrecipient: '&#ffff55You do not have the latest recipient'
 
   clickmsgsendoffline: 'Click to send offline message'
   msgsendofflinesuccessfully: "&#55ff55You have successfully sent an offline message"
 
-  msgsenderpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
-  msgreceiverpattern: '&#55ffff§l[§r&#ffff55%sender%§r &#55ffff§l->§r &#ffff55%receiver%§r&#55ffff§l]§r &#ffff55%message%§r'
-  msgofflinepattern: '&#55ffff§l[§r&#ffff55%sender%§r&#55ffff§l]§r &#55ffff§l->§r &#ffff55%messages%§r'
-  # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
-  # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
-  # The '§r' icon is used to reset the color and the '§l' icon is used to make the font bold
-  # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
-  # Variables are indicated between '%' signs (I don't recommend changing them)
+  acceptsend: '<color:#ffff55>Accept</color> <b><color:#55ffff>[✔]</color></b>'
+  msgsenderpattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
+  msgreceiverpattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
+  msgofflinepattern: '<b><#55ffff>[</#55ffff></b><color:#ffff55>%sender%</color> <b><#55ffff>-></#55ffff></b> <color:#ffff55>%receiver%</color><b><#55ffff>]</#55ffff></b><color:#ffff55>%message%</color>'
 
   soundmissing: '&#ff5555Invalid sound value'
   soundsuccess: '&#55ff55The sound has been successfully changed'
@@ -60,6 +56,12 @@ messages:
   playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55'
 
   haveunreadmsg: "&#55ffffYou have unread messages:"
+
+  # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
+  # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
+  # The '§r' icon is used to reset the color and the '§l' icon is used to make the font bold
+  # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
+  # Variables are indicated between '%' signs (I don't recommend changing them)
 
 helpmessages:
   consolehelplist: '[SimpleMsg] ⏴-------SimpleMsgPlugin-------⏵
@@ -85,6 +87,14 @@ helpmessages:
                     [SimpleMsg] Description: This command allows you to send private messages to the player
                     
                     [SimpleMsg] Usage: /<command> <player> <message>
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: reply
+                    
+                    [SimpleMsg] Description: This command allows you to send a private message to the last player who wrote to you
+                    
+                    [SimpleMsg] Usage: /<command> <message>
                     
                     [SimpleMsg]
                     
@@ -156,6 +166,13 @@ helpmessages:
                     §bDescription:§r §eThis command allows you to send private messages to the player§r
                     
                     §bUsage:§r §e/<command> <player> <message>§r
+                    
+                    
+                    §bCommand:§r §ereply§r
+                    
+                    §bDescription:§r §eThis command allows you to send a private message to the last player who wrote to you§r
+                    
+                    §bUsage:§r §e/<command> <message>§r
                     
                     
                     §bCommand:§r §eacceptsend§r

@@ -1,7 +1,7 @@
 name: SimpleMsgPlugin
 version: '${project.version}'
 main: simplemsgplugin.SimpleMsgPlugin
-api-version: '1.20'
+#api-version: '1.20'
 authors: [ MouseJava ]
 description: Plugin for messages in the game
 commands:
@@ -17,6 +17,7 @@ commands:
     usage: /<command>
     aliases:
       - msgrc
+      - reloadmsg
   playermsg:
     description: This command allows you to send private messages to the player
     permission: simplemsgplugin.playermsg
@@ -26,6 +27,14 @@ commands:
       - msg
       - message
       - tell
+      - w
+  replymsg:
+    description: This command allows you to send a private message to the last player who wrote to you
+    permission: simplemsgplugin.replymsg
+    usage: /<command> <message>
+    aliases:
+      - reply
+      - r
   acceptsend:
     description: This command allows you to accept sending an offline message
     permission: simplemsgplugin.acceptsend
@@ -52,12 +61,14 @@ commands:
     usage: /<command> <player>
     aliases:
       - addbl
+      - ignore
   removeblacklist:
     description: This command allows you to remove players from the blacklist
     permission: simplemsgplugin.removeblacklist
     usage: /<command> <player>
     aliases:
       - removebl
+      - unignore
   showblacklist:
     description: This command allows you to display your blacklist
     permission: simplemsgplugin.showblacklist
@@ -73,6 +84,9 @@ permissions:
     default: op
   simplemsgplugin.playermsg:
     description: Permission to use command msg
+    default: true
+  simplemsgplugin.replymsg:
+    description: Permission to use command reply
     default: true
   simplemsgplugin.acceptsend:
     description: Permission to use command acceptsend

@@ -1,9 +1,7 @@
 package simplemsgplugin.command;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -80,11 +78,22 @@ public class PlayerMsgCommand implements CommandExecutor {
                 return true;
             }
 
-            String msgSenderPattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsenderpattern"));
-            sender.sendMessage(msgSenderPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message));
-            String msgRecipientPattern = ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgreceiverpattern"));
-            argPlayer.sendMessage(msgRecipientPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message));
+            String strSenderPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsenderpattern");
+            Component msgSenderPattern = MiniMessage.builder().build().deserialize(strSenderPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
+                    .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
+                    .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + argPlayer.getName() + " "));
+            sender.sendMessage(msgSenderPattern);
+
+            String strRecipientPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgreceiverpattern");
+            Component msgRecipientPattern = MiniMessage.builder().build().deserialize(strRecipientPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
+                    .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
+                    .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender.getName() + " "));
+            argPlayer.sendMessage(msgRecipientPattern);
+
             GeneralUtils.msgPlaySound(sql, argPlayer);
+
+            SimpleMsgPlugin.getInstance().latestRecipients.put(sender.getName(), argPlayer.getName());
+            SimpleMsgPlugin.getInstance().latestRecipients.put(argPlayer.getName(), sender.getName());
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -97,9 +106,10 @@ public class PlayerMsgCommand implements CommandExecutor {
 
         sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playermissing")));
         sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendoffline")));
-        TextComponent msgSendOffline = new TextComponent(SimpleMsgPlugin.getInstance().getConfig().getString("messages.acceptsend"));
-        msgSendOffline.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendoffline"))));
-        msgSendOffline.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/acceptsend"));
+
+        Component msgSendOffline = MiniMessage.builder().build().deserialize(SimpleMsgPlugin.getInstance().getConfig().getString("messages.acceptsend"))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendoffline"))))
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.RUN_COMMAND, "/acceptsend"));
         sender.sendMessage(msgSendOffline);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {

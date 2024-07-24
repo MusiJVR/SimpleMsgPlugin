@@ -3,7 +3,7 @@ package simplemsgplugin;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.command.*;
-import simplemsgplugin.handler.SimpleEventHandler;
+import simplemsgplugin.handler.EventHandlers;
 import simplemsgplugin.utils.SqliteDriver;
 
 import java.util.HashMap;
@@ -16,6 +16,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
     private SqliteDriver sql;
     public Map<UUID, String> offlineReceiver = new HashMap<>();
     public Map<UUID, String> offlineMessages = new HashMap<>();
+    public Map<String, String> latestRecipients = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -30,7 +31,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         }
 
         getServer().getLogger().info("[SimpleMsg] SimpleMsgPlugin is enabled");
-        getServer().getPluginManager().registerEvents(new SimpleEventHandler(sql), this);
+        getServer().getPluginManager().registerEvents(new EventHandlers(sql), this);
         getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
         getServer().getPluginCommand("msghelp").setTabCompleter(new MSGHelpTabCompleter());
         getServer().getPluginCommand("msgreloadconfig").setExecutor(new MSGReloadConfigCommand(this));
@@ -47,6 +48,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("changevolume").setTabCompleter(new ChangeVolumeTabCompleter());
         getServer().getPluginCommand("playermsg").setExecutor(new PlayerMsgCommand(this, sql));
         getServer().getPluginCommand("playermsg").setTabCompleter(new PlayerMsgTabCompleter(sql));
+        getServer().getPluginCommand("replymsg").setExecutor(new ReplyMsgCommand(this));
+        getServer().getPluginCommand("replymsg").setTabCompleter(new ReplyMsgTabCompleter());
         getServer().getPluginCommand("acceptsend").setExecutor(new AcceptSendCommand(sql));
         getServer().getPluginCommand("acceptsend").setTabCompleter(new AcceptSendTabCompleter());
     }
