@@ -6,15 +6,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.GeneralUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.Utils;
+import simplemsgplugin.utils.DatabaseDriver;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ChangeVolumeCommand implements CommandExecutor {
-    private SqliteDriver sql;
-    public ChangeVolumeCommand(SqliteDriver sql) {
-        this.sql = sql;
+    private final DatabaseDriver dbDriver;
+
+    public ChangeVolumeCommand(DatabaseDriver dbDriver) {
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -29,34 +32,23 @@ public class ChangeVolumeCommand implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
-        if (!checkDigits(args[0])) {
+        if (!Utils.checkDigits(args[0])) {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumemissing")));
             return true;
         }
 
-        Integer volume = Integer.parseInt(args[0]);
+        int volume = Integer.parseInt(args[0]);
         if (volume < 0 || volume > 100) {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumemissing")));
             return true;
         }
 
-        try {
-            sql.sqlUpdateData("SOUNDS", "Volume = " + volume, "UUID = '" + uuid + "'");
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumesuccess")));
-            GeneralUtils.msgPlaySound(sql, player);
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-        }
-        return true;
-    }
+        Map<String, Object> updateMap = new HashMap<>();
+        updateMap.put("volume", volume);
+        dbDriver.updateData("sounds", updateMap, String.format("uuid = '%s'", uuid));
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumesuccess")));
+        Utils.msgPlaySound(dbDriver, player);
 
-    private boolean checkDigits(String string) {
-        boolean digits = true;
-        for(int i = 0; i < string.length() && digits; i++) {
-            if(!Character.isDigit(string.charAt(i))) {
-                digits = false;
-            }
-        }
-        return digits;
+        return true;
     }
 }

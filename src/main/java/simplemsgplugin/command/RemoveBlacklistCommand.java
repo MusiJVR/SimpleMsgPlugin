@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.List;
 import java.util.Map;
@@ -16,10 +16,11 @@ import java.util.UUID;
 
 public class RemoveBlacklistCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private SqliteDriver sql;
-    public RemoveBlacklistCommand(JavaPlugin plugin, SqliteDriver sql) {
+    private final DatabaseDriver dbDriver;
+
+    public RemoveBlacklistCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
         this.plugin = plugin;
-        this.sql = sql;
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -39,17 +40,14 @@ public class RemoveBlacklistCommand implements CommandExecutor {
             return false;
         }
 
-        try {
-            List<Map<String, Object>> rs = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + unblockPlayer.getName() + "'");
-            if (rs.isEmpty()) {
-                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
-                return true;
-            }
-            sql.sqlDeleteData("BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + unblockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + unblockPlayer.getName() + "'");
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        List<Map<String, Object>> rs = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
+        if (rs.isEmpty()) {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
+            return true;
         }
+        dbDriver.deleteData("blacklist", String.format("uuid = '%s' AND blocked_uuid = '%s' AND blocked_player = '%s'", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName()));
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
+
         return true;
     }
 }

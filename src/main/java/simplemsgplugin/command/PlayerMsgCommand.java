@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.GeneralUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.Utils;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +20,11 @@ import java.util.UUID;
 
 public class PlayerMsgCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private SqliteDriver sql;
-    public PlayerMsgCommand(JavaPlugin plugin, SqliteDriver sql) {
+    private final DatabaseDriver dbDriver;
+
+    public PlayerMsgCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
         this.plugin = plugin;
-        this.sql = sql;
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -40,63 +41,60 @@ public class PlayerMsgCommand implements CommandExecutor {
             message.append(" " + args[i]);
         }
 
-        try {
-            List<Map<String, Object>> rsArgPlayer = sql.sqlSelectData("UUID", "SOUNDS", "PlayerName = '" + playerName + "'");
-            if (rsArgPlayer.isEmpty()) {
-                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
-                return true;
-            }
-            String uuidArgPlayer = (String) rsArgPlayer.get(0).get("UUID");
-
-            Player blockedSender = (Player) sender;
-            if (Objects.equals(blockedSender.getUniqueId().toString(), uuidArgPlayer)) {
-                if (!SimpleMsgPlugin.getInstance().getConfig().getBoolean("sendmsgyourself")) {
-                    sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.notmsgyouself")));
-                    return true;
-                }
-            }
-            List<Map<String, Object>> rsBlockFirst = sql.sqlSelectData("UUID", "BLACKLIST", "BlockedUUID = '" + blockedSender.getUniqueId() + "'");
-            for (Map<String, Object> i : rsBlockFirst) {
-                if (Objects.equals(i.get("UUID"), uuidArgPlayer)) {
-                    sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youinbl")));
-                    return true;
-                }
-            }
-
-            List<Map<String, Object>> rsBlockSecond = sql.sqlSelectData("BlockedUUID", "BLACKLIST", "UUID = '" + blockedSender.getUniqueId() + "'");
-            for (Map<String, Object> i : rsBlockSecond) {
-                if (Objects.equals(i.get("BlockedUUID"), uuidArgPlayer)) {
-                    sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youbl")));
-                    return true;
-                }
-            }
-
-            if (argPlayer == null && sender instanceof Player) {
-                Player player = (Player) sender;
-                UUID uuid = player.getUniqueId();
-                sendOfflineMessage(sender, uuid, playerName, message.toString());
-                return true;
-            }
-
-            String strSenderPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsenderpattern");
-            Component msgSenderPattern = MiniMessage.builder().build().deserialize(strSenderPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
-                    .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
-                    .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + argPlayer.getName() + " "));
-            sender.sendMessage(msgSenderPattern);
-
-            String strRecipientPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgreceiverpattern");
-            Component msgRecipientPattern = MiniMessage.builder().build().deserialize(strRecipientPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
-                    .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
-                    .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender.getName() + " "));
-            argPlayer.sendMessage(msgRecipientPattern);
-
-            GeneralUtils.msgPlaySound(sql, argPlayer);
-
-            SimpleMsgPlugin.getInstance().latestRecipients.put(sender.getName(), argPlayer.getName());
-            SimpleMsgPlugin.getInstance().latestRecipients.put(argPlayer.getName(), sender.getName());
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        List<Map<String, Object>> rsArgPlayer = dbDriver.selectData("uuid", "sounds", "WHERE player_name = ?", playerName);
+        if (rsArgPlayer.isEmpty()) {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
+            return true;
         }
+        String uuidArgPlayer = (String) rsArgPlayer.get(0).get("uuid");
+
+        Player blockedSender = (Player) sender;
+        if (Objects.equals(blockedSender.getUniqueId().toString(), uuidArgPlayer)) {
+            if (!SimpleMsgPlugin.getInstance().getConfig().getBoolean("sendmsgyourself")) {
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.notmsgyouself")));
+                return true;
+            }
+        }
+        List<Map<String, Object>> rsBlockFirst = dbDriver.selectData("uuid", "blacklist", "WHERE blocked_uuid = ?", blockedSender.getUniqueId());
+        for (Map<String, Object> i : rsBlockFirst) {
+            if (Objects.equals(i.get("uuid"), uuidArgPlayer)) {
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youinbl")));
+                return true;
+            }
+        }
+
+        List<Map<String, Object>> rsBlockSecond = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ?", blockedSender.getUniqueId());
+        for (Map<String, Object> i : rsBlockSecond) {
+            if (Objects.equals(i.get("blocked_uuid"), uuidArgPlayer)) {
+                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.youbl")));
+                return true;
+            }
+        }
+
+        if (argPlayer == null && sender instanceof Player) {
+            Player player = (Player) sender;
+            UUID uuid = player.getUniqueId();
+            sendOfflineMessage(sender, uuid, playerName, message.toString());
+            return true;
+        }
+
+        String strSenderPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsenderpattern");
+        Component msgSenderPattern = MiniMessage.builder().build().deserialize(strSenderPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + argPlayer.getName() + " "));
+        sender.sendMessage(msgSenderPattern);
+
+        String strRecipientPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgreceiverpattern");
+        Component msgRecipientPattern = MiniMessage.builder().build().deserialize(strRecipientPattern.replace("%sender%",sender.getName()).replace("%receiver%",argPlayer.getName()).replace("%message%",message))
+                .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
+                .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender.getName() + " "));
+        argPlayer.sendMessage(msgRecipientPattern);
+
+        Utils.msgPlaySound(dbDriver, argPlayer);
+
+        SimpleMsgPlugin.getInstance().latestRecipients.put(sender.getName(), argPlayer.getName());
+        SimpleMsgPlugin.getInstance().latestRecipients.put(argPlayer.getName(), sender.getName());
+
         return true;
     }
 

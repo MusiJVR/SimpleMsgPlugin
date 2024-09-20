@@ -3,7 +3,7 @@ package simplemsgplugin.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,24 +13,26 @@ import java.util.Map;
 
 
 public class PlayerMsgTabCompleter implements TabCompleter {
-    private SqliteDriver sql;
-    public PlayerMsgTabCompleter(SqliteDriver sql) {
-        this.sql = sql;
+    private final DatabaseDriver dbDriver;
+
+    public PlayerMsgTabCompleter(DatabaseDriver dbDriver) {
+        this.dbDriver = dbDriver;
     }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
             try {
                 String inputPlayer = args[0].toLowerCase();
-                List<Map<String, Object>> rsPlayerNames = sql.sqlSelectData("PlayerName", "SOUNDS");
+                List<Map<String, Object>> rsPlayerNames = dbDriver.selectData("player_name", "sounds", null);
 
                 List<String> allPlayerName = null;
                 for (Map<String, Object> player : rsPlayerNames) {
-                    if (player.get("PlayerName").toString().toLowerCase().startsWith(inputPlayer)) {
+                    if (player.get("player_name").toString().toLowerCase().startsWith(inputPlayer)) {
                         if (allPlayerName == null) {
                             allPlayerName = new ArrayList<>();
                         }
-                        allPlayerName.add(player.get("PlayerName").toString());
+                        allPlayerName.add(player.get("player_name").toString());
                     }
                 }
 

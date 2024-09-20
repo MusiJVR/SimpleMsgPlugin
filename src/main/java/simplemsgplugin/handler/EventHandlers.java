@@ -9,8 +9,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.GeneralUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.Utils;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +18,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EventHandlers implements Listener {
-    private SqliteDriver sql;
-    public EventHandlers(SqliteDriver sql) {
-        this.sql = sql;
+    private final DatabaseDriver dbDriver;
+
+    public EventHandlers(DatabaseDriver dbDriver) {
+        this.dbDriver = dbDriver;
     }
 
     @EventHandler
@@ -30,36 +31,32 @@ public class EventHandlers implements Listener {
         String sound = SimpleMsgPlugin.getInstance().getConfig().getString("msgsound");
         Integer volume = setDefaultValue(50, "volumesound", 0, 100);
 
-        try {
-            List<Map<String, Object>> rsRegister = sql.sqlSelectData("UUID", "SOUNDS", "UUID = '" + uuid + "'");
-            if (rsRegister.isEmpty()) {
-                Map<String, Object> insertMap = new HashMap<>();
-                insertMap.put("UUID", uuid);
-                insertMap.put("PlayerName", playerJoin.getPlayer().getName());
-                insertMap.put("Sound", sound);
-                insertMap.put("Volume", volume);
-                sql.sqlInsertData("SOUNDS", insertMap);
+        List<Map<String, Object>> rsRegister = dbDriver.selectData("uuid", "sounds", "WHERE uuid = ?", uuid);
+        if (rsRegister.isEmpty()) {
+            Map<String, Object> insertMap = new HashMap<>();
+            insertMap.put("uuid", uuid);
+            insertMap.put("player_name", playerJoin.getPlayer().getName());
+            insertMap.put("sound", sound);
+            insertMap.put("volume", volume);
+            dbDriver.insertData("sounds", insertMap);
+        }
+
+        List<Map<String, Object>> rsOfflineMessage = dbDriver.selectData("sender, message", "offline_msg", "WHERE receiver = ?", player.getName());
+        if (!rsOfflineMessage.isEmpty()) {
+            player.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.haveunreadmsg")));
+            String msgOfflienPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgofflinepattern");
+            for (Map<String, Object> i : rsOfflineMessage) {
+                String sender = (String) i.get("sender");
+                String messages = (String) i.get("message");
+                Component msgSenderPattern = MiniMessage.builder().build().deserialize(msgOfflienPattern.replace("%sender%", sender).replace("%receiver%", player.getName()).replace("%message%", messages))
+                        .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
+                        .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender + " "));
+                player.sendMessage(msgSenderPattern);
             }
 
-            List<Map<String, Object>> rsOfflineMessage = sql.sqlSelectData("Sender, Message", "OFFLINE_MSG", "Receiver = '" + player.getName() + "'");
-            if (!rsOfflineMessage.isEmpty()) {
-                player.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.haveunreadmsg")));
-                String msgOfflienPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgofflinepattern");
-                for (Map<String, Object> i : rsOfflineMessage) {
-                    String sender = (String) i.get("Sender");
-                    String messages = (String) i.get("Message");
-                    Component msgSenderPattern = MiniMessage.builder().build().deserialize(msgOfflienPattern.replace("%sender%", sender).replace("%receiver%", player.getName()).replace("%message%", messages))
-                            .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
-                            .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender + " "));
-                    player.sendMessage(msgSenderPattern);
-                }
+            Utils.msgPlaySound(dbDriver, player);
 
-                GeneralUtils.msgPlaySound(sql, player);
-
-                sql.sqlDeleteData("OFFLINE_MSG", "Receiver = '" + player.getName() + "'");
-            }
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            dbDriver.deleteData("offline_msg", String.format("receiver = '%s'", player.getName()));
         }
     }
 

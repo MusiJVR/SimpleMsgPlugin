@@ -6,17 +6,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.GeneralUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.Utils;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class AcceptSendCommand implements CommandExecutor {
-    private SqliteDriver sql;
-    public AcceptSendCommand(SqliteDriver sql) {
-        this.sql = sql;
+    private final DatabaseDriver dbDriver;
+
+    public AcceptSendCommand(DatabaseDriver dbDriver) {
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -29,26 +30,24 @@ public class AcceptSendCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
-        try {
-            if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
-                String playerReceiver = SimpleMsgPlugin.getInstance().offlineReceiver.get(uuid);
-                String msgOffline = SimpleMsgPlugin.getInstance().offlineMessages.get(uuid);
 
-                Map<String, Object> insertMap = new HashMap<>();
-                insertMap.put("Sender", player.getName());
-                insertMap.put("Receiver", playerReceiver);
-                insertMap.put("Message", msgOffline);
-                sql.sqlInsertData("OFFLINE_MSG", insertMap);
+        if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
+            String playerReceiver = SimpleMsgPlugin.getInstance().offlineReceiver.get(uuid);
+            String msgOffline = SimpleMsgPlugin.getInstance().offlineMessages.get(uuid);
 
-                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendofflinesuccessfully")));
-                GeneralUtils.msgPlaySound(sql, player);
+            Map<String, Object> insertMap = new HashMap<>();
+            insertMap.put("sender", player.getName());
+            insertMap.put("receiver", playerReceiver);
+            insertMap.put("message", msgOffline);
+            dbDriver.insertData("offline_msg", insertMap);
 
-                SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
-                SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);
-            }
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendofflinesuccessfully")));
+            Utils.msgPlaySound(dbDriver, player);
+
+            SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
+            SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);
         }
+
         return true;
     }
 }

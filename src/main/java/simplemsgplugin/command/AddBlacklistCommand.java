@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +17,11 @@ import java.util.UUID;
 
 public class AddBlacklistCommand implements CommandExecutor {
     private final JavaPlugin plugin;
-    private SqliteDriver sql;
-    public AddBlacklistCommand(JavaPlugin plugin, SqliteDriver sql) {
+    private final DatabaseDriver dbDriver;
+    
+    public AddBlacklistCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
         this.plugin = plugin;
-        this.sql = sql;
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -44,21 +45,18 @@ public class AddBlacklistCommand implements CommandExecutor {
             return true;
         }
 
-        try {
-            List<Map<String, Object>> rs = sql.sqlSelectData("UUID", "BLACKLIST", "UUID = '" + uuid + "' AND BlockedUUID = '" + blockPlayer.getUniqueId() + "' AND BlockedPlayer = '" + blockPlayer.getName() + "'");
-            if (!rs.isEmpty()) {
-                sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blalreadyblock")));
-                return true;
-            }
-            Map<String, Object> insertMap = new HashMap<>();
-            insertMap.put("UUID", uuid);
-            insertMap.put("BlockedUUID", blockPlayer.getUniqueId());
-            insertMap.put("BlockedPlayer", blockPlayer.getName());
-            sql.sqlInsertData("BLACKLIST", insertMap);
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessblock")));
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        List<Map<String, Object>> rs = dbDriver.selectData("uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, blockPlayer.getUniqueId(), blockPlayer.getName());
+        if (!rs.isEmpty()) {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blalreadyblock")));
+            return true;
         }
+        Map<String, Object> insertMap = new HashMap<>();
+        insertMap.put("uuid", uuid);
+        insertMap.put("blocked_uuid", blockPlayer.getUniqueId());
+        insertMap.put("blocked_player", blockPlayer.getName());
+        dbDriver.insertData("blacklist", insertMap);
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessblock")));
+
         return true;
     }
 }

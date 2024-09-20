@@ -9,6 +9,7 @@ import simplemsgplugin.utils.ColorUtils;
 
 public class ReplyMsgCommand implements CommandExecutor {
     private final JavaPlugin plugin;
+
     public ReplyMsgCommand(JavaPlugin plugin) {
         this.plugin = plugin;
     }

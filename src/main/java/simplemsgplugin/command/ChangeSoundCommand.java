@@ -7,16 +7,19 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
-import simplemsgplugin.utils.GeneralUtils;
-import simplemsgplugin.utils.SqliteDriver;
+import simplemsgplugin.utils.Utils;
+import simplemsgplugin.utils.DatabaseDriver;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class ChangeSoundCommand implements CommandExecutor {
-    private SqliteDriver sql;
-    public ChangeSoundCommand(SqliteDriver sql) {
-        this.sql = sql;
+    private final DatabaseDriver dbDriver;
+
+    public ChangeSoundCommand(DatabaseDriver dbDriver) {
+        this.dbDriver = dbDriver;
     }
 
     @Override
@@ -38,18 +41,18 @@ public class ChangeSoundCommand implements CommandExecutor {
                 valExist = true;
             }
         }
+
         if (!valExist) {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
             return valExist;
         }
 
-        try {
-            sql.sqlUpdateData("SOUNDS", "Sound = '" + soundName + "'", "UUID = '" + uuid + "'");
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
-            GeneralUtils.msgPlaySound(sql, player);
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-        }
+        Map<String, Object> updateMap = new HashMap<>();
+        updateMap.put("sound", soundName);
+        dbDriver.updateData("sounds", updateMap, String.format("uuid = '%s'", uuid));
+        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
+        Utils.msgPlaySound(dbDriver, player);
+
         return true;
     }
 }
