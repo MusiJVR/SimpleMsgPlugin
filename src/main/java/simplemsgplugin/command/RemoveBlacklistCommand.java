@@ -45,7 +45,7 @@ public class RemoveBlacklistCommand implements CommandExecutor {
             sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
             return true;
         }
-        dbDriver.deleteData("blacklist", String.format("uuid = '%s' AND blocked_uuid = '%s' AND blocked_player = '%s'", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName()));
+        dbDriver.deleteData("blacklist", "uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
         sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
 
         return true;

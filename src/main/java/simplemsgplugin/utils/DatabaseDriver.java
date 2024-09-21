@@ -79,8 +79,8 @@ public class DatabaseDriver {
         query.append(columns).append(") VALUES (").append(placeholders).append(");");
 
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
-            int i = 1;
-            for (Object value : parameters.values()) statement.setObject(i++, value);
+            int index = 1;
+            for (Object value : parameters.values()) statement.setObject(index++, value);
             statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -88,11 +88,10 @@ public class DatabaseDriver {
         }
     }
 
-    public void updateData(String table, Map<String, Object> parameters, String condition) {
+    public void updateData(String table, Map<String, Object> parameters, String condition, Object... conditionParameters) {
         if (parameters == null || parameters.isEmpty()) throw new IllegalArgumentException("Parameters cannot be null or empty.");
 
-        StringBuilder query = new StringBuilder();
-        query.append(String.format("UPDATE %s SET ", table));
+        StringBuilder query = new StringBuilder(String.format("UPDATE %s SET ", table));
 
         StringJoiner columns = new StringJoiner(", ");
         for (String column : parameters.keySet()) {
@@ -106,6 +105,7 @@ public class DatabaseDriver {
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
             int index = 1;
             for (Object value : parameters.values()) statement.setObject(index++, value);
+            for (Object conditionValue : conditionParameters) statement.setObject(index++, conditionValue);
             statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -113,12 +113,13 @@ public class DatabaseDriver {
         }
     }
 
-    public void deleteData(String table, String condition) {
+    public void deleteData(String table, String condition, Object... parameters) {
         if (condition == null || condition.trim().isEmpty()) throw new IllegalArgumentException("Condition cannot be null or empty.");
 
-        String query = String.format("DELETE FROM %s WHERE %s;", table, condition);
+        StringBuilder query = new StringBuilder(String.format("DELETE FROM %s WHERE %s;", table, condition));
 
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
             statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());

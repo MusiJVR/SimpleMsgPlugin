@@ -49,7 +49,7 @@ public class ChangeSoundCommand implements CommandExecutor {
 
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("sound", soundName);
-        dbDriver.updateData("sounds", updateMap, String.format("uuid = '%s'", uuid));
+        dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
         sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
         Utils.msgPlaySound(dbDriver, player);
 

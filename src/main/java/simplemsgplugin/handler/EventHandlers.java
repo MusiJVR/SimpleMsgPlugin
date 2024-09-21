@@ -56,7 +56,7 @@ public class EventHandlers implements Listener {
 
             Utils.msgPlaySound(dbDriver, player);
 
-            dbDriver.deleteData("offline_msg", String.format("receiver = '%s'", player.getName()));
+            dbDriver.deleteData("offline_msg", "receiver = ?", player.getName());
         }
     }
 

@@ -45,7 +45,7 @@ public class ChangeVolumeCommand implements CommandExecutor {
 
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("volume", volume);
-        dbDriver.updateData("sounds", updateMap, String.format("uuid = '%s'", uuid));
+        dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
         sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumesuccess")));
         Utils.msgPlaySound(dbDriver, player);
 

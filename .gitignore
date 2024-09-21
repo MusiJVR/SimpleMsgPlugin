@@ -2,10 +2,6 @@
 
 .idea/
 
-src/main/resources/LICENSE.md
-
-src/main/resources/README.md
-
 target/
 
 SimpleMsgPlugin.iml
