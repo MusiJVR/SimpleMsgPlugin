@@ -16,6 +16,8 @@ volumesound: 50
 # By default, the volume of notification sounds is set to '50', but it can be changed
 # The volume value must be specified in the range from '0' to '100'
 
+privatechat_start_char: '?'
+
 messages:
   error: '&#ff5555Error'
 
@@ -56,6 +58,49 @@ messages:
   playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55'
 
   haveunreadmsg: "&#55ffffYou have unread messages:"
+
+  privatechat:
+    message_template: '<b><color:#55ffff>[</color></b><color:#ffff55>%group%</color><b><color:#55ffff>]</color></b> <color:#ffff55>%player%</color><b><color:#55ffff>:</color></b> %message%'
+    you_not_owner: '&#ffff55You are not the owner of the private chat'
+    you_not_in_private_chat: '&#ffff55You are not in a private chat'
+    you_already_in_private_chat: '&#ffff55You are already in a private chat'
+    you_can_not_invite_yourself: '&#ffff55You can not invite yourself.'
+    you_can_not_kick_yourself: '&#ffff55You can not kick yourself out'
+    create_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>was successfully created</color>'
+    chat_info: 'Show chat information'
+    delete_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>was deleted</color>'
+    info:
+      template: '<b><color:#55ffff>⏴-----</color><color:#ffff55>%group%</color><color:#55ffff>-----⏵</color></b>
+                <br><color:#aaaaaa>Members:</color> %count_members% <color:#aaaaaa>owned by</color> %owner%
+                <br><color:#ff5555>%leave_text%</color>   <color:#55ff55>%invite_text%</color>
+                <br><b><color:#55ffff>⏴---------------⏵</color></b>'
+      leave_text: '← Leave'
+      leave_hover_text: 'Leave private chat'
+      invite_text: '✉ Invite'
+      invite_hover_text: 'Invite a player'
+    leave_successfully: '<color:#55ffff>You have successfully left the</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>group</color>'
+    leave_notification: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>left the private chat</color>'
+    kick_successfully: '<color:#55ffff>You have successfully kicked out</color> <b><color:#ffff55>%player%</color></b>'
+    kick_notification: '<color:#55ffff>You have been kicked from</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>private chat</color>'
+    kick_failed: '<color:#55ffff>Failed to kick out</color> <b><color:#ffff55>%player%</color></b>'
+    invite_successfully: '<color:#55ffff>Invitation to</color> <b><color:#ffff55>%player%</color></b> <color:#55ffff>successfully sent</color>'
+    invite:
+      template: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>invited you to a private chat</color> <b><color:#ffff55>%group%</color></b>
+                <br><color:#55ff55>%accept_text%</color>'
+      accept_text: '→ Join to private chat'
+      accept_hover_text: 'Accept invitation'
+    join_successfully: '<color:#55ffff>You have successfully joined the</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>private chat</color>'
+    join_notification: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>joined the private chat</color>'
+    join_failed: '<color:#55ffff>Failed to join private chat</color>'
+    usage:
+      default: '<color:#ffff55>Usage: /privatechat <action> <arg>(if required)</color>'
+      create: '<color:#ffff55>Usage: /privatechat create <group name></color>'
+      delete: '<color:#ffff55>Usage: /privatechat delete</color>'
+      info: '<color:#ffff55>Usage: /privatechat info</color>'
+      leave: '<color:#ffff55>Usage: /privatechat leave</color>'
+      kick: '<color:#ffff55>Usage: /privatechat kick <player></color>'
+      invite: '<color:#ffff55>Usage: /privatechat invite <player></color>'
+      join: '<color:#ffff55>Usage: /privatechat join <group ID></color>'
 
   # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
   # You can also change the color using standard Minecraft colors by specifying '§' at the beginning

@@ -75,6 +75,13 @@ commands:
     usage: /<command>
     aliases:
       - showbl
+  privatechat:
+    description: This command allows you to interact with private chats
+    permission: simplemsgplugin.privatechat
+    usage: /<command> <action> <arg>(if required)
+    aliases:
+      - pvch
+      - pc
 permissions:
   simplemsgplugin.msghelp:
     description: Permission to use command msghelp
@@ -105,4 +112,7 @@ permissions:
     default: true
   simplemsgplugin.showblacklist:
     description: Permission to use command showbl
+    default: true
+  simplemsgplugin.privatechat:
+    description: Permission to use command privatechat
     default: true

@@ -4,6 +4,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.command.*;
 import simplemsgplugin.handler.EventHandlers;
+import simplemsgplugin.handler.PrivateChatHandler;
 import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
 
         getServer().getLogger().info("[SimpleMsg] SimpleMsgPlugin is enabled");
         getServer().getPluginManager().registerEvents(new EventHandlers(dbDriver), this);
+        getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
         getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
         getServer().getPluginCommand("msghelp").setTabCompleter(new MSGHelpTabCompleter());
         getServer().getPluginCommand("msgreloadconfig").setExecutor(new MSGReloadConfigCommand(this));
@@ -51,6 +53,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("replymsg").setTabCompleter(new ReplyMsgTabCompleter());
         getServer().getPluginCommand("acceptsend").setExecutor(new AcceptSendCommand(dbDriver));
         getServer().getPluginCommand("acceptsend").setTabCompleter(new AcceptSendTabCompleter());
+        getServer().getPluginCommand("privatechat").setExecutor(new PrivateChatCommand());
+        getServer().getPluginCommand("privatechat").setTabCompleter(new PrivateChatTabCompleter());
     }
 
     @Override
