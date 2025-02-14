@@ -76,4 +76,3 @@ Please leave messages about any errors you find [here](https://github.com/MusiJV
 - Page on [Modrinth](https://modrinth.com/plugin/simplemsgplugin)
 - Page on [GitHub](https://github.com/MusiJVR/SimpleMsgPlugin)
 - Page on [Discord](https://discord.gg/xY8WJt7VGr)
-- 
