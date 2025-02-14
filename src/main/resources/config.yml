@@ -1,4 +1,4 @@
-# Plugin version 1.6.1
+# Plugin version 1.7.0
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
@@ -17,6 +17,7 @@ volumesound: 50
 # The volume value must be specified in the range from '0' to '100'
 
 privatechat_start_char: '?'
+# Start character for sending messages to private chat
 
 messages:
   error: '&#ff5555Error'
@@ -107,6 +108,9 @@ messages:
   # The '§r' icon is used to reset the color and the '§l' icon is used to make the font bold
   # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
   # Variables are indicated between '%' signs (I don't recommend changing them)
+
+  # Also, many messages use the MiniMessage format
+  # Here you can create a message template - https://webui.advntr.dev/
 
 helpmessages:
   consolehelplist: '[SimpleMsg] ⏴-------SimpleMsgPlugin-------⏵
