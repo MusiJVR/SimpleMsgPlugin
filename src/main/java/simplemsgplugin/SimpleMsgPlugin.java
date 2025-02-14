@@ -21,7 +21,6 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-
         instance = this;
         saveDefaultConfig();
 
@@ -30,7 +29,6 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         dbDriver.createTable("offline_msg", "sender TEXT", "receiver TEXT", "message TEXT");
         dbDriver.createTable("blacklist", "uuid TEXT", "blocked_uuid TEXT", "blocked_player TEXT");
 
-        getServer().getLogger().info("[SimpleMsg] SimpleMsgPlugin is enabled");
         getServer().getPluginManager().registerEvents(new EventHandlers(dbDriver), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
         getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
@@ -59,7 +57,6 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        getServer().getLogger().info("[SimpleMsg] SimpleMsgPlugin is disabled");
         dbDriver.closeConnection();
     }
 

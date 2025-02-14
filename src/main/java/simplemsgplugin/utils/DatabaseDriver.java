@@ -1,5 +1,7 @@
 package simplemsgplugin.utils;
 
+import simplemsgplugin.SimpleMsgPlugin;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.logging.Level;
 
 public class DatabaseDriver {
     private Connection connection;
@@ -19,7 +22,7 @@ public class DatabaseDriver {
         try {
             connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error connecting to database", e);
         }
     }
 
@@ -27,7 +30,7 @@ public class DatabaseDriver {
         try {
             if (connection != null && !connection.isClosed()) connection.close();
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error closing database connection", e);
         }
     }
 
@@ -42,7 +45,7 @@ public class DatabaseDriver {
         try (PreparedStatement statement = connection.prepareStatement(query.append(");").toString())) {
             statement.execute();
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error creating table in database", e);
         }
     }
 
@@ -58,8 +61,7 @@ public class DatabaseDriver {
                 return convertResultSetToList(resultSet);
             }
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error executing SQL query", e);
             return new ArrayList<>();
         }
     }
@@ -83,8 +85,7 @@ public class DatabaseDriver {
             for (Object value : parameters.values()) statement.setObject(index++, value);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error executing SQL query", e);
         }
     }
 
@@ -108,8 +109,7 @@ public class DatabaseDriver {
             for (Object conditionValue : conditionParameters) statement.setObject(index++, conditionValue);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error executing SQL query", e);
         }
     }
 
@@ -122,8 +122,7 @@ public class DatabaseDriver {
             for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
             statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error executing SQL query", e);
         }
     }
 
@@ -139,7 +138,7 @@ public class DatabaseDriver {
                 result.add(map);
             }
         } catch (SQLException e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error converting SQL query", e);
         }
 
         return result;
