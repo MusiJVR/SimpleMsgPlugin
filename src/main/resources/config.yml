@@ -193,6 +193,14 @@ helpmessages:
                     
                     [SimpleMsg] Usage: /<command>
                     
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: privatechat
+                    
+                    [SimpleMsg] Description: This command allows you to interact with private chats
+                    
+                    [SimpleMsg] Usage: /<command> <action> <arg>(if required)
+                    
                     [SimpleMsg] ⏴----------------------------⏵'
   playerhelplist: '§b§l⏴-------§r§e§lSimpleMsgPlugin§r§b§l-------⏵§r
   
@@ -264,5 +272,12 @@ helpmessages:
                     §bDescription:§r §eThis command allows you to display your blacklist§r
                     
                     §bUsage:§r §e/<command>§r
+                    
+                    
+                    §bCommand:§r §eprivatechatl§r
+                    
+                    §bDescription:§r §eThis command allows you to interact with private chats§r
+                    
+                    §bUsage:§r §e/<command> <action> <arg>(if required)§r
                     
                     §b§l⏴----------------------------⏵§r'
