@@ -6,7 +6,7 @@
 
     <groupId>simplemsgplugin</groupId>
     <artifactId>SimpleMsgPlugin</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
     <packaging>jar</packaging>
 
     <name>SimpleMsgPlugin</name>
