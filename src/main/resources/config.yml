@@ -92,7 +92,7 @@ messages:
       accept_hover_text: 'Accept invitation'
     join_successfully: '<color:#55ffff>You have successfully joined the</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>private chat</color>'
     join_notification: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>joined the private chat</color>'
-    join_failed: '<color:#55ffff>Failed to join private chat</color>'
+    join_failed: '<color:#ffff55>Failed to join private chat</color>'
     usage:
       default: '<color:#ffff55>Usage: /privatechat <action> <arg>(if required)</color>'
       create: '<color:#ffff55>Usage: /privatechat create <group name></color>'

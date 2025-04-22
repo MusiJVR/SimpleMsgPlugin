@@ -19,9 +19,9 @@ public class PrivateChatTabCompleter implements TabCompleter {
         if (args.length == 1) {
             if (group != null) {
                 if (group.getOwner().getId().equals(playerSender.getUniqueId())) {
-                    return Arrays.asList("create", "delete", "invite", "join", "leave", "kick", "info");
+                    return Arrays.asList("delete", "invite", "leave", "kick", "info");
                 }
-                return Arrays.asList("create", "join", "leave", "info");
+                return Arrays.asList("leave", "info");
             }
             return Arrays.asList("create", "join");
         } else if (args.length == 2) {

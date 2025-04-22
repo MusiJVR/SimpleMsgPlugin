@@ -73,16 +73,23 @@ public class PrivateChatCommand implements CommandExecutor {
                     .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/privatechat create ")));
             return;
         }
-        String groupName = args[1];
 
-        simplemsgplugin.chatgroups.Player player = new simplemsgplugin.chatgroups.Player(sender);
-        Group group = GroupManager.createGroup(groupName, player);
-        group.addPlayer(player);
+        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
 
-        sender.sendMessage(MiniMessage.builder().build()
-                .deserialize(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.create_successfully").replace("%group%", groupName))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.chat_info"))))
-                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/privatechat info")));
+        if (group == null) {
+            String groupName = args[1];
+
+            simplemsgplugin.chatgroups.Player player = new simplemsgplugin.chatgroups.Player(sender);
+            group = GroupManager.createGroup(groupName, player);
+            group.addPlayer(player);
+
+            sender.sendMessage(MiniMessage.builder().build()
+                    .deserialize(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.create_successfully").replace("%group%", groupName))
+                    .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.chat_info"))))
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/privatechat info")));
+        } else {
+            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.you_already_in_private_chat")));
+        }
     }
 
     private void handleDelete(Player sender, String[] args) {
