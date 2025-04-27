@@ -28,8 +28,37 @@ public class EventHandlers implements Listener {
     public void PlayerJoinEvent(PlayerJoinEvent playerJoin) {
         Player player = playerJoin.getPlayer();
         UUID uuid = player.getUniqueId();
+        String playerName = player.getName();
+
+        List<Map<String, Object>> rsOldPlayerName = dbDriver.selectData("player_name", "sounds", "WHERE uuid = ?", uuid);
+        if (!rsOldPlayerName.isEmpty()) {
+            String oldPlayerName = (String) rsOldPlayerName.get(0).get("player_name");
+            if (!playerName.equals(oldPlayerName)) {
+                Map<String, String> updates = Map.of(
+                        "sounds", "player_name",
+                        "offline_msg_sender", "sender",
+                        "offline_msg_receiver", "receiver",
+                        "blacklist", "blocked_player"
+                );
+
+                updates.forEach((tableKey, column) -> {
+                    String table = tableKey.contains("sender") || tableKey.contains("receiver") ? "offline_msg" : tableKey;
+                    String whereColumn = tableKey.contains("sender") ? "sender" :
+                            tableKey.contains("receiver") ? "receiver" :
+                                    tableKey.equals("blacklist") ? "blocked_uuid" : "uuid";
+
+                    dbDriver.updateData(
+                            table,
+                            Map.of(column, playerName),
+                            whereColumn + " = ?",
+                            (tableKey.equals("sounds") || tableKey.equals("blacklist")) ? uuid : oldPlayerName
+                    );
+                });
+            }
+        }
+
         String sound = SimpleMsgPlugin.getInstance().getConfig().getString("msgsound");
-        Integer volume = setDefaultValue(50, "volumesound", 0, 100);
+        int volume = setDefaultValue(50, "volumesound", 0, 100);
 
         List<Map<String, Object>> rsRegister = dbDriver.selectData("uuid", "sounds", "WHERE uuid = ?", uuid);
         if (rsRegister.isEmpty()) {
@@ -68,10 +97,10 @@ public class EventHandlers implements Listener {
         }
     }
 
-    private int setDefaultValue(Integer value, String pathConfig, Integer minValue, Integer maxValue) {
+    private int setDefaultValue(int value, String pathConfig, int minValue, int maxValue) {
         String valueDefaultConfig = SimpleMsgPlugin.getInstance().getConfig().getString(pathConfig);
-        if (checkDigits(valueDefaultConfig)) {
-            Integer valueDefault = new Integer(valueDefaultConfig);
+        if (Utils.checkDigits(valueDefaultConfig)) {
+            int valueDefault = Integer.parseInt(valueDefaultConfig);
 
             if (valueDefault >= minValue && valueDefault <= maxValue) {
                 value = valueDefault;
@@ -79,15 +108,5 @@ public class EventHandlers implements Listener {
         }
 
         return value;
-    }
-
-    private boolean checkDigits(String string) {
-        boolean digits = true;
-        for(int i = 0; i < string.length() && digits; i++) {
-            if(!Character.isDigit(string.charAt(i))) {
-                digits = false;
-            }
-        }
-        return digits;
     }
 }
