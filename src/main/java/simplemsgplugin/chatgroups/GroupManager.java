@@ -1,7 +1,5 @@
 package simplemsgplugin.chatgroups;
 
-import simplemsgplugin.SimpleMsgPlugin;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +20,7 @@ public class GroupManager {
                 .orElse(null);
 
         if (removedGroup != null) {
-            removedGroup.sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.delete_successfully"), null, null);
+            removedGroup.sendMessage("messages.privatechat.delete_successfully", null, null);
             return groups.remove(removedGroup);
         }
         return false;

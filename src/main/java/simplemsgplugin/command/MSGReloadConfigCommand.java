@@ -4,8 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 
 public class MSGReloadConfigCommand implements CommandExecutor {
     private final JavaPlugin plugin;
@@ -16,11 +15,11 @@ public class MSGReloadConfigCommand implements CommandExecutor {
     @Override
     public boolean onCommand( CommandSender sender, Command command, String label, String[] args) {
         if (args.length != 0) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.error")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.error");
             return false;
         }
         plugin.reloadConfig();
-        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.configreloadsuccessfully")));
+        MessageUtils.sendColoredIfPresent(sender, "messages.configreloadsuccessfully");
         return true;
     }
 }

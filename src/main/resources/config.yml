@@ -1,4 +1,4 @@
-# Plugin version 1.7.2
+# Plugin version 1.7.3
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
@@ -32,7 +32,7 @@ messages:
   nolastrecipient: '&#ffff55You do not have the latest recipient'
 
   clickmsgsendoffline: 'Click to send offline message'
-  msgsendofflinesuccessfully: "&#55ff55You have successfully sent an offline message"
+  msgsendofflinesuccessfully: '&#55ff55You have successfully sent an offline message'
 
   acceptsend: '<color:#ffff55>Accept</color> <b><color:#55ffff>[✔]</color></b>'
   msgsenderpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
@@ -56,16 +56,16 @@ messages:
   youbl: '&#ffff55You have blocked this player'
 
   emptybl: '&#ffff55Your blacklist is empty'
-  playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55'
+  playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55%blacklist%'
 
-  haveunreadmsg: "&#55ffffYou have unread messages:"
+  haveunreadmsg: '&#55ffffYou have unread messages:'
 
   privatechat:
     message_template: '<b><color:#55ffff>[</color></b><color:#ffff55>%group%</color><b><color:#55ffff>]</color></b> <color:#ffff55>%player%</color><b><color:#55ffff>:</color></b> %message%'
     you_not_owner: '&#ffff55You are not the owner of the private chat'
     you_not_in_private_chat: '&#ffff55You are not in a private chat'
     you_already_in_private_chat: '&#ffff55You are already in a private chat'
-    you_can_not_invite_yourself: '&#ffff55You can not invite yourself.'
+    you_can_not_invite_yourself: '&#ffff55You can not invite yourself'
     you_can_not_kick_yourself: '&#ffff55You can not kick yourself out'
     create_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>was successfully created</color>'
     chat_info: 'Show chat information'

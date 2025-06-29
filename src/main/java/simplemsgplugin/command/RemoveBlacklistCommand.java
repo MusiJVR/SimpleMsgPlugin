@@ -5,9 +5,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
 import simplemsgplugin.utils.DatabaseDriver;
+import simplemsgplugin.utils.MessageUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class RemoveBlacklistCommand implements CommandExecutor {
         if(!(sender instanceof Player)) return true;
 
         if (args.length != 1) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
             return false;
         }
         Player player = (Player) sender;
@@ -36,17 +35,17 @@ public class RemoveBlacklistCommand implements CommandExecutor {
         String unblockPlayerInput = args[0];
         Player unblockPlayer = plugin.getServer().getPlayer(unblockPlayerInput);
         if (unblockPlayer == null || !Objects.equals(unblockPlayer.getName(), unblockPlayerInput)) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blmissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
             return false;
         }
 
         List<Map<String, Object>> rs = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
         if (rs.isEmpty()) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blnotblock")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.blnotblock");
             return true;
         }
         dbDriver.deleteData("blacklist", "uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
-        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.blsuccessunblock")));
+        MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessunblock");
 
         return true;
     }

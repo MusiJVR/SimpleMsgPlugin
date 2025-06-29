@@ -4,9 +4,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
 import simplemsgplugin.utils.DatabaseDriver;
+import simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ public class ShowBlacklistCommand implements CommandExecutor {
         if (args.length >= 1) {
             return false;
         }
+
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
@@ -35,11 +35,14 @@ public class ShowBlacklistCommand implements CommandExecutor {
         for (Map<String, Object> i : rs) {
             blockedPlayers.add(i.get("blocked_player").toString());
         }
+
         if (blockedPlayers.isEmpty()) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.emptybl")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.emptybl");
             return true;
         }
-        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.playersbl") + blockedPlayers));
+
+        MessageUtils.sendColoredTransformed(sender, "messages.playersbl",
+                raw -> raw.replace("%blacklist%", String.join(", ", blockedPlayers)));
 
         return true;
     }

@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
 
@@ -41,7 +41,7 @@ public class AcceptSendCommand implements CommandExecutor {
             insertMap.put("message", msgOffline);
             dbDriver.insertData("offline_msg", insertMap);
 
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgsendofflinesuccessfully")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.msgsendofflinesuccessfully");
             Utils.msgPlaySound(dbDriver, player);
 
             SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);

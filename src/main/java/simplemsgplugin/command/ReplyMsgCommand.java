@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 
 public class ReplyMsgCommand implements CommandExecutor {
     private final JavaPlugin plugin;
@@ -21,7 +21,7 @@ public class ReplyMsgCommand implements CommandExecutor {
         }
 
         if (!SimpleMsgPlugin.getInstance().latestRecipients.containsKey(sender.getName()) || SimpleMsgPlugin.getInstance().latestRecipients.get(sender.getName()) == null) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.nolastrecipient")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.nolastrecipient");
             return true;
         }
 

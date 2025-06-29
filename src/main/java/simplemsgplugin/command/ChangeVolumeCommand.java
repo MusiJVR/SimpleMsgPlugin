@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
 import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
 
@@ -25,7 +26,7 @@ public class ChangeVolumeCommand implements CommandExecutor {
         if(!(sender instanceof Player)) return true;
 
         if (args.length != 1) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumemissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.volumemissing");
             return false;
         }
 
@@ -33,20 +34,20 @@ public class ChangeVolumeCommand implements CommandExecutor {
         UUID uuid = player.getUniqueId();
 
         if (!Utils.checkDigits(args[0])) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumemissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.volumemissing");
             return true;
         }
 
         int volume = Integer.parseInt(args[0]);
         if (volume < 0 || volume > 100) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumemissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.volumemissing");
             return true;
         }
 
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("volume", volume);
         dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
-        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.volumesuccess")));
+        MessageUtils.sendColoredIfPresent(sender, "messages.volumesuccess");
         Utils.msgPlaySound(dbDriver, player);
 
         return true;

@@ -15,11 +15,11 @@ public class ChangeSoundTabCompleter implements TabCompleter {
         if (args.length == 1) {
             String inputSound = args[0].toUpperCase();
             ArrayList<String> soundCollection = new ArrayList<>();
-            for (Object valSound:Sound.values()) {
+            for (Object valSound : Sound.values()) {
                 soundCollection.add(valSound.toString());
             }
             List<String> soundNames = null;
-            for (String sound:soundCollection) {
+            for (String sound : soundCollection) {
                 if (sound.startsWith(inputSound)) {
                     if (soundNames == null) {
                         soundNames = new ArrayList<>();

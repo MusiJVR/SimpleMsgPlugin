@@ -1,8 +1,8 @@
 package simplemsgplugin.chatgroups;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.scheduler.BukkitRunnable;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class Group {
     }
 
     public void addPlayer(Player player) {
-        sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.join_notification"), player.getName(), null);
+        sendMessage("messages.privatechat.join_notification", player.getName(), null);
         players.add(player);
     }
 
@@ -73,23 +73,24 @@ public class Group {
                     owner = players.get(0);
                 }
             }
-            sendMessage(SimpleMsgPlugin.getInstance().getConfig().getString("messages.privatechat.leave_notification"), removedPlayerName.get(), null);
+            sendMessage("messages.privatechat.leave_notification", removedPlayerName.get(), null);
         }
         return val;
     }
 
-    public void sendMessage(String template, String playerName, String message) {
+    public void sendMessage(String templatePath, String playerName, String message) {
         new BukkitRunnable() {
             @Override
             public void run() {
                 for (Player player : players) {
                     org.bukkit.entity.Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
                     if (bukkitPlayer != null && bukkitPlayer.isOnline()) {
-                        bukkitPlayer.sendMessage(MiniMessage.builder().build()
-                                .deserialize((template != null ? template : "")
+                        MessageUtils.sendMiniMessageTransformed(bukkitPlayer, templatePath,
+                                raw -> raw
                                         .replace("%group%", name)
                                         .replace("%player%", playerName != null ? playerName : "")
-                                        .replace("%message%", message != null ? message : "")));
+                                        .replace("%message%", message != null ? message : "")
+                        );
                     }
                 }
             }

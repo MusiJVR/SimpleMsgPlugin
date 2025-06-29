@@ -1,18 +1,18 @@
 package simplemsgplugin.command;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class ChangeSoundCommand implements CommandExecutor {
@@ -24,10 +24,10 @@ public class ChangeSoundCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player)) return true;
+        if (!(sender instanceof Player)) return true;
 
         if (args.length != 1) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
+            MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
             return false;
         }
 
@@ -35,24 +35,31 @@ public class ChangeSoundCommand implements CommandExecutor {
         UUID uuid = player.getUniqueId();
 
         String soundName = args[0];
-        boolean valExist = false;
-        for (Object valSound:Sound.values()) {
-            if (Objects.equals(soundName, valSound.toString())) {
-                valExist = true;
-            }
-        }
-
-        if (!valExist) {
-            sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundmissing")));
-            return valExist;
+        if (!isSoundValid(soundName)) {
+            MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
+            return false;
         }
 
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("sound", soundName);
         dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
-        sender.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.soundsuccess")));
+        MessageUtils.sendColoredIfPresent(sender, "messages.soundsuccess");
         Utils.msgPlaySound(dbDriver, player);
 
         return true;
+    }
+
+    private static boolean isSoundValid(String name) {
+        try {
+            Sound.valueOf(name.toUpperCase());
+            return true;
+        } catch (Throwable ignored) {
+            try {
+                NamespacedKey key = NamespacedKey.minecraft(name.toLowerCase());
+                return Registry.SOUNDS.get(key) != null;
+            } catch (Throwable ignoredAgain) {
+                return false;
+            }
+        }
     }
 }

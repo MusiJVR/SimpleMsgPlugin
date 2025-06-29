@@ -1,14 +1,14 @@
 package simplemsgplugin.handler;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.utils.ColorUtils;
+import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
 
@@ -72,15 +72,19 @@ public class EventHandlers implements Listener {
 
         List<Map<String, Object>> rsOfflineMessage = dbDriver.selectData("sender, message", "offline_msg", "WHERE receiver = ?", player.getName());
         if (!rsOfflineMessage.isEmpty()) {
-            player.sendMessage(ColorUtils.translateColorCodes(SimpleMsgPlugin.getInstance().getConfig().getString("messages.haveunreadmsg")));
-            String msgOfflienPattern = SimpleMsgPlugin.getInstance().getConfig().getString("messages.msgofflinepattern");
+            MessageUtils.sendColoredIfPresent(player, "messages.haveunreadmsg");
             for (Map<String, Object> i : rsOfflineMessage) {
                 String sender = (String) i.get("sender");
                 String messages = (String) i.get("message");
-                Component msgSenderPattern = MiniMessage.builder().build().deserialize(msgOfflienPattern.replace("%sender%", sender).replace("%receiver%", player.getName()).replace("%message%", messages))
-                        .hoverEvent(net.kyori.adventure.text.event.HoverEvent.hoverEvent(net.kyori.adventure.text.event.HoverEvent.Action.SHOW_TEXT, Component.text(SimpleMsgPlugin.getInstance().getConfig().getString("messages.clickmsgsendreply"))))
-                        .clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.SUGGEST_COMMAND, "/msg " + sender + " "));
-                player.sendMessage(msgSenderPattern);
+                MessageUtils.sendMiniMessageIfPresent(player, "messages.msgofflinepattern",
+                        raw -> raw
+                                .replace("%sender%", sender)
+                                .replace("%receiver%", player.getName())
+                                .replace("%message%", messages),
+                        component -> component
+                                .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
+                                .clickEvent(ClickEvent.suggestCommand("/msg " + sender + " "))
+                );
             }
 
             Utils.msgPlaySound(dbDriver, player);
