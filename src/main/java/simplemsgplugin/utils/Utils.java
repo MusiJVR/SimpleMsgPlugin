@@ -11,13 +11,10 @@ public class Utils {
         List<Map<String, Object>> rsGetSound = sql.selectData("sound, volume", "sounds", "WHERE uuid = ?", player.getUniqueId());
         String messageSound = (String) rsGetSound.get(0).get("sound");
         int volumeSound = (int) rsGetSound.get(0).get("volume");
-        if (!messageSound.equals("false")) {
-            for (Sound soundPlayer : Sound.values()) {
-                if (messageSound.equals(soundPlayer.toString())) {
-                    player.playSound(player.getLocation(), Sound.valueOf(messageSound), (float) volumeSound / 100, 1.0f);
-                    break;
-                }
-            }
+        if (!messageSound.equalsIgnoreCase("false")) {
+            try {
+                player.playSound(player, Sound.valueOf(messageSound.toLowerCase()), (float) volumeSound / 100, 1.0f);
+            } catch (Throwable ignored) {}
         }
     }
 

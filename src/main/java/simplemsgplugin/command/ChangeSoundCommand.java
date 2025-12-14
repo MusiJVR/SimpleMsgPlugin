@@ -34,8 +34,8 @@ public class ChangeSoundCommand implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
-        String soundName = args[0];
-        if (!isSoundValid(soundName)) {
+        String soundName = getValidSound(args[0]);
+        if (soundName == null) {
             MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
             return true;
         }
@@ -49,17 +49,19 @@ public class ChangeSoundCommand implements CommandExecutor {
         return true;
     }
 
-    private static boolean isSoundValid(String name) {
+    private String getValidSound(String name) {
         try {
             Sound.valueOf(name.toUpperCase());
-            return true;
-        } catch (Throwable ignored) {
-            try {
-                NamespacedKey key = NamespacedKey.minecraft(name.toLowerCase());
-                return Registry.SOUNDS.get(key) != null;
-            } catch (Throwable ignoredAgain) {
-                return false;
+            return name.toLowerCase();
+        } catch (Throwable ignored) {}
+
+        try {
+            NamespacedKey key = NamespacedKey.minecraft(name.toLowerCase());
+            if (Registry.SOUNDS.get(key) != null) {
+                return key.getKey();
             }
-        }
+        } catch (Throwable ignored) {}
+
+        return null;
     }
 }

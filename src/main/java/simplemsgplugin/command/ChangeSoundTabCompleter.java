@@ -1,5 +1,7 @@
 package simplemsgplugin.command;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,26 +14,19 @@ import java.util.List;
 public class ChangeSoundTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 1) {
-            String inputSound = args[0].toUpperCase();
-            ArrayList<String> soundCollection = new ArrayList<>();
-            for (Object valSound : Sound.values()) {
-                soundCollection.add(valSound.toString());
+        if (args.length != 1) return List.of();
+
+        String input = args[0].toLowerCase();
+        List<String> completions = new ArrayList<>();
+
+        for (Sound sound : Sound.values()) {
+            String name = sound.name().toLowerCase();
+            if (name.startsWith(input)) {
+                completions.add(name);
             }
-            List<String> soundNames = null;
-            for (String sound : soundCollection) {
-                if (sound.startsWith(inputSound)) {
-                    if (soundNames == null) {
-                        soundNames = new ArrayList<>();
-                    }
-                    soundNames.add(sound);
-                }
-            }
-            if (soundNames != null) {
-                Collections.sort(soundNames);
-            }
-            return soundNames;
         }
-        return new ArrayList<>();
+
+        Collections.sort(completions);
+        return completions;
     }
 }
