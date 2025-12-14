@@ -27,7 +27,7 @@ public class PlayerMsgCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length <= 1) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.incorrectcommand");
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgusage");
             return true;
         }
 

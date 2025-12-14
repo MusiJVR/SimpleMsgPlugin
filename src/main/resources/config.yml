@@ -25,6 +25,7 @@ confirm_sending: true
 messages:
   error: '&#ff5555Error'
   incorrectcommand: '&#ff5555The command is specified incorrectly'
+  msgusage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
 
   configreloadsuccessfully: '&#55ff55The plugin config was successfully reloaded'
 
