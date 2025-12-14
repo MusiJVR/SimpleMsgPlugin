@@ -42,10 +42,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("addblacklist").setTabCompleter(new AddBlacklistTabCompleter());
         getServer().getPluginCommand("removeblacklist").setExecutor(new RemoveBlacklistCommand(this, dbDriver));
         getServer().getPluginCommand("removeblacklist").setTabCompleter(new RemoveBlacklistTabCompleter());
-        getServer().getPluginCommand("changesound").setExecutor(new ChangeSoundCommand(dbDriver));
-        getServer().getPluginCommand("changesound").setTabCompleter(new ChangeSoundTabCompleter());
-        getServer().getPluginCommand("changevolume").setExecutor(new ChangeVolumeCommand(dbDriver));
-        getServer().getPluginCommand("changevolume").setTabCompleter(new ChangeVolumeTabCompleter());
+        getServer().getPluginCommand("msgnotification").setExecutor(new NotificationCommand(dbDriver));
+        getServer().getPluginCommand("msgnotification").setTabCompleter(new NotificationTabCompleter());
         getServer().getPluginCommand("playermsg").setExecutor(new PlayerMsgCommand(this, dbDriver));
         getServer().getPluginCommand("playermsg").setTabCompleter(new PlayerMsgTabCompleter(dbDriver));
         getServer().getPluginCommand("replymsg").setExecutor(new ReplyMsgCommand(this));

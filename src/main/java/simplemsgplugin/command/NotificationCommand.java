@@ -7,43 +7,58 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import simplemsgplugin.utils.DatabaseDriver;
 import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
-import simplemsgplugin.utils.DatabaseDriver;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ChangeSoundCommand implements CommandExecutor {
+public class NotificationCommand implements CommandExecutor {
     private final DatabaseDriver dbDriver;
 
-    public ChangeSoundCommand(DatabaseDriver dbDriver) {
+    public NotificationCommand(DatabaseDriver dbDriver) {
         this.dbDriver = dbDriver;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) return true;
+        if (!(sender instanceof Player player)) return true;
 
-        if (args.length != 1) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
+        if (args.length < 1 || args.length > 2) {
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.usage");
             return true;
         }
 
-        Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
+        Map<String, Object> updateMap = new HashMap<>();
 
         String soundName = getValidSound(args[0]);
         if (soundName == null) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.soundmissing");
             return true;
         }
-
-        Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("sound", soundName);
+
+        if (args.length == 2) {
+            if (!Utils.checkDigits(args[1])) {
+                MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.volumemissing");
+                return true;
+            }
+
+            int volume = Integer.parseInt(args[1]);
+            if (volume < 0 || volume > 100) {
+                MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.volumemissing");
+                return true;
+            }
+
+            updateMap.put("volume", volume);
+        }
+
         dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
-        MessageUtils.sendColoredIfPresent(sender, "messages.soundsuccess");
+
+        MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.success");
         Utils.msgPlaySound(dbDriver, player);
 
         return true;

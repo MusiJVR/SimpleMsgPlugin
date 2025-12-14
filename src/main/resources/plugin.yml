@@ -41,20 +41,13 @@ commands:
     usage: /<command>
     aliases:
       - accsend
-  changesound:
+  msgnotification:
     description: This command allows you to change the notification sound
-    permission: simplemsgplugin.changesound
-    usage: /<command> <sound>
+    permission: simplemsgplugin.msgnotification
+    usage: /<command> <sound> <volume>
     aliases:
-      - cs
-      - csound
-  changevolume:
-    description: This command allows you to change the notification volume
-    permission: simplemsgplugin.changevolume
-    usage: /<command> <volume>
-    aliases:
-      - cv
-      - cvolume
+      - msgnotify
+      - pmnotify
   addblacklist:
     description: This command allows you to add players to the blacklist
     permission: simplemsgplugin.addblacklist
@@ -111,11 +104,8 @@ permissions:
   simplemsgplugin.acceptsend:
     description: Permission to use command acceptsend
     default: true
-  simplemsgplugin.changesound:
-    description: Permission to use command csound
-    default: true
-  simplemsgplugin.changevolume:
-    description: Permission to use command cvolume
+  simplemsgplugin.msgnotification:
+    description: Permission to use command msgnotification
     default: true
   simplemsgplugin.addblacklist:
     description: Permission to use command addbl

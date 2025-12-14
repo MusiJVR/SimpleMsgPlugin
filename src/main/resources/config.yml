@@ -7,8 +7,8 @@ sendmsgyourself: false
 msgsound: 'false'
 # By default, the sound is turned off 'false', but you can change it
 # It is necessary to indicate the name of the sound in uppercase and with underscores
-# Example - msgsound: 'ENTITY_PLAYER_LEVELUP'
-# All sounds you can find here - https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
+# Example - msgsound: 'entity.player.levelup'
+# All sounds you can find here - https://minecraft.fandom.com/wiki/Sounds.json/Bedrock_Edition_values
 # Unfortunately not all of these sounds can be reproduced correctly
 # Therefore, if the sound doesn't work and gives an error, then you should change the sound
 
@@ -42,12 +42,6 @@ messages:
   msgsenderpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
   msgreceiverpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
   msgofflinepattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
-
-  soundmissing: '&#ff5555Invalid sound value'
-  soundsuccess: '&#55ff55The sound has been successfully changed'
-
-  volumemissing: '&#ff5555Invalid volume value'
-  volumesuccess: '&#55ff55The volume has been successfully changed'
 
   blmissing: '&#ff5555Invalid player value'
   blyourself: '&#ff5555You cannot add yourself to the blacklist'
@@ -115,6 +109,12 @@ messages:
     confirm_sending:
       usage: '<color:#ffff55>Usage: /msgprop confirm_sending <on | off></color>'
       property_set: '<color:#55ffff>Property</color> <b><color:#ffff55>%property%</color></b> <color:#55ffff>is set to</color> <b><color:#ffff55>%value%</color></b>'
+
+  msgnotification:
+    usage: '<color:#ffff55>Usage: /msgnotify <sound> <volume></color>'
+    soundmissing: '<color:#ff5555>Invalid sound value</color>'
+    volumemissing: '<color:#ff5555>Invalid volume value</color>'
+    success: '<color:#55ff55>The notification sound has been successfully changed</color>'
 
   # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
   # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
