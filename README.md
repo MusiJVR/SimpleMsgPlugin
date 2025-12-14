@@ -12,20 +12,21 @@ Here are all the commands that can be used in the plugin:
 * `/msg <player> <message>` - This command allows you to send private messages to the player
 * `/reply <message>` - This command allows you to send a private message to the last player who wrote to you
 * `/acceptsend` - This command allows you to accept sending an offline message
-* `/csound <sound>` - This command allows you to change the notification sound
-* `/cvolume <volume>` - This command allows you to change the notification volume
+* `/msgnotify <sound> <volume>` - This command allows you to change the notification sound
 * `/addbl <player>` - This command allows you to add players to the blacklist
 * `/removebl <player>` - This command allows you to remove players from the blacklist
 * `/showbl` - This command allows you to display your blacklist
+* `/mail` - This command allows you to view unread messages
 * `/privatechat <action> <arg>(if required)` - This command allows you to interact with private chats
+* `/msgprop <property> <args>` - This command allows you to set player properties
 
 ## Change default sound
 
 By default, the sound is turned off 'false', but you can change it. 
 It is necessary to indicate the name of the sound in uppercase and with underscores. 
-Example - `msgsound: 'ENTITY_PLAYER_LEVELUP'`
+Example - `msgsound: 'entity.player.levelup'`
 
-All sounds you can find [here](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html).
+All sounds you can find [here](https://minecraft.fandom.com/wiki/Sounds.json/Bedrock_Edition_values).
 Unfortunately not all of these sounds can be reproduced correctly.
 Therefore, if the sound doesn't work and gives an error, then you should change the sound.
 
@@ -60,12 +61,13 @@ The plugin has permissions:
 | `simplemsgplugin.playermsg`       | Permission to use command `msg`         |
 | `simplemsgplugin.replymsg`        | Permission to use command `reply`       |
 | `simplemsgplugin.acceptsend`      | Permission to use command `acceptsend`  |
-| `simplemsgplugin.changesound`     | Permission to use command `csound`      |
-| `simplemsgplugin.changevolume`    | Permission to use command `cvolume`     |
+| `simplemsgplugin.msgnotification` | Permission to use command `msgnotify`   |
 | `simplemsgplugin.addblacklist`    | Permission to use command `addbl`       |
 | `simplemsgplugin.removeblacklist` | Permission to use command `removebl`    |
 | `simplemsgplugin.showblacklist`   | Permission to use command `showbl`      |
+| `simplemsgplugin.msgmail`         | Permission to use command `mail`        |
 | `simplemsgplugin.privatechat`     | Permission to use command `privatechat` |
+| `simplemsgplugin.msgproperties`   | Permission to use command `msgprop`     |
 
 ## Issues
 

@@ -83,7 +83,7 @@ commands:
       - pvch
       - pc
   msgproperties:
-    description: This command allows you to set player settings
+    description: This command allows you to set player properties
     permission: simplemsgplugin.msgproperties
     usage: /<command> <property> <arg>
     aliases:

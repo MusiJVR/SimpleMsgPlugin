@@ -168,19 +168,11 @@ helpmessages:
                     
                     [SimpleMsg]
                     
-                    [SimpleMsg] Command: csound
+                    [SimpleMsg] Command: msgnotify
                     
                     [SimpleMsg] Description: This command allows you to change the notification sound
                     
-                    [SimpleMsg] Usage: /<command> <sound>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: cvolume
-                    
-                    [SimpleMsg] Description: This command allows you to change the notification volume
-                    
-                    [SimpleMsg] Usage: /<command> <volume>
+                    [SimpleMsg] Usage: /<command> <sound> <volume>
                     
                     [SimpleMsg]
                     
@@ -208,11 +200,27 @@ helpmessages:
                     
                     [SimpleMsg]
                     
+                    [SimpleMsg] Command: mail
+                    
+                    [SimpleMsg] Description: This command allows you to view unread messages
+                    
+                    [SimpleMsg] Usage: /<command>
+                    
+                    [SimpleMsg]
+                    
                     [SimpleMsg] Command: privatechat
                     
                     [SimpleMsg] Description: This command allows you to interact with private chats
                     
                     [SimpleMsg] Usage: /<command> <action> <arg>(if required)
+                    
+                    [SimpleMsg]
+                    
+                    [SimpleMsg] Command: msgprop
+                    
+                    [SimpleMsg] Description: This command allows you to set player properties
+                    
+                    [SimpleMsg] Usage: /<command> <property> <arg>
                     
                     [SimpleMsg] ⏴----------------------------⏵'
   playerhelplist: '§b§l⏴-------§r§e§lSimpleMsgPlugin§r§b§l-------⏵§r
@@ -252,18 +260,11 @@ helpmessages:
                     §bUsage:§r §e/<command>§r
                     
                     
-                    §bCommand:§r §ecsound§r
+                    §bCommand:§r §emsgnotify§r
                     
                     §bDescription:§r §eThis command allows you to change the notification sound§r
                     
-                    §bUsage:§r §e/<command> <sound>§r
-                    
-                    
-                    §bCommand:§r §ecvolume§r
-                    
-                    §bDescription:§r §eThis command allows you to change the notification volume§r
-                    
-                    §bUsage:§r §e/<command> <volume>§r
+                    §bUsage:§r §e/<command> <sound> <volume>§r
                     
                     
                     §bCommand:§r §eaddbl§r
@@ -287,10 +288,24 @@ helpmessages:
                     §bUsage:§r §e/<command>§r
                     
                     
+                    §bCommand:§r §email§r
+                    
+                    §bDescription:§r §eThis command allows you to view unread messages§r
+                    
+                    §bUsage:§r §e/<command>§r
+                    
+                    
                     §bCommand:§r §eprivatechatl§r
                     
                     §bDescription:§r §eThis command allows you to interact with private chats§r
                     
                     §bUsage:§r §e/<command> <action> <arg>(if required)§r
+                    
+                    
+                    §bCommand:§r §emsgprop§r
+                    
+                    §bDescription:§r §eThis command allows you to set player properties§r
+                    
+                    §bUsage:§r §e/<command> <property> <arg>§r
                     
                     §b§l⏴----------------------------⏵§r'
