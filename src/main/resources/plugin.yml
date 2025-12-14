@@ -68,6 +68,13 @@ commands:
     usage: /<command>
     aliases:
       - showbl
+  msgmail:
+    description: This command allows you to view unread messages
+    permission: simplemsgplugin.msgmail
+    usage: /<command>
+    aliases:
+      - pmmail
+      - mail
   privatechat:
     description: This command allows you to interact with private chats
     permission: simplemsgplugin.privatechat
@@ -81,13 +88,6 @@ commands:
     usage: /<command> <property> <arg>
     aliases:
       - msgprop
-  pmmail:
-    description: This command allows you to view unread messages
-    permission: simplemsgplugin.pmmail
-    usage: /<command>
-    aliases:
-      - msgmail
-      - mail
 permissions:
   simplemsgplugin.msghelp:
     description: Permission to use command msghelp
@@ -116,12 +116,12 @@ permissions:
   simplemsgplugin.showblacklist:
     description: Permission to use command showbl
     default: true
+  simplemsgplugin.msgmail:
+    description: Permission to use command msgmail
+    default: true
   simplemsgplugin.privatechat:
     description: Permission to use command privatechat
     default: true
   simplemsgplugin.msgproperties:
     description: Permission to use command msgproperties
-    default: true
-  simplemsgplugin.pmmail:
-    description: Permission to use command pmmail
     default: true

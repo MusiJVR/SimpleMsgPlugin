@@ -50,12 +50,12 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("replymsg").setTabCompleter(new ReplyMsgTabCompleter());
         getServer().getPluginCommand("acceptsend").setExecutor(new AcceptSendCommand(dbDriver));
         getServer().getPluginCommand("acceptsend").setTabCompleter(new AcceptSendTabCompleter());
+        getServer().getPluginCommand("msgmail").setExecutor(new MailCommand(dbDriver));
+        getServer().getPluginCommand("msgmail").setTabCompleter(new MailTabCompleter());
         getServer().getPluginCommand("privatechat").setExecutor(new PrivateChatCommand());
         getServer().getPluginCommand("privatechat").setTabCompleter(new PrivateChatTabCompleter());
         getServer().getPluginCommand("msgproperties").setExecutor(new PropertiesCommand(dbDriver));
         getServer().getPluginCommand("msgproperties").setTabCompleter(new PropertiesTabCompleter());
-        getServer().getPluginCommand("pmmail").setExecutor(new MailCommand(dbDriver));
-        getServer().getPluginCommand("pmmail").setTabCompleter(new MailTabCompleter());
     }
 
     @Override
