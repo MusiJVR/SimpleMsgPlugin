@@ -19,6 +19,9 @@ volumesound: 50
 privatechat_start_char: '?'
 # Start character for sending messages to private chat
 
+confirm_sending: true
+# Confirmation of sending an offline message
+
 messages:
   error: '&#ff5555Error'
   incorrectcommand: '&#ff5555The command is specified incorrectly'
@@ -103,6 +106,13 @@ messages:
       kick: '<color:#ffff55>Usage: /privatechat kick <player></color>'
       invite: '<color:#ffff55>Usage: /privatechat invite <player></color>'
       join: '<color:#ffff55>Usage: /privatechat join <group ID></color>'
+
+  msgproperties:
+    unknown_property: '<color:#ffff55>Unknown property</color>'
+    usage: '<color:#ffff55>Usage: /msgprop <property> <args></color>'
+    confirm_sending:
+      usage: '<color:#ffff55>Usage: /msgprop confirm_sending <on | off></color>'
+      property_set: '<color:#55ffff>Property</color> <b><color:#ffff55>%property%</color></b> <color:#55ffff>is set to</color> <b><color:#ffff55>%value%</color></b>'
 
   # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
   # You can also change the color using standard Minecraft colors by specifying '§' at the beginning

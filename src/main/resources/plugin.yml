@@ -82,6 +82,12 @@ commands:
     aliases:
       - pvch
       - pc
+  msgproperties:
+    description: This command allows you to set player settings
+    permission: simplemsgplugin.msgproperties
+    usage: /<command> <property> <arg>
+    aliases:
+      - msgprop
 permissions:
   simplemsgplugin.msghelp:
     description: Permission to use command msghelp
@@ -115,4 +121,7 @@ permissions:
     default: true
   simplemsgplugin.privatechat:
     description: Permission to use command privatechat
+    default: true
+  simplemsgplugin.msgproperties:
+    description: Permission to use command msgproperties
     default: true

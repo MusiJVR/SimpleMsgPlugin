@@ -25,6 +25,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         saveDefaultConfig();
 
         dbDriver = new DatabaseDriver("jdbc:sqlite:" + getDataFolder() + "/smpdatabase.db");
+        dbDriver.createTable("properties", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "confirm_sending BOOLEAN NOT NULL DEFAULT 1");
         dbDriver.createTable("sounds", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "sound TEXT", "volume INTEGER");
         dbDriver.createTable("offline_msg", "sender TEXT", "receiver TEXT", "message TEXT");
         dbDriver.createTable("blacklist", "uuid TEXT", "blocked_uuid TEXT", "blocked_player TEXT");
@@ -53,6 +54,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("acceptsend").setTabCompleter(new AcceptSendTabCompleter());
         getServer().getPluginCommand("privatechat").setExecutor(new PrivateChatCommand());
         getServer().getPluginCommand("privatechat").setTabCompleter(new PrivateChatTabCompleter());
+        getServer().getPluginCommand("msgproperties").setExecutor(new PropertiesCommand(dbDriver));
+        getServer().getPluginCommand("msgproperties").setTabCompleter(new PropertiesTabCompleter());
     }
 
     @Override

@@ -13,10 +13,7 @@ import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerMsgCommand implements CommandExecutor {
     private final JavaPlugin plugin;
@@ -80,8 +77,7 @@ public class PlayerMsgCommand implements CommandExecutor {
             }
         }
 
-        if (argPlayer == null && sender instanceof Player) {
-            Player player = (Player) sender;
+        if (argPlayer == null && sender instanceof Player player) {
             UUID uuid = player.getUniqueId();
             sendOfflineMessage(sender, uuid, playerName, message.toString());
             return true;
@@ -118,17 +114,53 @@ public class PlayerMsgCommand implements CommandExecutor {
     }
 
     private void sendOfflineMessage(CommandSender sender, UUID uuid, String playerName, String message) {
+        if (!(sender instanceof Player player)) return;
+
         SimpleMsgPlugin.getInstance().offlineReceiver.put(uuid, playerName);
         SimpleMsgPlugin.getInstance().offlineMessages.put(uuid, message);
 
         MessageUtils.sendColoredIfPresent(sender, "messages.playermissing");
-        MessageUtils.sendColoredIfPresent(sender, "messages.msgsendoffline");
 
-        MessageUtils.sendMiniMessageComponent(sender, "messages.acceptsend",
-                component -> component
-                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendoffline")))
-                        .clickEvent(ClickEvent.runCommand("/acceptsend"))
-        );
+        List<Map<String, Object>> rsProperties = dbDriver.selectData("confirm_sending", "properties", "WHERE uuid = ?", uuid);
+
+        boolean confirmSending;
+
+        if (!rsProperties.isEmpty()) {
+            Object valueObj = rsProperties.get(0).get("confirm_sending");
+            if (valueObj instanceof Boolean b) confirmSending = b;
+            else if (valueObj instanceof Number n) confirmSending = n.intValue() != 0;
+            else if (valueObj instanceof String s) confirmSending = Boolean.parseBoolean(s);
+            else confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
+        } else {
+            confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
+        }
+
+        if (confirmSending) {
+            MessageUtils.sendColoredIfPresent(sender, "messages.msgsendoffline");
+
+            MessageUtils.sendMiniMessageComponent(sender, "messages.acceptsend",
+                    component -> component
+                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendoffline")))
+                            .clickEvent(ClickEvent.runCommand("/acceptsend"))
+            );
+        } else {
+            if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
+                String playerReceiver = SimpleMsgPlugin.getInstance().offlineReceiver.get(uuid);
+                String msgOffline = SimpleMsgPlugin.getInstance().offlineMessages.get(uuid);
+
+                Map<String, Object> insertMap = new HashMap<>();
+                insertMap.put("sender", player.getName());
+                insertMap.put("receiver", playerReceiver);
+                insertMap.put("message", msgOffline);
+                dbDriver.insertData("offline_msg", insertMap);
+
+                MessageUtils.sendColoredIfPresent(sender, "messages.msgsendofflinesuccessfully");
+                Utils.msgPlaySound(dbDriver, player);
+
+                SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
+                SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);
+            }
+        }
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
