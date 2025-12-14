@@ -1,4 +1,4 @@
-# Plugin version 1.7.3
+# Plugin version 1.7.4
 
 sendmsgyourself: false
 # This item is needed to be able to send a message to yourself
@@ -21,6 +21,7 @@ privatechat_start_char: '?'
 
 messages:
   error: '&#ff5555Error'
+  incorrectcommand: '&#ff5555The command is specified incorrectly'
 
   configreloadsuccessfully: '&#55ff55The plugin config was successfully reloaded'
 

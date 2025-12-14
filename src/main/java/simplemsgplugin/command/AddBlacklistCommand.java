@@ -29,7 +29,7 @@ public class AddBlacklistCommand implements CommandExecutor {
 
         if (args.length != 1) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return false;
+            return true;
         }
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
@@ -37,7 +37,7 @@ public class AddBlacklistCommand implements CommandExecutor {
         Player blockPlayer = plugin.getServer().getPlayer(blockPlayerInput);
         if (blockPlayer == null || !Objects.equals(blockPlayer.getName(), blockPlayerInput)) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return false;
+            return true;
         }
         if (blockPlayer.getUniqueId() == uuid) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blyourself");

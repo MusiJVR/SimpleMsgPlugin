@@ -28,7 +28,7 @@ public class RemoveBlacklistCommand implements CommandExecutor {
 
         if (args.length != 1) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return false;
+            return true;
         }
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
@@ -36,7 +36,7 @@ public class RemoveBlacklistCommand implements CommandExecutor {
         Player unblockPlayer = plugin.getServer().getPlayer(unblockPlayerInput);
         if (unblockPlayer == null || !Objects.equals(unblockPlayer.getName(), unblockPlayerInput)) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return false;
+            return true;
         }
 
         List<Map<String, Object>> rs = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());

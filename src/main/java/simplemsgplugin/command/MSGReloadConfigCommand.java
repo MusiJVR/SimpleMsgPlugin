@@ -16,7 +16,7 @@ public class MSGReloadConfigCommand implements CommandExecutor {
     public boolean onCommand( CommandSender sender, Command command, String label, String[] args) {
         if (args.length != 0) {
             MessageUtils.sendColoredIfPresent(sender, "messages.error");
-            return false;
+            return true;
         }
         plugin.reloadConfig();
         MessageUtils.sendColoredIfPresent(sender, "messages.configreloadsuccessfully");

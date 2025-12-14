@@ -27,7 +27,7 @@ public class ChangeVolumeCommand implements CommandExecutor {
 
         if (args.length != 1) {
             MessageUtils.sendColoredIfPresent(sender, "messages.volumemissing");
-            return false;
+            return true;
         }
 
         Player player = (Player) sender;

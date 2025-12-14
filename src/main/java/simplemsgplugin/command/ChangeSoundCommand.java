@@ -28,7 +28,7 @@ public class ChangeSoundCommand implements CommandExecutor {
 
         if (args.length != 1) {
             MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
-            return false;
+            return true;
         }
 
         Player player = (Player) sender;
@@ -37,7 +37,7 @@ public class ChangeSoundCommand implements CommandExecutor {
         String soundName = args[0];
         if (!isSoundValid(soundName)) {
             MessageUtils.sendColoredIfPresent(sender, "messages.soundmissing");
-            return false;
+            return true;
         }
 
         Map<String, Object> updateMap = new HashMap<>();

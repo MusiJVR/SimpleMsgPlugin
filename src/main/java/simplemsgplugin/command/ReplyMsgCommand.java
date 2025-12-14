@@ -17,7 +17,8 @@ public class ReplyMsgCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length < 1) {
-            return false;
+            MessageUtils.sendColoredIfPresent(sender, "messages.incorrectcommand");
+            return true;
         }
 
         if (!SimpleMsgPlugin.getInstance().latestRecipients.containsKey(sender.getName()) || SimpleMsgPlugin.getInstance().latestRecipients.get(sender.getName()) == null) {

@@ -24,7 +24,8 @@ public class ShowBlacklistCommand implements CommandExecutor {
         if(!(sender instanceof Player)) return true;
 
         if (args.length >= 1) {
-            return false;
+            MessageUtils.sendColoredIfPresent(sender, "messages.incorrectcommand");
+            return true;
         }
 
         Player player = (Player) sender;
