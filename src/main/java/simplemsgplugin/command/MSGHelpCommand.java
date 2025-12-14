@@ -18,6 +18,7 @@ public class MSGHelpCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             if (args.length != 0) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.incorrectcommand");
                 return true;
             }
 

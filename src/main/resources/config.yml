@@ -62,7 +62,9 @@ messages:
   emptybl: '&#ffff55Your blacklist is empty'
   playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55%blacklist%'
 
-  haveunreadmsg: '&#55ffffYou have unread messages:'
+  haveunreadmsg: "<color:#55ffff><hover:show_text:'Click to read messages'><click:run_command:'/mail'>You have unread messages (/mail - to read)</click></hover></color>"
+  yoursunreadmsg: '<color:#55ffff>Your unread messages:</color>'
+  nounreadmsg: '<color:#55ffff>You have no unread messages</color>'
 
   privatechat:
     message_template: '<b><color:#55ffff>[</color></b><color:#ffff55>%group%</color><b><color:#55ffff>]</color></b> <color:#ffff55>%player%</color><b><color:#55ffff>:</color></b> %message%'

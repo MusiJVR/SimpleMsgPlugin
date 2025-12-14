@@ -88,6 +88,13 @@ commands:
     usage: /<command> <property> <arg>
     aliases:
       - msgprop
+  pmmail:
+    description: This command allows you to view unread messages
+    permission: simplemsgplugin.pmmail
+    usage: /<command>
+    aliases:
+      - msgmail
+      - mail
 permissions:
   simplemsgplugin.msghelp:
     description: Permission to use command msghelp
@@ -124,4 +131,7 @@ permissions:
     default: true
   simplemsgplugin.msgproperties:
     description: Permission to use command msgproperties
+    default: true
+  simplemsgplugin.pmmail:
+    description: Permission to use command pmmail
     default: true

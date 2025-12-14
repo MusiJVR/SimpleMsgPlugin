@@ -3,7 +3,7 @@ package simplemsgplugin;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.command.*;
-import simplemsgplugin.handler.EventHandlers;
+import simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
 import simplemsgplugin.handler.PrivateChatHandler;
 import simplemsgplugin.utils.DatabaseDriver;
 
@@ -30,7 +30,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         dbDriver.createTable("offline_msg", "sender TEXT", "receiver TEXT", "message TEXT");
         dbDriver.createTable("blacklist", "uuid TEXT", "blocked_uuid TEXT", "blocked_player TEXT");
 
-        getServer().getPluginManager().registerEvents(new EventHandlers(dbDriver), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(dbDriver), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
         getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
         getServer().getPluginCommand("msghelp").setTabCompleter(new MSGHelpTabCompleter());
@@ -56,6 +56,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("privatechat").setTabCompleter(new PrivateChatTabCompleter());
         getServer().getPluginCommand("msgproperties").setExecutor(new PropertiesCommand(dbDriver));
         getServer().getPluginCommand("msgproperties").setTabCompleter(new PropertiesTabCompleter());
+        getServer().getPluginCommand("pmmail").setExecutor(new MailCommand(dbDriver));
+        getServer().getPluginCommand("pmmail").setTabCompleter(new MailTabCompleter());
     }
 
     @Override

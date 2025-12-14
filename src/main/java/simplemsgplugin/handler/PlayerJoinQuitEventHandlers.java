@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class EventHandlers implements Listener {
+public class PlayerJoinQuitEventHandlers implements Listener {
     private final DatabaseDriver dbDriver;
 
-    public EventHandlers(DatabaseDriver dbDriver) {
+    public PlayerJoinQuitEventHandlers(DatabaseDriver dbDriver) {
         this.dbDriver = dbDriver;
     }
 
@@ -64,7 +64,7 @@ public class EventHandlers implements Listener {
         if (rsRegister.isEmpty()) {
             Map<String, Object> insertMap = new HashMap<>();
             insertMap.put("uuid", uuid);
-            insertMap.put("player_name", playerJoin.getPlayer().getName());
+            insertMap.put("player_name", playerName);
             insertMap.put("sound", sound);
             insertMap.put("volume", volume);
             dbDriver.insertData("sounds", insertMap);
@@ -72,24 +72,8 @@ public class EventHandlers implements Listener {
 
         List<Map<String, Object>> rsOfflineMessage = dbDriver.selectData("sender, message", "offline_msg", "WHERE LOWER(receiver) = LOWER(?)", player.getName());
         if (!rsOfflineMessage.isEmpty()) {
-            MessageUtils.sendColoredIfPresent(player, "messages.haveunreadmsg");
-            for (Map<String, Object> i : rsOfflineMessage) {
-                String sender = (String) i.get("sender");
-                String messages = (String) i.get("message");
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.msgofflinepattern",
-                        raw -> raw
-                                .replace("%sender%", sender)
-                                .replace("%receiver%", player.getName())
-                                .replace("%message%", messages),
-                        component -> component
-                                .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
-                                .clickEvent(ClickEvent.suggestCommand("/msg " + sender + " "))
-                );
-            }
-
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.haveunreadmsg");
             Utils.msgPlaySound(dbDriver, player);
-
-            dbDriver.deleteData("offline_msg", "LOWER(receiver) = LOWER(?)", player.getName());
         }
     }
 
