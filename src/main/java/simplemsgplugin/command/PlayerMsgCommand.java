@@ -35,14 +35,22 @@ public class PlayerMsgCommand implements CommandExecutor {
         }
 
         String playerName = args[0];
-        Player argPlayer = plugin.getServer().getPlayer(playerName);
+        Player argPlayer = null;
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getName().equalsIgnoreCase(playerName)) {
+                argPlayer = p;
+                playerName = p.getName();
+                break;
+            }
+        }
 
         StringBuilder message = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             message.append(" " + args[i]);
         }
 
-        List<Map<String, Object>> rsArgPlayer = dbDriver.selectData("uuid", "sounds", "WHERE player_name = ?", playerName);
+        List<Map<String, Object>> rsArgPlayer = dbDriver.selectData("uuid", "sounds", "WHERE LOWER(player_name) = LOWER(?)", playerName);
         if (rsArgPlayer.isEmpty()) {
             MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
             return true;
@@ -79,20 +87,22 @@ public class PlayerMsgCommand implements CommandExecutor {
             return true;
         }
 
+        String argPlayerName = argPlayer.getName();
+
         MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgsenderpattern",
                 raw -> raw
                         .replace("%sender%", sender.getName())
-                        .replace("%receiver%", argPlayer.getName())
+                        .replace("%receiver%", argPlayerName)
                         .replace("%message%", message),
                 component -> component
                         .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + argPlayer.getName() + " "))
+                        .clickEvent(ClickEvent.suggestCommand("/msg " + argPlayerName + " "))
         );
 
         MessageUtils.sendMiniMessageIfPresent(argPlayer, "messages.msgreceiverpattern",
                 raw -> raw
                         .replace("%sender%", sender.getName())
-                        .replace("%receiver%", argPlayer.getName())
+                        .replace("%receiver%", argPlayerName)
                         .replace("%message%", message),
                 component -> component
                         .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))

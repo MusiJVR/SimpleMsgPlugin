@@ -70,7 +70,7 @@ public class EventHandlers implements Listener {
             dbDriver.insertData("sounds", insertMap);
         }
 
-        List<Map<String, Object>> rsOfflineMessage = dbDriver.selectData("sender, message", "offline_msg", "WHERE receiver = ?", player.getName());
+        List<Map<String, Object>> rsOfflineMessage = dbDriver.selectData("sender, message", "offline_msg", "WHERE LOWER(receiver) = LOWER(?)", player.getName());
         if (!rsOfflineMessage.isEmpty()) {
             MessageUtils.sendColoredIfPresent(player, "messages.haveunreadmsg");
             for (Map<String, Object> i : rsOfflineMessage) {
@@ -89,7 +89,7 @@ public class EventHandlers implements Listener {
 
             Utils.msgPlaySound(dbDriver, player);
 
-            dbDriver.deleteData("offline_msg", "receiver = ?", player.getName());
+            dbDriver.deleteData("offline_msg", "LOWER(receiver) = LOWER(?)", player.getName());
         }
     }
 
