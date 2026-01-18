@@ -5,19 +5,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.command.*;
 import simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
 import simplemsgplugin.handler.PrivateChatHandler;
+import simplemsgplugin.utils.DatabaseCacheManager;
 import simplemsgplugin.utils.DatabaseDriver;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
-
     private static SimpleMsgPlugin instance;
     private DatabaseDriver dbDriver;
-    public Map<UUID, String> offlineReceiver = new HashMap<>();
-    public Map<UUID, String> offlineMessages = new HashMap<>();
-    public Map<String, String> latestRecipients = new HashMap<>();
+    private DatabaseCacheManager cacheManager;
+    public Map<UUID, String> offlineReceiver = new ConcurrentHashMap<>();
+    public Map<UUID, String> offlineMessages = new ConcurrentHashMap<>();
+    public Map<String, String> latestRecipients = new ConcurrentHashMap<>();
 
     @Override
     public void onEnable() {
@@ -30,7 +31,9 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         dbDriver.createTable("offline_msg", "sender TEXT", "receiver TEXT", "message TEXT");
         dbDriver.createTable("blacklist", "uuid TEXT", "blocked_uuid TEXT", "blocked_player TEXT");
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(dbDriver), this);
+        cacheManager = new DatabaseCacheManager(dbDriver);
+
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(dbDriver, cacheManager), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
         getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
         getServer().getPluginCommand("msghelp").setTabCompleter(new MSGHelpTabCompleter());
@@ -44,8 +47,8 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         getServer().getPluginCommand("removeblacklist").setTabCompleter(new RemoveBlacklistTabCompleter());
         getServer().getPluginCommand("msgnotification").setExecutor(new NotificationCommand(dbDriver));
         getServer().getPluginCommand("msgnotification").setTabCompleter(new NotificationTabCompleter());
-        getServer().getPluginCommand("playermsg").setExecutor(new PlayerMsgCommand(this, dbDriver));
-        getServer().getPluginCommand("playermsg").setTabCompleter(new PlayerMsgTabCompleter(dbDriver));
+        getServer().getPluginCommand("playermsg").setExecutor(new PlayerMsgCommand(dbDriver));
+        getServer().getPluginCommand("playermsg").setTabCompleter(new PlayerMsgTabCompleter(cacheManager));
         getServer().getPluginCommand("replymsg").setExecutor(new ReplyMsgCommand(this));
         getServer().getPluginCommand("replymsg").setTabCompleter(new ReplyMsgTabCompleter());
         getServer().getPluginCommand("acceptsend").setExecutor(new AcceptSendCommand(dbDriver));

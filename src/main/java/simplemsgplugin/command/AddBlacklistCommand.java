@@ -9,7 +9,6 @@ import simplemsgplugin.utils.DatabaseDriver;
 import simplemsgplugin.utils.MessageUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -44,17 +43,18 @@ public class AddBlacklistCommand implements CommandExecutor {
             return true;
         }
 
-        List<Map<String, Object>> rs = dbDriver.selectData("uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, blockPlayer.getUniqueId(), blockPlayer.getName());
-        if (!rs.isEmpty()) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blalreadyblock");
-            return true;
-        }
-        Map<String, Object> insertMap = new HashMap<>();
-        insertMap.put("uuid", uuid);
-        insertMap.put("blocked_uuid", blockPlayer.getUniqueId());
-        insertMap.put("blocked_player", blockPlayer.getName());
-        dbDriver.insertData("blacklist", insertMap);
-        MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessblock");
+        dbDriver.selectData("uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", rs -> {
+            if (!rs.isEmpty()) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.blalreadyblock");
+                return;
+            }
+            Map<String, Object> insertMap = new HashMap<>();
+            insertMap.put("uuid", uuid);
+            insertMap.put("blocked_uuid", blockPlayer.getUniqueId());
+            insertMap.put("blocked_player", blockPlayer.getName());
+            dbDriver.insertData("blacklist", insertMap);
+            MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessblock");
+        }, uuid, blockPlayer.getUniqueId(), blockPlayer.getName());
 
         return true;
     }

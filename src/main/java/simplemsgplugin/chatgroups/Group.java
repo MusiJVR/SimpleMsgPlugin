@@ -1,7 +1,7 @@
 package simplemsgplugin.chatgroups;
 
-import org.bukkit.scheduler.BukkitRunnable;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.adapters.Scheduler;
 import simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;
@@ -79,22 +79,20 @@ public class Group {
     }
 
     public void sendMessage(String templatePath, String playerName, String message) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : players) {
-                    org.bukkit.entity.Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
-                    if (bukkitPlayer != null && bukkitPlayer.isOnline()) {
-                        MessageUtils.sendMiniMessageTransformed(bukkitPlayer, templatePath,
-                                raw -> raw
-                                        .replace("%group%", name)
-                                        .replace("%player%", playerName != null ? playerName : "")
-                                        .replace("%message%", message != null ? message : "")
-                        );
-                    }
-                }
-            }
-        }.runTaskLater(SimpleMsgPlugin.getInstance(), 0L);
+        for (Player player : players) {
+            org.bukkit.entity.Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
+            if (bukkitPlayer == null || !bukkitPlayer.isOnline()) continue;
+
+            Scheduler.runForPlayer(bukkitPlayer, () -> {
+                MessageUtils.sendMiniMessageTransformed(bukkitPlayer, templatePath,
+                        raw -> raw
+                                .replace("%group%", name)
+                                .replace("%player%", playerName != null ? playerName : "")
+                                .replace("%message%", message != null ? message : "")
+                );
+            });
+        }
+
     }
 
     @Override

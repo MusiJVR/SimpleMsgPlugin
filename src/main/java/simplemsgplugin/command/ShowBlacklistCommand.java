@@ -8,7 +8,6 @@ import simplemsgplugin.utils.DatabaseDriver;
 import simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,19 +30,20 @@ public class ShowBlacklistCommand implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
 
-        List<Map<String, Object>> rs = dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", uuid);
-        ArrayList<String> blockedPlayers = new ArrayList<>();
-        for (Map<String, Object> i : rs) {
-            blockedPlayers.add(i.get("blocked_player").toString());
-        }
+        dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", rs -> {
+            ArrayList<String> blockedPlayers = new ArrayList<>();
+            for (Map<String, Object> i : rs) {
+                blockedPlayers.add(i.get("blocked_player").toString());
+            }
 
-        if (blockedPlayers.isEmpty()) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.emptybl");
-            return true;
-        }
+            if (blockedPlayers.isEmpty()) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.emptybl");
+                return;
+            }
 
-        MessageUtils.sendColoredTransformed(sender, "messages.playersbl",
-                raw -> raw.replace("%blacklist%", String.join(", ", blockedPlayers)));
+            MessageUtils.sendColoredTransformed(sender, "messages.playersbl",
+                    raw -> raw.replace("%blacklist%", String.join(", ", blockedPlayers)));
+        }, uuid);
 
         return true;
     }

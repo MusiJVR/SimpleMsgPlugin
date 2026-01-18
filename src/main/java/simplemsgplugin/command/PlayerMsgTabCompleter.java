@@ -3,20 +3,24 @@ package simplemsgplugin.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import simplemsgplugin.utils.DatabaseDriver;
+import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.utils.DatabaseCacheManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+import java.util.logging.Level;
 
 public class PlayerMsgTabCompleter implements TabCompleter {
-    private final DatabaseDriver dbDriver;
+    private final DatabaseCacheManager cacheManager;
 
-    public PlayerMsgTabCompleter(DatabaseDriver dbDriver) {
-        this.dbDriver = dbDriver;
+    public PlayerMsgTabCompleter(DatabaseCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+
+        this.cacheManager.createCache("player_names", "player_name", "sounds", null);
+        this.cacheManager.scheduleAutoRefresh("player_names", "player_name", "sounds", null, 5 * 60 * 20);
     }
 
     @Override
@@ -24,10 +28,8 @@ public class PlayerMsgTabCompleter implements TabCompleter {
         if (args.length == 1) {
             try {
                 String inputPlayer = args[0].toLowerCase();
-                List<Map<String, Object>> rsPlayerNames = dbDriver.selectData("player_name", "sounds", null);
-
                 List<String> allPlayerName = null;
-                for (Map<String, Object> player : rsPlayerNames) {
+                for (Map<String, Object> player : cacheManager.getCache("player_names")) {
                     if (player.get("player_name").toString().toLowerCase().startsWith(inputPlayer)) {
                         if (allPlayerName == null) {
                             allPlayerName = new ArrayList<>();
@@ -42,7 +44,7 @@ public class PlayerMsgTabCompleter implements TabCompleter {
 
                 return allPlayerName;
             } catch (Exception e) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
+                SimpleMsgPlugin.getInstance().getLogger().log(Level.WARNING, "Error player message tab completer", e);
             }
         } else if (args.length == 2) {
             return Arrays.asList("<message>");

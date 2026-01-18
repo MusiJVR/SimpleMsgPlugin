@@ -2,6 +2,7 @@ name: SimpleMsgPlugin
 version: '${project.version}'
 main: simplemsgplugin.SimpleMsgPlugin
 api-version: '1.20'
+folia-supported: true
 authors: [ MouseJava ]
 description: Plugin for messages in the game
 commands:

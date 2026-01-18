@@ -8,7 +8,6 @@ import simplemsgplugin.utils.DatabaseDriver;
 import simplemsgplugin.utils.MessageUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -56,18 +55,19 @@ public class PropertiesCommand implements CommandExecutor {
                     return true;
                 }
 
-                List<Map<String, Object>> rsProperties = dbDriver.selectData("uuid", "properties", "WHERE uuid = ?", uuid);
-                if (rsProperties.isEmpty()) {
-                    Map<String, Object> insertMap = new HashMap<>();
-                    insertMap.put("uuid", uuid);
-                    insertMap.put("player_name", playerName);
-                    insertMap.put(propertyName, value);
-                    dbDriver.insertData("properties", insertMap);
-                } else {
-                    Map<String, Object> updateMap = new HashMap<>();
-                    updateMap.put(propertyName, value);
-                    dbDriver.updateData("properties", updateMap, "uuid = ? AND player_name = ?", uuid, playerName);
-                }
+                dbDriver.selectData("uuid", "properties", "WHERE uuid = ?", rs -> {
+                    if (rs.isEmpty()) {
+                        Map<String, Object> insertMap = new HashMap<>();
+                        insertMap.put("uuid", uuid);
+                        insertMap.put("player_name", playerName);
+                        insertMap.put(propertyName, value);
+                        dbDriver.insertData("properties", insertMap);
+                    } else {
+                        Map<String, Object> updateMap = new HashMap<>();
+                        updateMap.put(propertyName, value);
+                        dbDriver.updateData("properties", updateMap, "uuid = ? AND player_name = ?", uuid, playerName);
+                    }
+                }, uuid);
 
                 MessageUtils.sendMiniMessageTransformed(sender, "messages.msgproperties.confirm_sending.property_set",
                         raw -> raw.replace("%property%", propertyName).replace("%value%", value ? "ON" : "OFF"));

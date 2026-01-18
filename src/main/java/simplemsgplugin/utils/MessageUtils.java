@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 public class MessageUtils {
-    private static final MiniMessage MINI = MiniMessage.builder().build();
+    private static final MiniMessage MINI = MiniMessage.miniMessage();
 
     public static @Nullable String getPlain(String path) {
         return getPlain(path, null);

@@ -7,8 +7,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.SimpleMsgPlugin;
+import simplemsgplugin.adapters.Scheduler;
 import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;
@@ -16,11 +16,9 @@ import simplemsgplugin.utils.DatabaseDriver;
 import java.util.*;
 
 public class PlayerMsgCommand implements CommandExecutor {
-    private final JavaPlugin plugin;
     private final DatabaseDriver dbDriver;
 
-    public PlayerMsgCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
-        this.plugin = plugin;
+    public PlayerMsgCommand(DatabaseDriver dbDriver) {
         this.dbDriver = dbDriver;
     }
 
@@ -32,83 +30,83 @@ public class PlayerMsgCommand implements CommandExecutor {
         }
 
         String playerName = args[0];
-        Player argPlayer = null;
+        Player argPlayer = Bukkit.getPlayer(playerName);
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.getName().equalsIgnoreCase(playerName)) {
-                argPlayer = p;
-                playerName = p.getName();
-                break;
-            }
-        }
+        if (argPlayer != null) playerName = argPlayer.getName();
 
         StringBuilder message = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
             message.append(" " + args[i]);
         }
 
-        List<Map<String, Object>> rsArgPlayer = dbDriver.selectData("uuid", "sounds", "WHERE LOWER(player_name) = LOWER(?)", playerName);
-        if (rsArgPlayer.isEmpty()) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return true;
-        }
-        String uuidArgPlayer = (String) rsArgPlayer.get(0).get("uuid");
+        String finalPlayerName = playerName;
 
-        Player blockedSender = (Player) sender;
-        if (Objects.equals(blockedSender.getUniqueId().toString(), uuidArgPlayer)) {
-            if (!SimpleMsgPlugin.getInstance().getConfig().getBoolean("sendmsgyourself")) {
-                MessageUtils.sendColoredIfPresent(sender, "messages.notmsgyouself");
-                return true;
+        dbDriver.selectData("uuid", "sounds", "WHERE LOWER(player_name) = LOWER(?)", rsArgPlayer -> {
+            if (rsArgPlayer.isEmpty()) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
+                return;
             }
-        }
-        List<Map<String, Object>> rsBlockFirst = dbDriver.selectData("uuid", "blacklist", "WHERE blocked_uuid = ?", blockedSender.getUniqueId());
-        for (Map<String, Object> i : rsBlockFirst) {
-            if (Objects.equals(i.get("uuid"), uuidArgPlayer)) {
-                MessageUtils.sendColoredIfPresent(sender, "messages.youinbl");
-                return true;
+            String uuidArgPlayer = (String) rsArgPlayer.get(0).get("uuid");
+
+            Player blockedSender = (Player) sender;
+            if (Objects.equals(blockedSender.getUniqueId().toString(), uuidArgPlayer)) {
+                if (!SimpleMsgPlugin.getInstance().getConfig().getBoolean("sendmsgyourself")) {
+                    MessageUtils.sendColoredIfPresent(sender, "messages.notmsgyouself");
+                    return;
+                }
             }
-        }
 
-        List<Map<String, Object>> rsBlockSecond = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ?", blockedSender.getUniqueId());
-        for (Map<String, Object> i : rsBlockSecond) {
-            if (Objects.equals(i.get("blocked_uuid"), uuidArgPlayer)) {
-                MessageUtils.sendColoredIfPresent(sender, "messages.youbl");
-                return true;
-            }
-        }
+            dbDriver.selectData("uuid", "blacklist", "WHERE blocked_uuid = ?", rsBlockFirst -> {
+                for (Map<String, Object> i : rsBlockFirst) {
+                    if (Objects.equals(i.get("uuid"), uuidArgPlayer)) {
+                        MessageUtils.sendColoredIfPresent(sender, "messages.youinbl");
+                        return;
+                    }
+                }
 
-        if (argPlayer == null && sender instanceof Player player) {
-            UUID uuid = player.getUniqueId();
-            sendOfflineMessage(sender, uuid, playerName, message.toString());
-            return true;
-        }
+                dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ?", rsBlockSecond -> {
+                    for (Map<String, Object> i : rsBlockSecond) {
+                        if (Objects.equals(i.get("blocked_uuid"), uuidArgPlayer)) {
+                            MessageUtils.sendColoredIfPresent(sender, "messages.youbl");
+                            return;
+                        }
+                    }
 
-        String argPlayerName = argPlayer.getName();
+                    if (argPlayer == null && sender instanceof Player player) {
+                        UUID uuid = player.getUniqueId();
+                        sendOfflineMessage(sender, uuid, finalPlayerName, message.toString());
+                        return;
+                    }
 
-        MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgsenderpattern",
-                raw -> raw
-                        .replace("%sender%", sender.getName())
-                        .replace("%receiver%", argPlayerName)
-                        .replace("%message%", message),
-                component -> component
-                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + argPlayerName + " "))
-        );
+                    String argPlayerName = argPlayer.getName();
 
-        MessageUtils.sendMiniMessageIfPresent(argPlayer, "messages.msgreceiverpattern",
-                raw -> raw
-                        .replace("%sender%", sender.getName())
-                        .replace("%receiver%", argPlayerName)
-                        .replace("%message%", message),
-                component -> component
-                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + sender.getName() + " "))
-        );
+                    MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgsenderpattern",
+                            raw -> raw
+                                    .replace("%sender%", sender.getName())
+                                    .replace("%receiver%", argPlayerName)
+                                    .replace("%message%", message),
+                            component -> component
+                                    .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
+                                    .clickEvent(ClickEvent.suggestCommand("/msg " + argPlayerName + " "))
+                    );
 
-        Utils.msgPlaySound(dbDriver, argPlayer);
+                    MessageUtils.sendMiniMessageIfPresent(argPlayer, "messages.msgreceiverpattern",
+                            raw -> raw
+                                    .replace("%sender%", sender.getName())
+                                    .replace("%receiver%", argPlayerName)
+                                    .replace("%message%", message),
+                            component -> component
+                                    .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendreply")))
+                                    .clickEvent(ClickEvent.suggestCommand("/msg " + sender.getName() + " "))
+                    );
 
-        SimpleMsgPlugin.getInstance().latestRecipients.put(sender.getName(), argPlayer.getName());
-        SimpleMsgPlugin.getInstance().latestRecipients.put(argPlayer.getName(), sender.getName());
+                    Utils.msgPlaySound(dbDriver, argPlayer);
+
+                    SimpleMsgPlugin.getInstance().latestRecipients.put(sender.getName(), argPlayer.getName());
+                    SimpleMsgPlugin.getInstance().latestRecipients.put(argPlayer.getName(), sender.getName());
+                }, blockedSender.getUniqueId());
+            }, blockedSender.getUniqueId());
+        }, playerName);
 
         return true;
     }
@@ -121,55 +119,52 @@ public class PlayerMsgCommand implements CommandExecutor {
 
         MessageUtils.sendColoredIfPresent(sender, "messages.playermissing");
 
-        List<Map<String, Object>> rsProperties = dbDriver.selectData("confirm_sending", "properties", "WHERE uuid = ?", uuid);
+        dbDriver.selectData("confirm_sending", "properties", "WHERE uuid = ?", rs -> {
+            boolean confirmSending;
 
-        boolean confirmSending;
-
-        if (!rsProperties.isEmpty()) {
-            Object valueObj = rsProperties.get(0).get("confirm_sending");
-            if (valueObj instanceof Boolean b) confirmSending = b;
-            else if (valueObj instanceof Number n) confirmSending = n.intValue() != 0;
-            else if (valueObj instanceof String s) confirmSending = Boolean.parseBoolean(s);
-            else confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
-        } else {
-            confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
-        }
-
-        if (confirmSending) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.msgsendoffline");
-
-            MessageUtils.sendMiniMessageComponent(sender, "messages.acceptsend",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendoffline")))
-                            .clickEvent(ClickEvent.runCommand("/acceptsend"))
-            );
-        } else {
-            if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
-                String playerReceiver = SimpleMsgPlugin.getInstance().offlineReceiver.get(uuid);
-                String msgOffline = SimpleMsgPlugin.getInstance().offlineMessages.get(uuid);
-
-                Map<String, Object> insertMap = new HashMap<>();
-                insertMap.put("sender", player.getName());
-                insertMap.put("receiver", playerReceiver);
-                insertMap.put("message", msgOffline);
-                dbDriver.insertData("offline_msg", insertMap);
-
-                MessageUtils.sendColoredIfPresent(sender, "messages.msgsendofflinesuccessfully");
-                Utils.msgPlaySound(dbDriver, player);
-
-                SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
-                SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);
+            if (!rs.isEmpty()) {
+                Object valueObj = rs.get(0).get("confirm_sending");
+                if (valueObj instanceof Boolean b) confirmSending = b;
+                else if (valueObj instanceof Number n) confirmSending = n.intValue() != 0;
+                else if (valueObj instanceof String s) confirmSending = Boolean.parseBoolean(s);
+                else confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
+            } else {
+                confirmSending = SimpleMsgPlugin.getInstance().getConfig().getBoolean("confirm_sending");
             }
-        }
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
+            if (confirmSending) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.msgsendoffline");
+
+                MessageUtils.sendMiniMessageComponent(sender, "messages.acceptsend",
+                        component -> component
+                                .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.clickmsgsendoffline")))
+                                .clickEvent(ClickEvent.runCommand("/acceptsend"))
+                );
+            } else {
+                if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
+                    String playerReceiver = SimpleMsgPlugin.getInstance().offlineReceiver.get(uuid);
+                    String msgOffline = SimpleMsgPlugin.getInstance().offlineMessages.get(uuid);
+
+                    Map<String, Object> insertMap = new HashMap<>();
+                    insertMap.put("sender", player.getName());
+                    insertMap.put("receiver", playerReceiver);
+                    insertMap.put("message", msgOffline);
+                    dbDriver.insertData("offline_msg", insertMap);
+
+                    MessageUtils.sendColoredIfPresent(sender, "messages.msgsendofflinesuccessfully");
+                    Utils.msgPlaySound(dbDriver, player);
+
+                    SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerReceiver);
+                    SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, msgOffline);
+                }
+            }
+
+            Scheduler.runLater(() -> {
                 if (SimpleMsgPlugin.getInstance().offlineReceiver.containsKey(uuid) && SimpleMsgPlugin.getInstance().offlineMessages.containsKey(uuid)) {
                     SimpleMsgPlugin.getInstance().offlineReceiver.remove(uuid, playerName);
                     SimpleMsgPlugin.getInstance().offlineMessages.remove(uuid, message);
                 }
-            }
-        }, 1200);
+            }, 1200);
+        }, uuid);
     }
 }

@@ -8,8 +8,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import simplemsgplugin.utils.DatabaseDriver;
 import simplemsgplugin.utils.MessageUtils;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -39,13 +37,15 @@ public class RemoveBlacklistCommand implements CommandExecutor {
             return true;
         }
 
-        List<Map<String, Object>> rs = dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
-        if (rs.isEmpty()) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blnotblock");
-            return true;
-        }
-        dbDriver.deleteData("blacklist", "uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
-        MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessunblock");
+        dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", rs -> {
+            if (rs.isEmpty()) {
+                MessageUtils.sendColoredIfPresent(sender, "messages.blnotblock");
+                return;
+            }
+
+            dbDriver.deleteData("blacklist", "uuid = ? AND blocked_uuid = ? AND blocked_player = ?", uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
+            MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessunblock");
+        }, uuid, unblockPlayer.getUniqueId(), unblockPlayer.getName());
 
         return true;
     }
