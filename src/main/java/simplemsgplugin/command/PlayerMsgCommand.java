@@ -8,7 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.adapters.Scheduler;
+import simplemsgplugin.scheduler.Scheduler;
 import simplemsgplugin.utils.MessageUtils;
 import simplemsgplugin.utils.Utils;
 import simplemsgplugin.utils.DatabaseDriver;

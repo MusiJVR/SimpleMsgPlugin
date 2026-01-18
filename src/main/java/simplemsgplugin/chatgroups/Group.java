@@ -1,7 +1,7 @@
 package simplemsgplugin.chatgroups;
 
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.adapters.Scheduler;
+import simplemsgplugin.scheduler.Scheduler;
 import simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;

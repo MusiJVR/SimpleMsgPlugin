@@ -1,7 +1,7 @@
 package simplemsgplugin.utils;
 
 import simplemsgplugin.SimpleMsgPlugin;
-import simplemsgplugin.adapters.Scheduler;
+import simplemsgplugin.scheduler.Scheduler;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

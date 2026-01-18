@@ -1,6 +1,6 @@
 package simplemsgplugin.utils;
 
-import simplemsgplugin.adapters.Scheduler;
+import simplemsgplugin.scheduler.Scheduler;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,4 +1,4 @@
-package simplemsgplugin.adapters;
+package simplemsgplugin.scheduler;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
