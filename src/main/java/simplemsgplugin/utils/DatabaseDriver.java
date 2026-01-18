@@ -70,7 +70,6 @@ public class DatabaseDriver {
 
         if (condition != null && !condition.trim().isEmpty()) query.append(" ").append(condition).append(";");
 
-        System.out.println(query);
         try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
             for (int i = 0; i < parameters.length; i++) statement.setObject(i + 1, parameters[i]);
 
