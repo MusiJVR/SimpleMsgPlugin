@@ -16,18 +16,24 @@ public class PrivateChatTabCompleter implements TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         Player playerSender = (Player) sender;
         Group group = GroupManager.findGroupByPlayer(playerSender.getUniqueId());
+        String input = args[0].toLowerCase();
         if (args.length == 1) {
+            List<String> options = new ArrayList<>();
             if (group != null) {
                 if (group.getOwner().getId().equals(playerSender.getUniqueId())) {
-                    return Arrays.asList("delete", "invite", "leave", "kick", "info");
+                    options.addAll(List.of("delete", "invite", "leave", "kick", "info"));
                 }
-                return Arrays.asList("leave", "info");
+                options.addAll(List.of("leave", "info"));
             }
-            return Arrays.asList("create", "join");
+            options.addAll(List.of("create", "join"));
+
+            return options.stream()
+                    .filter(s -> s.toLowerCase().startsWith(input))
+                    .collect(Collectors.toList());
         } else if (args.length == 2) {
             List<String> allPlayerName = new ArrayList<>();
 
-            switch (args[0].toLowerCase()) {
+            switch (input) {
                 case "create": return Arrays.asList("<group name>");
                 case "delete": return List.of();
                 case "invite":
