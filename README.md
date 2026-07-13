@@ -1,10 +1,25 @@
-# SimpleMsgPlugin
+<div align="center">
+
+![Logo](docs/simplemsgplugin.png)
+
+[![GitHub Release](https://img.shields.io/github/v/release/MusiJVR/SimpleMsgPlugin?style=for-the-badge)](https://github.com/MusiJVR/SimpleMsgPlugin/releases)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/kspBne7T?style=for-the-badge&label=Modrinth)](https://modrinth.com/plugin/simplemsgplugin)
+[![GitHub License](https://img.shields.io/github/license/MusiJVR/SimpleMsgPlugin?style=for-the-badge)](https://github.com/MusiJVR/SimpleMsgPlugin/blob/main/LICENSE.md)
+
+[![Bukkit](https://badges.penpow.dev/badges/supported/bukkit/compact-minimal.svg)](https://bukkit.org/)
+[![Spigot](https://badges.penpow.dev/badges/supported/spigot/compact-minimal.svg)](https://spigotmc.org/)
+[![Paper](https://badges.penpow.dev/badges/supported/paper/compact-minimal.svg)](https://papermc.io/software/paper)
+[![Folia](https://badges.penpow.dev/badges/supported/folia/compact-minimal.svg)](https://papermc.io/software/folia)
+
+</div>
+
+## 🌐 Overview
 
 **SimpleMsgPlugin** adds the ability to send private messages to other players. The default sound value is `false`, but it can be changed to another existing sound, such as `ENTITY_PLAYER_LEVELUP`
 
 All technical settings and features presented here are for the latest version of the plugin and will not always work on older versions.
 
-## Commands
+## 📜 Commands
 
 Here are all the commands that can be used in the plugin:
 * `/msghelp` - This command allows you to display all possible plugin commands
@@ -20,7 +35,7 @@ Here are all the commands that can be used in the plugin:
 * `/privatechat <action> <arg>(if required)` - This command allows you to interact with private chats
 * `/msgprop <property> <args>` - This command allows you to set player properties
 
-## Change default sound
+## 🎵 Change default sound
 
 By default, the sound is turned off 'false', but you can change it. 
 It is necessary to indicate the name of the sound in uppercase and with underscores. 
@@ -30,12 +45,12 @@ All sounds you can find [here](https://minecraft.fandom.com/wiki/Sounds.json/Bed
 Unfortunately not all of these sounds can be reproduced correctly.
 Therefore, if the sound doesn't work and gives an error, then you should change the sound.
 
-## Change default volume
+## 🔊 Change default volume
 
 By default, the volume of notification sounds is set to `50`, but it can be changed.
 The volume value must be specified in the range from `0` to `100`.
 
-## Change message color
+## 🎨 Change message color
 
 In order to change the color of the message, you need to specify the `&` icon, followed by the color code in HEX format with `#` at the beginning.
 You can also change the color using standard Minecraft colors by specifying `§` at the beginning.
@@ -47,7 +62,7 @@ Example: `&#55ff55Message` - <span style="color:green">Message</span>
 
 Also, many messages use the [MiniMessage](https://docs.advntr.dev/minimessage/index) format. [Here](https://webui.advntr.dev/) you can create a message template.
 
-## Settings for developers or administrators
+## ⚙️ Settings for developers or administrators
 
 In the config you can configure sending messages to yourself `sendmsgyourself: false`.
 By default, the value is `false`, but can be changed to `true`
@@ -69,11 +84,11 @@ The plugin has permissions:
 | `simplemsgplugin.privatechat`     | Permission to use command `privatechat` |
 | `simplemsgplugin.msgproperties`   | Permission to use command `msgprop`     |
 
-## Issues
+## ❗ Issues
 
 Please leave messages about any errors you find [here](https://github.com/MusiJVR/SimpleMsgPlugin/issues) or on the [Discord](https://discord.gg/xY8WJt7VGr)
 
-## Social Media
+## 💬 Social Media
 
 - Page on [Modrinth](https://modrinth.com/plugin/simplemsgplugin)
 - Page on [GitHub](https://github.com/MusiJVR/SimpleMsgPlugin)
