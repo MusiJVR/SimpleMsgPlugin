@@ -1,10 +1,14 @@
 name: SimpleMsgPlugin
-version: '${project.version}'
-main: simplemsgplugin.SimpleMsgPlugin
+description: '${description}'
+version: '${version}'
+
+main: com.mousejava.simplemsgplugin.SimpleMsgPlugin
 api-version: '1.20'
 folia-supported: true
+load: POSTWORLD
+
 authors: [ MouseJava ]
-description: Plugin for messages in the game
+
 commands:
   msghelp:
     description: This command allows you to display all possible plugin commands
@@ -89,6 +93,7 @@ commands:
     usage: /<command> <property> <arg>
     aliases:
       - msgprop
+
 permissions:
   simplemsgplugin.msghelp:
     description: Permission to use command msghelp
