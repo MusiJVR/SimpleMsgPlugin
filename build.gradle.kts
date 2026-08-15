@@ -6,6 +6,7 @@ import groovy.json.JsonSlurper
 
 plugins {
     id("java-library")
+    alias(libs.plugins.shadow)
     alias(libs.plugins.paperweight.userdev)
     alias(libs.plugins.run.paper)
 }
@@ -16,6 +17,8 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("${libs.versions.minecraft.get()}-R0.1-SNAPSHOT")
+
+    implementation(libs.hikaricp)
 }
 
 java {
@@ -116,6 +119,7 @@ fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (plat
 }
 
 val testServersDir = layout.buildDirectory.dir("test-servers")
+val shadowJar = tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
 
 testMatrix.forEach { target ->
     val safeVersion = target.mcVersion.replace(Regex("[.\\-]"), "_")
@@ -141,7 +145,7 @@ testMatrix.forEach { target ->
     tasks.register<JavaExec>("runServer_$id") {
         group = "run server matrix"
         description = "Launches ${target.platform} ${target.mcVersion} with plugin"
-        dependsOn(downloadServerJar, tasks.named("jar"))
+        dependsOn(downloadServerJar, shadowJar)
         notCompatibleWithConfigurationCache("Interactive server process, nothing to cache")
 
         doFirst {
@@ -149,7 +153,7 @@ testMatrix.forEach { target ->
             val pluginsDir = serverDir.resolve("plugins")
             pluginsDir.mkdirs()
 
-            val builtJar = tasks.named("jar").get().outputs.files.singleFile
+            val builtJar = shadowJar.get().archiveFile.get().asFile
             builtJar.copyTo(pluginsDir.resolve(builtJar.name), overwrite = true)
 
             serverDir.resolve("eula.txt").writeText("eula=true\n")
@@ -177,6 +181,13 @@ testMatrix.forEach { target ->
     }
 }
 
+tasks.shadowJar {
+    relocate(
+        "com.zaxxer.hikari",
+        "com.mousejava.simplemsgplugin.libs.hikari"
+    )
+}
+
 tasks.register("runServerMatrix") {
     group = "run server matrix"
     dependsOn(testMatrix.map { "runServer_${it.platform}_${it.mcVersion.replace(Regex("[.\\-]"), "_")}" })
@@ -197,9 +208,11 @@ tasks {
     runServer {
         minecraftVersion(libs.versions.minecraft.get())
 
+        val javaVersion = libs.versions.java.runtime.get().toInt()
+
         javaLauncher.set(
             toolchainService.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(libs.versions.java.runtime.get().toInt()))
+                languageVersion.set(JavaLanguageVersion.of(javaVersion))
             }
         )
 
@@ -208,6 +221,10 @@ tasks {
             "-Xmx4G",
             "-Dcom.mojang.eula.agree=true"
         )
+        if (javaVersion >= 24) {
+            jvmArgs("--sun-misc-unsafe-memory-access=allow")
+        }
+        args("--nogui")
     }
 
     processResources {

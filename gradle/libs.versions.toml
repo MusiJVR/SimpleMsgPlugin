@@ -1,10 +1,16 @@
 [versions]
+java-runtime = "25"
+java-compile = "21"
+minecraft = "1.20.6"
+shadow = "9.6.1"
 paperweight = "2.0.0-beta.21"
 runpaper = "3.1.0"
-minecraft = "1.20.1"
-java-compile = "17"
-java-runtime = "25"
+hikaricp = "7.1.0"
 
 [plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 paperweight-userdev = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "runpaper" }
+
+[libraries]
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
