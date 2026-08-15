@@ -8,7 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.scheduler.Scheduler;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;

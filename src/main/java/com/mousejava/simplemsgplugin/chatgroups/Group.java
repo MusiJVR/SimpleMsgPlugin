@@ -1,7 +1,7 @@
 package com.mousejava.simplemsgplugin.chatgroups;
 
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.scheduler.Scheduler;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class Group {
             org.bukkit.entity.Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
             if (bukkitPlayer == null || !bukkitPlayer.isOnline()) continue;
 
-            Scheduler.runForPlayer(bukkitPlayer, () -> {
+            Scheduler.runForEntity(bukkitPlayer, () -> {
                 MessageUtils.sendMiniMessageTransformed(bukkitPlayer, templatePath,
                         raw -> raw
                                 .replace("%group%", name)

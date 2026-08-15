@@ -1,5 +1,6 @@
 package com.mousejava.simplemsgplugin;
 
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mousejava.simplemsgplugin.command.*;
@@ -24,6 +25,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        Scheduler.init(this);
 
         dbDriver = new DatabaseDriver("jdbc:sqlite:" + getDataFolder() + "/smpdatabase.db");
         dbDriver.createTable("properties", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "confirm_sending BOOLEAN NOT NULL DEFAULT 1");

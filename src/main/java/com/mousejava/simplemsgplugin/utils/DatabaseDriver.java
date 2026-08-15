@@ -1,7 +1,6 @@
 package com.mousejava.simplemsgplugin.utils;
 
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.scheduler.Scheduler;
 
 import java.sql.*;
 import java.util.*;

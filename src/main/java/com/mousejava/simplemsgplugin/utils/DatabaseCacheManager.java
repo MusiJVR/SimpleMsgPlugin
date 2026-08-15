@@ -1,7 +1,5 @@
 package com.mousejava.simplemsgplugin.utils;
 
-import com.mousejava.simplemsgplugin.scheduler.Scheduler;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
