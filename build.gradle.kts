@@ -118,13 +118,16 @@ fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (plat
     else -> error("Unknown platform: $platform")
 }
 
-val testServersDir = layout.buildDirectory.dir("test-servers")
+val runServersDir = providers.provider {
+    layout.projectDirectory.dir("run")
+}
+
 val shadowJar = tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
 
 testMatrix.forEach { target ->
     val safeVersion = target.mcVersion.replace(Regex("[.\\-]"), "_")
     val id = "${target.platform}_$safeVersion"
-    val serverDirProvider = testServersDir.map { it.dir(id) }
+    val serverDirProvider = runServersDir.map { it.dir(id) }
 
     val downloadServerJar = tasks.register("downloadServerJar_$id") {
         val outFile = serverDirProvider.map { it.file("server.jar") }
@@ -181,6 +184,11 @@ testMatrix.forEach { target ->
     }
 }
 
+tasks.jar {
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version.toString())
+}
+
 tasks.shadowJar {
     relocate(
         "com.zaxxer.hikari",
@@ -195,18 +203,20 @@ tasks.register("runServerMatrix") {
 
 tasks.register<Delete>("cleanTestServers") {
     group = "run server matrix"
-    description = "Removes build/test-servers entirely (all downloaded test servers)"
-    delete(testServersDir)
-}
-
-tasks.jar {
-    archiveBaseName.set(project.name)
-    archiveVersion.set(project.version.toString())
+    description = "Removes all matrix test servers from run/, preserving run/default"
+    delete(
+        runServersDir.map { runDir ->
+            fileTree(runDir) {
+                exclude("default/**")
+            }
+        }
+    )
 }
 
 tasks {
     runServer {
         minecraftVersion(libs.versions.minecraft.get())
+        runDirectory.set(layout.projectDirectory.dir("run/default"))
 
         val javaVersion = libs.versions.java.runtime.get().toInt()
 
