@@ -138,7 +138,7 @@ testMatrix.forEach { target ->
         }
     }
 
-    tasks.register<Exec>("runServer_$id") {
+    tasks.register<JavaExec>("runServer_$id") {
         group = "run server matrix"
         description = "Launches ${target.platform} ${target.mcVersion} with plugin"
         dependsOn(downloadServerJar, tasks.named("jar"))
@@ -158,17 +158,22 @@ testMatrix.forEach { target ->
         workingDir = serverDirProvider.get().asFile
         standardInput = System.`in`
 
-        val launcher = toolchainService.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(target.javaVersion))
-        }
-
-        commandLine(
-            launcher.get().executablePath.asFile.absolutePath,
-            "-Xms2G", "-Xmx4G",
-            "-Dcom.mojang.eula.agree=true",
-            "-jar", "server.jar",
-            "--nogui"
+        javaLauncher.set(
+            toolchainService.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(target.javaVersion))
+            }
         )
+
+        classpath = files(serverDirProvider.map { it.file("server.jar") })
+
+        jvmArgs(
+            "-Xms2G", "-Xmx4G",
+            "-Dcom.mojang.eula.agree=true"
+        )
+        if (target.javaVersion >= 24) {
+            jvmArgs("--sun-misc-unsafe-memory-access=allow")
+        }
+        args("--nogui")
     }
 }
 
