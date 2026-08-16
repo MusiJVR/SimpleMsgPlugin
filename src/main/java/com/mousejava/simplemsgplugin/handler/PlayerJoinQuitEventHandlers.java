@@ -10,16 +10,19 @@ import com.mousejava.simplemsgplugin.utils.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class PlayerJoinQuitEventHandlers implements Listener {
+    private final SimpleMsgPlugin plugin;
     private final DatabaseDriver dbDriver;
     private final DatabaseCacheManager cacheManager;
 
-    public PlayerJoinQuitEventHandlers(DatabaseDriver dbDriver, DatabaseCacheManager cacheManager) {
+    public PlayerJoinQuitEventHandlers(JavaPlugin plugin, DatabaseDriver dbDriver, DatabaseCacheManager cacheManager) {
+        this.plugin = (SimpleMsgPlugin) plugin;
         this.dbDriver = dbDriver;
         this.cacheManager = cacheManager;
     }
@@ -60,8 +63,8 @@ public class PlayerJoinQuitEventHandlers implements Listener {
             }
         }, uuid);
 
-        String sound = SimpleMsgPlugin.getInstance().getConfig().getString("msgsound");
-        int volume = setDefaultValue(50, "volumesound", 0, 100);
+        String sound = plugin.getConfig().getString("default_sound");
+        int volume = setDefaultValue(50, "default_volume", 0, 100);
 
         dbDriver.selectData("uuid", "sounds", "WHERE uuid = ?", rs -> {
             if (rs.isEmpty()) {
@@ -76,7 +79,7 @@ public class PlayerJoinQuitEventHandlers implements Listener {
 
         dbDriver.selectData("sender, message", "offline_msg", "WHERE LOWER(receiver) = LOWER(?)", rs -> {
             if (!rs.isEmpty()) {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.haveunreadmsg");
+                MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
                 Utils.msgPlaySound(dbDriver, player);
             }
         }, player.getName());
@@ -85,13 +88,13 @@ public class PlayerJoinQuitEventHandlers implements Listener {
     @EventHandler
     public void PlayerQuitEvent(PlayerQuitEvent playerQuit) {
         Player player = playerQuit.getPlayer();
-        if (SimpleMsgPlugin.getInstance().latestRecipients.containsKey(player.getName()) && SimpleMsgPlugin.getInstance().latestRecipients.get(player.getName()) != null) {
-            SimpleMsgPlugin.getInstance().latestRecipients.remove(player.getName());
+        if (plugin.latestRecipients.containsKey(player.getName()) && plugin.latestRecipients.get(player.getName()) != null) {
+            plugin.latestRecipients.remove(player.getName());
         }
     }
 
     private int setDefaultValue(int value, String pathConfig, int minValue, int maxValue) {
-        String valueDefaultConfig = SimpleMsgPlugin.getInstance().getConfig().getString(pathConfig);
+        String valueDefaultConfig = plugin.getConfig().getString(pathConfig);
         if (Utils.checkDigits(valueDefaultConfig)) {
             int valueDefault = Integer.parseInt(valueDefaultConfig);
 

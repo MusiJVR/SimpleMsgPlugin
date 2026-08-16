@@ -1,304 +1,339 @@
 package com.mousejava.simplemsgplugin.command;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mousejava.simplemsgplugin.chatgroups.GroupPlayer;
+import com.mousejava.simplemsgplugin.command.api.Cmd;
+import com.mousejava.simplemsgplugin.command.api.ICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
 import com.mousejava.simplemsgplugin.chatgroups.Group;
 import com.mousejava.simplemsgplugin.chatgroups.GroupManager;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class PrivateChatCommand implements CommandExecutor {
-    private final JavaPlugin plugin;
-
+public class PrivateChatCommand implements ICommand {
     public PrivateChatCommand() {
-        this.plugin = SimpleMsgPlugin.getInstance();
+
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player player)) return true;
-
-        if (args.length == 0) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.privatechat.usage.default");
-            return true;
-        }
-
-        switch (args[0].toLowerCase()) {
-            case "create":
-                handleCreate(player, args);
-                break;
-            case "delete":
-                handleDelete(player, args);
-                break;
-            case "invite":
-                handleInvite(player, args);
-                break;
-            case "join":
-                handleJoin(player, args);
-                break;
-            case "leave":
-                handleLeave(player, args);
-                break;
-            case "kick":
-                handleKick(player, args);
-                break;
-            case "info":
-                handleInfo(player, args);
-                break;
-            default:
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.privatechat.usage.default");
-                break;
-        }
-
-        return true;
+    public LiteralCommandNode<CommandSourceStack> create() {
+        return Cmd.playerCommand("privatechat", "simplemsgplugin.privatechat", "messages.privatechat.usage.default")
+                .then(buildCreate())
+                .then(buildDelete())
+                .then(buildInvite())
+                .then(buildJoin())
+                .then(buildLeave())
+                .then(buildKick())
+                .then(buildInfo())
+                .build();
     }
 
-    private void handleCreate(Player sender, String[] args) {
-        if (args.length != 2) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.create", component ->
-                    component.hoverEvent(HoverEvent.showText(Component.text("/privatechat create ")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat create "))
-            );
-            return;
-        }
-
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
-        if (group == null) {
-            String groupName = args[1];
-
-            com.mousejava.simplemsgplugin.chatgroups.Player player = new com.mousejava.simplemsgplugin.chatgroups.Player(sender);
-            group = GroupManager.createGroup(groupName, player);
-            group.addPlayer(player);
-
-            MessageUtils.sendMiniMessageIfPresent(
-                    sender,
-                    "messages.privatechat.create_successfully",
-                    raw -> raw.replace("%group%", groupName),
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.chat_info")))
-                            .clickEvent(ClickEvent.runCommand("/privatechat info"))
-            );
-        } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_already_in_private_chat");
-        }
+    @Override
+    public String description() {
+        return "This command allows you to interact with private chats";
     }
 
-    private void handleDelete(Player sender, String[] args) {
-        if (args.length != 1) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.delete",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat delete")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat delete"))
-            );
-            return;
-        }
-
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
-        if (group == null || !GroupManager.deleteGroup(sender.getUniqueId())) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_owner");
-        }
+    @Override
+    public Set<String> aliases() {
+        return Set.of("pvch", "pc");
     }
 
-    public void handleInvite(Player sender, String[] args) {
-        if (args.length != 2) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.invite",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat invite ")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat invite "))
-            );
-            return;
+    private static boolean isInGroup(CommandSourceStack source) {
+        return source.getSender() instanceof Player player
+                && GroupManager.findGroupByPlayer(player.getUniqueId()) != null;
+    }
+
+    private static boolean isGroupOwner(CommandSourceStack source) {
+        if (!(source.getSender() instanceof Player player)) return false;
+        Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+        return group != null && group.getOwner().getId().equals(player.getUniqueId());
+    }
+
+    private SuggestionProvider<CommandSourceStack> groupMemberSuggestions() {
+        return (ctx, builder) -> {
+            String remaining = builder.getRemainingLowerCase();
+            if (ctx.getSource().getSender() instanceof Player player) {
+                Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+                if (group != null) {
+                    group.getPlayers().stream()
+                            .map(GroupPlayer::getName)
+                            .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                            .forEach(builder::suggest);
+                }
+            }
+            return builder.buildFuture();
+        };
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> buildCreate() {
+        return Cmd.playerCommand("create",
+                (ctx, player) -> {
+                    MessageUtils.sendMiniMessageComponent(player, "messages.privatechat.usage.create", component ->
+                            component.hoverEvent(HoverEvent.showText(Component.text("/privatechat create ")))
+                                    .clickEvent(ClickEvent.suggestCommand("/privatechat create ")));
+                    return Command.SINGLE_SUCCESS;
+                }
+        ).then(
+                Cmd.executesPlayer(
+                        Cmd.argument("group_name", StringArgumentType.word()),
+                        this::executeCreate
+                )
+        );
+    }
+
+    private int executeCreate(CommandContext<CommandSourceStack> ctx, Player player) {
+        String groupName = StringArgumentType.getString(ctx, "group_name");
+        Group existing = GroupManager.findGroupByPlayer(player.getUniqueId());
+
+        if (existing != null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_already_in_private_chat");
+            return Command.SINGLE_SUCCESS;
         }
 
-        String playerName = args[1];
-        if (sender.getName().equals(playerName)) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_can_not_invite_yourself");
-            return;
+        GroupPlayer groupPlayer = new GroupPlayer(player);
+        Group group = GroupManager.createGroup(groupName, groupPlayer);
+        group.addPlayer(groupPlayer);
+
+        MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.create_successfully",
+                raw -> raw.replace("<group>", groupName),
+                component -> component
+                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.chat_info")))
+                        .clickEvent(ClickEvent.runCommand("/privatechat info")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> buildDelete() {
+        return Cmd.executesPlayer(
+                Cmd.literal("delete")
+                        .requires(PrivateChatCommand::isGroupOwner),
+                this::executeDelete
+        );
+    }
+
+    private int executeDelete(CommandContext<CommandSourceStack> ctx, Player player) {
+        if (!GroupManager.deleteGroup(player.getUniqueId())) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_owner");
         }
+        return Command.SINGLE_SUCCESS;
+    }
 
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
-        if (group != null) {
-            if (group.getOwner().getId().equals(sender.getUniqueId())) {
-                Player player = plugin.getServer().getPlayer(playerName);
-                if (player != null) {
-                    MessageUtils.sendMiniMessageTransformed(sender, "messages.privatechat.invite_successfully",
-                            raw -> raw.replace("%player%", group.getName()));
-
-                    MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.invite.template",
-                            raw -> raw
-                                    .replace("%player%", sender.getName())
-                                    .replace("%group%", group.getName()),
+    private LiteralArgumentBuilder<CommandSourceStack> buildInvite() {
+        return Cmd.executesPlayer(
+                Cmd.literal("invite")
+                        .requires(PrivateChatCommand::isGroupOwner),
+                (ctx, player) -> {
+                    MessageUtils.sendMiniMessageComponent(player, "messages.privatechat.usage.invite",
                             component -> component
-                                    .replaceText(builder -> builder
-                                    .match("%accept_text%")
-                                    .replacement(MessageUtils.safeText("messages.privatechat.invite.accept_text")
-                                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.invite.accept_hover_text")))
-                                            .clickEvent(ClickEvent.runCommand("/privatechat join " + group.getId())))
-                            )
-                    );
-                } else {
-                    MessageUtils.sendColoredIfPresent(sender, "messages.playermissing");
+                                    .hoverEvent(HoverEvent.showText(Component.text("/privatechat invite ")))
+                                    .clickEvent(ClickEvent.suggestCommand("/privatechat invite ")));
+                    return Command.SINGLE_SUCCESS;
                 }
-            } else {
-                MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_owner");
-            }
-        } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_in_private_chat");
-        }
+        ).then(
+                Cmd.executesPlayer(
+                        Cmd.argument("player", StringArgumentType.word(), Cmd.ONLINE_PLAYERS),
+                        this::executeInvite
+                )
+        );
     }
 
-    private void handleJoin(Player sender, String[] args) {
-        if (args.length != 2) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.join",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat join ")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat join "))
-            );
-            return;
+    private int executeInvite(CommandContext<CommandSourceStack> ctx, Player player) {
+        String playerName = StringArgumentType.getString(ctx, "player");
+
+        if (player.getName().equalsIgnoreCase(playerName)) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_can_not_invite_yourself");
+            return Command.SINGLE_SUCCESS;
         }
 
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
+        Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
         if (group == null) {
-            UUID groupId = null;
-            boolean parseSuccess = false;
-
-            try {
-                groupId = UUID.fromString(args[1]);
-            } catch (IllegalArgumentException e) {
-                parseSuccess = true;
-            }
-
-            Group newGroup = (groupId != null) ? GroupManager.getGroup(groupId) : null;
-            if (!parseSuccess && newGroup != null) {
-                newGroup.addPlayer(new com.mousejava.simplemsgplugin.chatgroups.Player(sender));
-
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.privatechat.join_successfully",
-                        raw -> raw.replace("%group%", newGroup.getName()),
-                        component -> component
-                                .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.chat_info")))
-                                .clickEvent(ClickEvent.runCommand("/privatechat info"))
-                );
-            } else {
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.privatechat.join_failed");
-            }
-        } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_already_in_private_chat");
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_in_private_chat");
+            return Command.SINGLE_SUCCESS;
         }
+
+        Player target = Cmd.resolveOnlinePlayer(playerName).orElse(null);
+        if (target == null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.playermissing");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        MessageUtils.sendMiniMessageTransformed(player, "messages.privatechat.invite_successfully",
+                raw -> raw.replace("<player>", group.getName()));
+
+        MessageUtils.sendMiniMessageIfPresent(target, "messages.privatechat.invite.template",
+                raw -> raw
+                        .replace("<player>", player.getName())
+                        .replace("<group>", group.getName()),
+                component -> component.replaceText(builder -> builder
+                        .match("<accept_text>")
+                        .replacement(MessageUtils.safeText("messages.privatechat.invite.accept_text")
+                                .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.invite.accept_hover_text")))
+                                .clickEvent(ClickEvent.runCommand("/privatechat join " + group.getId())))));
+
+        return Command.SINGLE_SUCCESS;
     }
 
-    private void handleLeave(Player sender, String[] args) {
-        if (args.length != 1) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.leave",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat leave")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat leave"))
-            );
-            return;
-        }
-
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
-        if (group != null && group.removePlayer(sender.getUniqueId())) {
-            MessageUtils.sendMiniMessageTransformed(sender, "messages.privatechat.leave_successfully",
-                    raw -> raw.replace("%group%", group.getName()));
-        } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_in_private_chat");
-        }
-    }
-
-    private void handleKick(Player sender, String[] args) {
-        if (args.length != 2) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.kick",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat kick ")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat kick "))
-            );
-            return;
-        }
-
-        String playerName = args[1];
-        if (sender.getName().equals(playerName)) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_can_not_kick_yourself");
-            return;
-        }
-
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
-
-        if (group != null) {
-            if (group.getOwner().getId().equals(sender.getUniqueId())) {
-                com.mousejava.simplemsgplugin.chatgroups.Player player = group.getPlayerByName(playerName);
-                if (player != null && group.removePlayer(player.getId())) {
-                    MessageUtils.sendMiniMessageTransformed(sender, "messages.privatechat.kick_successfully",
-                            raw -> raw.replace("%player%", playerName));
-
-                    Player argPlayer = plugin.getServer().getPlayer(playerName);
-                    if (argPlayer != null && argPlayer.isOnline()) {
-                        MessageUtils.sendMiniMessageTransformed(argPlayer, "messages.privatechat.kick_notification",
-                                raw -> raw.replace("%group%", group.getName()));
-                    }
-                } else {
-                    MessageUtils.sendMiniMessageTransformed(sender, "messages.privatechat.kick_failed",
-                            raw -> raw.replace("%player%", playerName));
+    private LiteralArgumentBuilder<CommandSourceStack> buildJoin() {
+        return Cmd.playerCommand("join",
+                (ctx, player) -> {
+                    MessageUtils.sendMiniMessageComponent(player, "messages.privatechat.usage.join",
+                            component -> component
+                                    .hoverEvent(HoverEvent.showText(Component.text("/privatechat join ")))
+                                    .clickEvent(ClickEvent.suggestCommand("/privatechat join ")));
+                    return Command.SINGLE_SUCCESS;
                 }
-            } else {
-                MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_owner");
-            }
-        } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_in_private_chat");
-        }
+        ).then(
+                Cmd.executesPlayer(
+                        Cmd.argument("group_id", StringArgumentType.word()),
+                        this::executeJoin
+                )
+        );
     }
 
-    private void handleInfo(Player sender, String[] args) {
-        if (args.length != 1) {
-            MessageUtils.sendMiniMessageComponent(sender, "messages.privatechat.usage.info",
-                    component -> component
-                            .hoverEvent(HoverEvent.showText(Component.text("/privatechat info")))
-                            .clickEvent(ClickEvent.suggestCommand("/privatechat info"))
-            );
-            return;
+    private int executeJoin(CommandContext<CommandSourceStack> ctx, Player player) {
+        Group existing = GroupManager.findGroupByPlayer(player.getUniqueId());
+        if (existing != null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_already_in_private_chat");
+            return Command.SINGLE_SUCCESS;
         }
 
-        Group group = GroupManager.findGroupByPlayer(sender.getUniqueId());
+        String groupIdInput = StringArgumentType.getString(ctx, "group_id");
+        UUID groupId;
+        try {
+            groupId = UUID.fromString(groupIdInput);
+        } catch (IllegalArgumentException e) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.join_failed");
+            return Command.SINGLE_SUCCESS;
+        }
 
-        if (group != null) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.privatechat.info.template",
-                    raw -> raw
-                            .replace("%group%", group.getName())
-                            .replace("%owner%", group.getOwner().getName()),
-                    component -> component
-                            .replaceText(builder -> builder.match("%count_members%").replacement(
-                                    Component.text(group.getPlayers().size())
-                                            .hoverEvent(HoverEvent.showText(
-                                                    Component.text(group.getPlayers().stream()
-                                                            .map(com.mousejava.simplemsgplugin.chatgroups.Player::getName)
-                                                            .collect(Collectors.joining(", ")))
-                                            ))
-                            ))
-                            .replaceText(builder -> builder.match("%leave_text%").replacement(
-                                    MessageUtils.safeText("messages.privatechat.info.leave_text")
-                                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.info.leave_hover_text")))
-                                            .clickEvent(ClickEvent.runCommand("/privatechat leave"))
-                            ))
-                            .replaceText(builder -> builder.match("%invite_text%").replacement(
-                                    MessageUtils.safeText("messages.privatechat.info.invite_text")
-                                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.info.invite_hover_text")))
-                                            .clickEvent(ClickEvent.suggestCommand("/privatechat invite "))
-                            ))
-            );
+        Group targetGroup = GroupManager.getGroup(groupId);
+        if (targetGroup == null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.join_failed");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        targetGroup.addPlayer(new GroupPlayer(player));
+
+        MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.join_successfully",
+                raw -> raw.replace("<group>", targetGroup.getName()),
+                component -> component
+                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.chat_info")))
+                        .clickEvent(ClickEvent.runCommand("/privatechat info")));
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> buildLeave() {
+        return Cmd.executesPlayer(
+                Cmd.literal("leave")
+                        .requires(PrivateChatCommand::isInGroup),
+                this::executeLeave
+        );
+    }
+
+    private int executeLeave(CommandContext<CommandSourceStack> ctx, Player player) {
+        Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+        if (group != null && group.removePlayer(player.getUniqueId())) {
+            MessageUtils.sendMiniMessageTransformed(player, "messages.privatechat.leave_successfully",
+                    raw -> raw.replace("<group>", group.getName()));
         } else {
-            MessageUtils.sendColoredIfPresent(sender, "messages.privatechat.you_not_in_private_chat");
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_in_private_chat");
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> buildKick() {
+        return Cmd.executesPlayer(
+                Cmd.literal("kick")
+                        .requires(PrivateChatCommand::isGroupOwner),
+                (ctx, player) -> {
+                    MessageUtils.sendMiniMessageComponent(player, "messages.privatechat.usage.kick",
+                            component -> component
+                                    .hoverEvent(HoverEvent.showText(Component.text("/privatechat kick ")))
+                                    .clickEvent(ClickEvent.suggestCommand("/privatechat kick ")));
+                    return Command.SINGLE_SUCCESS;
+                }
+        ).then(
+                Cmd.executesPlayer(
+                        Cmd.argument("player", StringArgumentType.word(), groupMemberSuggestions()),
+                        this::executeKick
+                )
+        );
+    }
+
+    private int executeKick(CommandContext<CommandSourceStack> ctx, Player player) {
+        String playerName = StringArgumentType.getString(ctx, "player");
+
+        if (player.getName().equalsIgnoreCase(playerName)) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_can_not_kick_yourself");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+        if (group == null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_in_private_chat");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        GroupPlayer target = group.getPlayerByName(playerName);
+        if (target != null && group.removePlayer(target.getId())) {
+            MessageUtils.sendMiniMessageTransformed(player, "messages.privatechat.kick_successfully",
+                    raw -> raw.replace("<player>", playerName));
+
+            Cmd.resolveOnlinePlayer(playerName).ifPresent(online ->
+                    MessageUtils.sendMiniMessageTransformed(online, "messages.privatechat.kick_notification",
+                            raw -> raw.replace("<group>", group.getName())));
+        } else {
+            MessageUtils.sendMiniMessageTransformed(player, "messages.privatechat.kick_failed",
+                    raw -> raw.replace("<player>", playerName));
+        }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private LiteralArgumentBuilder<CommandSourceStack> buildInfo() {
+        return Cmd.executesPlayer(
+                Cmd.literal("info")
+                        .requires(PrivateChatCommand::isInGroup),
+                this::executeInfo
+        );
+    }
+
+    private int executeInfo(CommandContext<CommandSourceStack> ctx, Player player) {
+        Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+        if (group == null) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_in_private_chat");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.info.template",
+                raw -> raw
+                        .replace("<group>", group.getName())
+                        .replace("<owner>", group.getOwner().getName()),
+                component -> component
+                        .replaceText(builder -> builder.match("<count_members>").replacement(
+                                Component.text(group.getPlayers().size())
+                                        .hoverEvent(HoverEvent.showText(
+                                                Component.text(group.getPlayers().stream()
+                                                        .map(GroupPlayer::getName)
+                                                        .collect(Collectors.joining(", ")))))))
+                        .replaceText(builder -> builder.match("<leave_text>").replacement(
+                                MessageUtils.safeText("messages.privatechat.info.leave_text")
+                                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.info.leave_hover_text")))
+                                        .clickEvent(ClickEvent.runCommand("/privatechat leave"))))
+                        .replaceText(builder -> builder.match("<invite_text>").replacement(
+                                MessageUtils.safeText("messages.privatechat.info.invite_text")
+                                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.privatechat.info.invite_hover_text")))
+                                        .clickEvent(ClickEvent.suggestCommand("/privatechat invite ")))));
+        return Command.SINGLE_SUCCESS;
     }
 }

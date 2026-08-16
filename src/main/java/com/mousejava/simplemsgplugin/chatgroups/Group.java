@@ -3,19 +3,19 @@ package com.mousejava.simplemsgplugin.chatgroups;
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Group {
     private final UUID id;
     private final String name;
-    private final List<Player> players = new ArrayList<>();
-    private Player owner;
+    private final List<GroupPlayer> players = new ArrayList<>();
+    private GroupPlayer owner;
 
-    public Group(String name, Player owner) {
+    public Group(String name, GroupPlayer owner) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.owner = owner;
@@ -25,7 +25,7 @@ public class Group {
         return id;
     }
 
-    public Player getOwner() {
+    public GroupPlayer getOwner() {
         return owner;
     }
 
@@ -33,62 +33,68 @@ public class Group {
         return name;
     }
 
-    public List<Player> getPlayers() {
+    public List<GroupPlayer> getPlayers() {
         return players;
     }
 
-    public Player getPlayerByName(String playerName) {
+    public GroupPlayer getPlayerByName(String playerName) {
         return players.stream()
                 .filter(player -> player.getName().equals(playerName))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Player getPlayerById(UUID playerId) {
+    public GroupPlayer getPlayerById(UUID playerId) {
         return players.stream()
                 .filter(player -> player.getId().equals(playerId))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void addPlayer(Player player) {
+    public void updateCommands() {
+        players.forEach(GroupPlayer::updateCommands);
+    }
+
+    public void addPlayer(GroupPlayer player) {
         sendMessage("messages.privatechat.join_notification", player.getName(), null);
         players.add(player);
+        player.updateCommands();
     }
 
     public boolean removePlayer(UUID playerId) {
-        AtomicReference<String> removedPlayerName = new AtomicReference<>();
-        boolean val = players.removeIf(player -> {
-            if (player.getId().equals(playerId)) {
-                removedPlayerName.set(player.getName());
-                return true;
-            }
+        GroupPlayer removedPlayer = players.stream()
+                .filter(player -> player.getId().equals(playerId))
+                .findFirst()
+                .orElse(null);
+
+        if (removedPlayer == null)
             return false;
-        });
-        if (val) {
-            if (players.isEmpty()) {
-                GroupManager.deleteGroup(owner.getId());
-            } else {
-                if (owner.getId().equals(playerId)) {
-                    owner = players.get(0);
-                }
-            }
-            sendMessage("messages.privatechat.leave_notification", removedPlayerName.get(), null);
+
+        players.remove(removedPlayer);
+        removedPlayer.updateCommands();
+
+        if (players.isEmpty()) {
+            GroupManager.deleteGroup(owner.getId());
+        } else {
+            if (owner.getId().equals(playerId))
+                owner = players.get(0);
         }
-        return val;
+
+        sendMessage("messages.privatechat.leave_notification", removedPlayer.getName(), null);
+        return true;
     }
 
     public void sendMessage(String templatePath, String playerName, String message) {
-        for (Player player : players) {
-            org.bukkit.entity.Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
+        for (GroupPlayer player : players) {
+            Player bukkitPlayer = SimpleMsgPlugin.getInstance().getServer().getPlayer(player.getName());
             if (bukkitPlayer == null || !bukkitPlayer.isOnline()) continue;
 
             Scheduler.runForEntity(bukkitPlayer, () -> {
                 MessageUtils.sendMiniMessageTransformed(bukkitPlayer, templatePath,
                         raw -> raw
-                                .replace("%group%", name)
-                                .replace("%player%", playerName != null ? playerName : "")
-                                .replace("%message%", message != null ? message : "")
+                                .replace("<group>", name)
+                                .replace("<player>", playerName != null ? playerName : "")
+                                .replace("<message>", message != null ? message : "")
                 );
             });
         }

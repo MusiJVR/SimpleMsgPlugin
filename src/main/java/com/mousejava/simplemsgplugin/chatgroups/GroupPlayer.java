@@ -1,17 +1,20 @@
 package com.mousejava.simplemsgplugin.chatgroups;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import java.util.UUID;
 
-public class Player {
+public class GroupPlayer {
     private final UUID id;
     private final String name;
 
-    public Player(String name, UUID uuid) {
+    public GroupPlayer(String name, UUID uuid) {
         this.id = uuid;
         this.name = name;
     }
 
-    public Player(org.bukkit.entity.Player player) {
+    public GroupPlayer(Player player) {
         this(player.getName(), player.getUniqueId());
     }
 
@@ -21,6 +24,12 @@ public class Player {
 
     public String getName() {
         return name;
+    }
+
+    public void updateCommands() {
+        Player player = Bukkit.getPlayer(id);
+        if (player != null)
+            player.updateCommands();
     }
 
     @Override

@@ -1,21 +1,25 @@
 package com.mousejava.simplemsgplugin.command;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mousejava.simplemsgplugin.command.api.Cmd;
+import com.mousejava.simplemsgplugin.command.api.ICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
+import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class NotificationCommand implements CommandExecutor {
+public class NotificationCommand implements ICommand {
     private final DatabaseDriver dbDriver;
 
     public NotificationCommand(DatabaseDriver dbDriver) {
@@ -23,45 +27,73 @@ public class NotificationCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) return true;
+    public LiteralCommandNode<CommandSourceStack> create() {
+        return Cmd.playerCommand("notificationmsg", "simplemsgplugin.notificationmsg", "messages.notificationmsg.usage")
+                .then(
+                        Cmd.executesPlayer(
+                                Cmd.argument("sound", StringArgumentType.word(), soundSuggestions()),
+                                this::executeWithoutVolume
+                        ).then(
+                                Cmd.executesPlayer(
+                                        Cmd.argument("volume", IntegerArgumentType.integer(0, 100), Cmd.fixedSuggestionsUnsorted("0", "25", "50", "75", "100")),
+                                        this::executeWithVolume
+                                )
+                        )
+                )
+                .build();
+    }
 
-        if (args.length < 1 || args.length > 2) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.usage");
-            return true;
-        }
+    @Override
+    public String description() {
+        return "This command allows you to change the notification sound";
+    }
 
+    @Override
+    public Set<String> aliases() {
+        return Set.of("msgnotification", "notifymsg", "msgnotify", "notifypm", "pmnotify", "notify");
+    }
+
+    private SuggestionProvider<CommandSourceStack> soundSuggestions() {
+        return (ctx, builder) -> {
+            String remaining = builder.getRemainingLowerCase();
+            Registry.SOUNDS.forEach(sound -> {
+                String name = sound.getKey().getKey();
+                if (name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                    builder.suggest(name);
+            });
+            return builder.buildFuture();
+        };
+    }
+
+    private int executeWithoutVolume(CommandContext<CommandSourceStack> ctx, Player player) {
+        return applyNotificationSettings(ctx, player, null);
+    }
+
+    private int executeWithVolume(CommandContext<CommandSourceStack> ctx, Player player) {
+        int volume = IntegerArgumentType.getInteger(ctx, "volume");
+        return applyNotificationSettings(ctx, player, volume);
+    }
+
+    private int applyNotificationSettings(CommandContext<CommandSourceStack> ctx, Player player, Integer volume) {
         UUID uuid = player.getUniqueId();
-        Map<String, Object> updateMap = new HashMap<>();
 
-        String soundName = getValidSound(args[0]);
+        String soundName = getValidSound(StringArgumentType.getString(ctx, "sound"));
         if (soundName == null) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.soundmissing");
-            return true;
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.sound_missing");
+            return Command.SINGLE_SUCCESS;
         }
+
+        Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("sound", soundName);
-
-        if (args.length == 2) {
-            if (!Utils.checkDigits(args[1])) {
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.volumemissing");
-                return true;
-            }
-
-            int volume = Integer.parseInt(args[1]);
-            if (volume < 0 || volume > 100) {
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.volumemissing");
-                return true;
-            }
-
+        if (volume != null) {
             updateMap.put("volume", volume);
         }
 
         dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
 
-        MessageUtils.sendMiniMessageIfPresent(sender, "messages.msgnotification.success");
+        MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
         Utils.msgPlaySound(dbDriver, player);
-
-        return true;
+        return Command.SINGLE_SUCCESS;
     }
 
     private String getValidSound(String name) {

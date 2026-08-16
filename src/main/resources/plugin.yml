@@ -1,106 +1,25 @@
-name: SimpleMsgPlugin
+name: '${name}'
+prefix: '${prefix}'
 description: '${description}'
 version: '${version}'
 
 main: com.mousejava.simplemsgplugin.SimpleMsgPlugin
-api-version: '1.20'
+api-version: '${apiVersion}'
 folia-supported: true
 load: POSTWORLD
 
-authors: [ MouseJava ]
-
-commands:
-  msghelp:
-    description: This command allows you to display all possible plugin commands
-    permission: simplemsgplugin.msghelp
-    usage: /<command>
-    aliases:
-      - msgh
-  msgreloadconfig:
-    description: This command allows you to reload the plugin config
-    permission: simplemsgplugin.msgreloadconfig
-    usage: /<command>
-    aliases:
-      - msgrc
-      - reloadmsg
-  playermsg:
-    description: This command allows you to send private messages to the player
-    permission: simplemsgplugin.playermsg
-    usage: /<command> <player> <message>
-    aliases:
-      - pm
-      - msg
-      - message
-      - tell
-      - w
-  replymsg:
-    description: This command allows you to send a private message to the last player who wrote to you
-    permission: simplemsgplugin.replymsg
-    usage: /<command> <message>
-    aliases:
-      - reply
-      - r
-  acceptsend:
-    description: This command allows you to accept sending an offline message
-    permission: simplemsgplugin.acceptsend
-    usage: /<command>
-    aliases:
-      - accsend
-  msgnotification:
-    description: This command allows you to change the notification sound
-    permission: simplemsgplugin.msgnotification
-    usage: /<command> <sound> <volume>
-    aliases:
-      - msgnotify
-      - pmnotify
-  addblacklist:
-    description: This command allows you to add players to the blacklist
-    permission: simplemsgplugin.addblacklist
-    usage: /<command> <player>
-    aliases:
-      - addbl
-      - ignore
-  removeblacklist:
-    description: This command allows you to remove players from the blacklist
-    permission: simplemsgplugin.removeblacklist
-    usage: /<command> <player>
-    aliases:
-      - removebl
-      - unignore
-  showblacklist:
-    description: This command allows you to display your blacklist
-    permission: simplemsgplugin.showblacklist
-    usage: /<command>
-    aliases:
-      - showbl
-  msgmail:
-    description: This command allows you to view unread messages
-    permission: simplemsgplugin.msgmail
-    usage: /<command>
-    aliases:
-      - pmmail
-      - mail
-  privatechat:
-    description: This command allows you to interact with private chats
-    permission: simplemsgplugin.privatechat
-    usage: /<command> <action> <arg>(if required)
-    aliases:
-      - pvch
-      - pc
-  msgproperties:
-    description: This command allows you to set player properties
-    permission: simplemsgplugin.msgproperties
-    usage: /<command> <property> <arg>
-    aliases:
-      - msgprop
+authors: ${authors}
 
 permissions:
-  simplemsgplugin.msghelp:
-    description: Permission to use command msghelp
+  simplemsgplugin.helpmsg:
+    description: Permission to use command helpmsg
     default: true
-  simplemsgplugin.msgreloadconfig:
-    description: Permission to use command msgrc
+  simplemsgplugin.reloadmsg:
+    description: Permission to use command msgr
     default: op
+  simplemsgplugin.propertiesmsg:
+    description: Permission to use command propertiesmsg
+    default: true
   simplemsgplugin.playermsg:
     description: Permission to use command msg
     default: true
@@ -110,8 +29,14 @@ permissions:
   simplemsgplugin.acceptsend:
     description: Permission to use command acceptsend
     default: true
-  simplemsgplugin.msgnotification:
-    description: Permission to use command msgnotification
+  simplemsgplugin.mailmsg:
+    description: Permission to use command mail
+    default: true
+  simplemsgplugin.notificationmsg:
+    description: Permission to use command notificationmsg
+    default: true
+  simplemsgplugin.privatechat:
+    description: Permission to use command privatechat
     default: true
   simplemsgplugin.addblacklist:
     description: Permission to use command addbl
@@ -121,13 +46,4 @@ permissions:
     default: true
   simplemsgplugin.showblacklist:
     description: Permission to use command showbl
-    default: true
-  simplemsgplugin.msgmail:
-    description: Permission to use command msgmail
-    default: true
-  simplemsgplugin.privatechat:
-    description: Permission to use command privatechat
-    default: true
-  simplemsgplugin.msgproperties:
-    description: Permission to use command msgproperties
     default: true

@@ -1,9 +1,10 @@
 package com.mousejava.simplemsgplugin;
 
+import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.command.api.CommandManager;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.mousejava.simplemsgplugin.command.*;
 import com.mousejava.simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
 import com.mousejava.simplemsgplugin.handler.PrivateChatHandler;
 import com.mousejava.simplemsgplugin.utils.DatabaseCacheManager;
@@ -26,6 +27,7 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         instance = this;
         saveDefaultConfig();
         Scheduler.init(this);
+        MessageUtils.init(this);
 
         dbDriver = new DatabaseDriver("jdbc:sqlite:" + getDataFolder() + "/smpdatabase.db");
         dbDriver.createTable("properties", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "confirm_sending BOOLEAN NOT NULL DEFAULT 1");
@@ -35,32 +37,10 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
 
         cacheManager = new DatabaseCacheManager(dbDriver);
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(dbDriver, cacheManager), this);
+        CommandManager.init(this, dbDriver, cacheManager);
+
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(this, dbDriver, cacheManager), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
-        getServer().getPluginCommand("msghelp").setExecutor(new MSGHelpCommand(this));
-        getServer().getPluginCommand("msghelp").setTabCompleter(new MSGHelpTabCompleter());
-        getServer().getPluginCommand("msgreloadconfig").setExecutor(new MSGReloadConfigCommand(this));
-        getServer().getPluginCommand("msgreloadconfig").setTabCompleter(new MSGReloadConfigTabCompleter());
-        getServer().getPluginCommand("showblacklist").setExecutor(new ShowBlacklistCommand(dbDriver));
-        getServer().getPluginCommand("showblacklist").setTabCompleter(new ShowBlacklistTabCompleter());
-        getServer().getPluginCommand("addblacklist").setExecutor(new AddBlacklistCommand(this, dbDriver));
-        getServer().getPluginCommand("addblacklist").setTabCompleter(new AddBlacklistTabCompleter());
-        getServer().getPluginCommand("removeblacklist").setExecutor(new RemoveBlacklistCommand(this, dbDriver));
-        getServer().getPluginCommand("removeblacklist").setTabCompleter(new RemoveBlacklistTabCompleter());
-        getServer().getPluginCommand("msgnotification").setExecutor(new NotificationCommand(dbDriver));
-        getServer().getPluginCommand("msgnotification").setTabCompleter(new NotificationTabCompleter());
-        getServer().getPluginCommand("playermsg").setExecutor(new PlayerMsgCommand(dbDriver));
-        getServer().getPluginCommand("playermsg").setTabCompleter(new PlayerMsgTabCompleter(cacheManager));
-        getServer().getPluginCommand("replymsg").setExecutor(new ReplyMsgCommand(this));
-        getServer().getPluginCommand("replymsg").setTabCompleter(new ReplyMsgTabCompleter());
-        getServer().getPluginCommand("acceptsend").setExecutor(new AcceptSendCommand(dbDriver));
-        getServer().getPluginCommand("acceptsend").setTabCompleter(new AcceptSendTabCompleter());
-        getServer().getPluginCommand("msgmail").setExecutor(new MailCommand(dbDriver));
-        getServer().getPluginCommand("msgmail").setTabCompleter(new MailTabCompleter());
-        getServer().getPluginCommand("privatechat").setExecutor(new PrivateChatCommand());
-        getServer().getPluginCommand("privatechat").setTabCompleter(new PrivateChatTabCompleter());
-        getServer().getPluginCommand("msgproperties").setExecutor(new PropertiesCommand(dbDriver));
-        getServer().getPluginCommand("msgproperties").setTabCompleter(new PropertiesTabCompleter());
     }
 
     @Override

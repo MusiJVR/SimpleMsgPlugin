@@ -1,51 +1,65 @@
 package com.mousejava.simplemsgplugin.command;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mousejava.simplemsgplugin.command.api.Cmd;
+import com.mousejava.simplemsgplugin.command.api.ICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
-public class AddBlacklistCommand implements CommandExecutor {
-    private final JavaPlugin plugin;
+public class AddBlacklistCommand implements ICommand {
     private final DatabaseDriver dbDriver;
     
-    public AddBlacklistCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
-        this.plugin = plugin;
+    public AddBlacklistCommand(DatabaseDriver dbDriver) {
         this.dbDriver = dbDriver;
     }
 
     @Override
-    public boolean onCommand( CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player)) return true;
+    public LiteralCommandNode<CommandSourceStack> create() {
+        return Cmd.playerCommand("addblacklist", "simplemsgplugin.addblacklist", "messages.playermsg.missing")
+                .then(
+                        Cmd.executesPlayer(
+                                Cmd.argument("player", StringArgumentType.word(), Cmd.ONLINE_PLAYERS),
+                                this::executeAddBlacklist
+                        )
+                )
+                .build();
+    }
 
-        if (args.length != 1) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return true;
-        }
-        Player player = (Player) sender;
+    @Override
+    public String description() {
+        return "This command allows you to add players to the blacklist";
+    }
+
+    @Override
+    public Set<String> aliases() {
+        return Set.of("addbl", "ignore");
+    }
+
+    private int executeAddBlacklist(CommandContext<CommandSourceStack> ctx, Player player) {
         UUID uuid = player.getUniqueId();
-        String blockPlayerInput = args[0];
-        Player blockPlayer = plugin.getServer().getPlayer(blockPlayerInput);
-        if (blockPlayer == null || !Objects.equals(blockPlayer.getName(), blockPlayerInput)) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blmissing");
-            return true;
+        String blockPlayerInput = StringArgumentType.getString(ctx, "player");
+        Optional<Player> resolved = Cmd.resolveOnlinePlayer(blockPlayerInput);
+        if (resolved.isEmpty()) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.playermsg.missing");
+            return Command.SINGLE_SUCCESS;
         }
-        if (blockPlayer.getUniqueId() == uuid) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.blyourself");
-            return true;
+
+        Player blockPlayer = resolved.get();
+        if (blockPlayer.getUniqueId().equals(uuid)) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.yourself");
+            return Command.SINGLE_SUCCESS;
         }
 
         dbDriver.selectData("uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", rs -> {
             if (!rs.isEmpty()) {
-                MessageUtils.sendColoredIfPresent(sender, "messages.blalreadyblock");
+                MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.already_block");
                 return;
             }
             Map<String, Object> insertMap = new HashMap<>();
@@ -53,9 +67,9 @@ public class AddBlacklistCommand implements CommandExecutor {
             insertMap.put("blocked_uuid", blockPlayer.getUniqueId());
             insertMap.put("blocked_player", blockPlayer.getName());
             dbDriver.insertData("blacklist", insertMap);
-            MessageUtils.sendColoredIfPresent(sender, "messages.blsuccessblock");
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.success_block");
         }, uuid, blockPlayer.getUniqueId(), blockPlayer.getName());
 
-        return true;
+        return Command.SINGLE_SUCCESS;
     }
 }

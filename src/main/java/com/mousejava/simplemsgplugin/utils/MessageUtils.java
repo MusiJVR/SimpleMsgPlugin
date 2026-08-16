@@ -3,6 +3,8 @@ package com.mousejava.simplemsgplugin.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
 
@@ -10,14 +12,22 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public class MessageUtils {
+public final class MessageUtils {
     private static final MiniMessage MINI = MiniMessage.miniMessage();
+    private static FileConfiguration config;
+
+    public static void init(JavaPlugin plugin) {
+        MessageUtils.config = plugin.getConfig();
+    }
 
     public static @Nullable String getPlain(String path) {
         return getPlain(path, null);
     }
 
     public static @Nullable String getPlain(String path, String defaultMessage) {
+        if (config == null)
+            throw new IllegalStateException("MessageUtils has not been initialized! Call MessageUtils.init(plugin) first.");
+
         String raw = SimpleMsgPlugin.getInstance().getConfig().getString(path);
         if (raw == null || raw.trim().isEmpty()) return defaultMessage;
         return raw;

@@ -190,10 +190,9 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    relocate(
-        "com.zaxxer.hikari",
-        "com.mousejava.simplemsgplugin.libs.hikari"
-    )
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set("")
 }
 
 tasks.register("runServerMatrix") {
@@ -239,8 +238,12 @@ tasks {
 
     processResources {
         val props = mapOf(
+            "name" to project.name,
+            "prefix" to project.property("prefix"),
+            "description" to project.description,
             "version" to version,
-            "description" to project.description
+            "apiVersion" to libs.versions.minecraft.get(),
+            "authors" to project.property("authors")
         )
 
         filesMatching("plugin.yml") {

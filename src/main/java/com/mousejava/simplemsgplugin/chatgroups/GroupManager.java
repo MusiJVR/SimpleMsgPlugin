@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class GroupManager {
+public final class GroupManager {
     private static final List<Group> groups = new ArrayList<>();
 
-    public static Group createGroup(String name, Player owner) {
+    public static Group createGroup(String name, GroupPlayer owner) {
         Group group = new Group(name, owner);
         groups.add(group);
         return group;
@@ -19,11 +19,13 @@ public class GroupManager {
                 .findFirst()
                 .orElse(null);
 
-        if (removedGroup != null) {
+        boolean removed = groups.remove(removedGroup);
+        if (removed && removedGroup != null) {
             removedGroup.sendMessage("messages.privatechat.delete_successfully", null, null);
-            return groups.remove(removedGroup);
+            removedGroup.updateCommands();
         }
-        return false;
+
+        return removed;
     }
 
     public static Group getGroup(UUID groupId) {

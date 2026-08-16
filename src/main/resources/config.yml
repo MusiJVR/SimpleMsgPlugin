@@ -1,10 +1,10 @@
 # Plugin version 1.7.5
 
-sendmsgyourself: false
+send_msg_yourself: false
 # This item is needed to be able to send a message to yourself
 # Accepts only values 'true' and 'false'
 
-msgsound: 'false'
+default_sound: 'false'
 # By default, the sound is turned off 'false', but you can change it
 # It is necessary to indicate the name of the sound in uppercase and with underscores
 # Example - msgsound: 'entity.player.levelup'
@@ -12,7 +12,7 @@ msgsound: 'false'
 # Unfortunately not all of these sounds can be reproduced correctly
 # Therefore, if the sound doesn't work and gives an error, then you should change the sound
 
-volumesound: 50
+default_volume: 50
 # By default, the volume of notification sounds is set to '50', but it can be changed
 # The volume value must be specified in the range from '0' to '100'
 
@@ -23,76 +23,80 @@ confirm_sending: true
 # Confirmation of sending an offline message
 
 messages:
-  error: '&#ff5555Error'
-  incorrectcommand: '&#ff5555The command is specified incorrectly'
-  msgusage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
+  incorrect_command: '<color:#ffff55>The command is specified incorrectly</color>'
 
-  configreloadsuccessfully: '&#55ff55The plugin config was successfully reloaded'
+  reloadmsg:
+    reload_successfully: '<color:#55ffff>The plugin was successfully reloaded</color>'
 
-  notmsgyouself: '&#ffff55You cannot send message yourself'
-  playermissing: '&#ff5555This player is not on the server'
-  msgsendoffline: '&#ffff55Send this player an offline message?'
+  propertiesmsg:
+    unknown_property: '<color:#ffff55>Unknown property</color>'
+    usage: '<color:#ffff55>Usage: /propmsg <property> <value></color>'
+    confirm_sending:
+      usage: '<color:#ffff55>Usage: /msgprop confirm_sending <on | off></color>'
+      property_set: '<color:#55ffff>Property</color> <b><color:#ffff55><property></color></b> <color:#55ffff>is set to</color> <b><color:#ffff55><value></color></b>'
 
-  clickmsgsendreply: 'Click to send reply message'
-  nolastrecipient: '&#ffff55You do not have the latest recipient'
+  playermsg:
+    usage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
+    missing: '<color:#ffff55>Invalid player value</color>'
+    not_send_offline_from_console: '<color:#ffff55>You cannot send messages to offline players from the console</color>'
+    not_send_youself: '<color:#ffff55>You cannot send message yourself</color>'
+    sender_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    receiver_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    click_send_reply: 'Click to send reply message'
+    player_missing: '<color:#ffff55>This player is not on the server</color>'
+    send_offline: '<color:#ffff55>Send this player an offline message?</color>'
+    accept_send: '<color:#ffff55>Accept</color> <b><color:#55ffff>[✔]</color></b>'
+    click_send_offline: 'Click to send offline message'
 
-  clickmsgsendoffline: 'Click to send offline message'
-  msgsendofflinesuccessfully: '&#55ff55You have successfully sent an offline message'
+  replymsg:
+    no_last_recipient: '<color:#ffff55>You do not have the latest recipient</color>'
 
-  acceptsend: '<color:#ffff55>Accept</color> <b><color:#55ffff>[✔]</color></b>'
-  msgsenderpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
-  msgreceiverpattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
-  msgofflinepattern: '<b><color:#55ffff>[</color></b><color:#ffff55>%sender%</color> <b><color:#55ffff>-></color></b> <color:#ffff55>%receiver%</color><b><color:#55ffff>]</color></b><color:#ffff55>%message%</color>'
+  acceptsend:
+    send_offline_successfully: '<color:#55ffff>You have successfully sent an offline message</color>'
 
-  blmissing: '&#ff5555Invalid player value'
-  blyourself: '&#ff5555You cannot add yourself to the blacklist'
-  blsuccessblock: '&#55ff55The player was successfully blocked'
-  blalreadyblock: '&#ff5555This player is already blocked'
-  blnotblock: '&#ff5555This player is not on the blacklist'
-  blsuccessunblock: '&#55ff55The player has been successfully unblocked'
+  mailmsg:
+    offline_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    have_unread: "<color:#55ffff><hover:show_text:'Click to read messages'><click:run_command:'/mail'>You have unread messages (/mail - to read)</click></hover></color>"
+    your_unread: '<color:#55ffff>Your unread messages:</color>'
+    no_unread: '<color:#55ffff>You have no unread messages</color>'
 
-  youinbl: '&#ff5555You cannot send messages to this player'
-  youbl: '&#ffff55You have blocked this player'
-
-  emptybl: '&#ffff55Your blacklist is empty'
-  playersbl: '&#55ffffPlayers from your blacklist: §r&#ffff55%blacklist%'
-
-  haveunreadmsg: "<color:#55ffff><hover:show_text:'Click to read messages'><click:run_command:'/mail'>You have unread messages (/mail - to read)</click></hover></color>"
-  yoursunreadmsg: '<color:#55ffff>Your unread messages:</color>'
-  nounreadmsg: '<color:#55ffff>You have no unread messages</color>'
+  notificationmsg:
+    usage: '<color:#ffff55>Usage: /notify <sound> <volume></color>'
+    sound_missing: '<color:#ffff55>Invalid sound value</color>'
+    successfully_changed: '<color:#55ffff>The notification sound has been successfully changed</color>'
 
   privatechat:
-    message_template: '<b><color:#55ffff>[</color></b><color:#ffff55>%group%</color><b><color:#55ffff>]</color></b> <color:#ffff55>%player%</color><b><color:#55ffff>:</color></b> %message%'
-    you_not_owner: '&#ffff55You are not the owner of the private chat'
-    you_not_in_private_chat: '&#ffff55You are not in a private chat'
-    you_already_in_private_chat: '&#ffff55You are already in a private chat'
-    you_can_not_invite_yourself: '&#ffff55You can not invite yourself'
-    you_can_not_kick_yourself: '&#ffff55You can not kick yourself out'
-    create_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>was successfully created</color>'
+    message_template: '<b><color:#55ffff>[</color></b><color:#ffff55><group></color><b><color:#55ffff>]</color></b> <color:#ffff55><player></color><b><color:#55ffff>:</color></b> <message>'
+    you_not_owner: '<color:#ffff55>You are not the owner of the private chat</color>'
+    you_not_in_private_chat: '<color:#ffff55>You are not in a private chat</color>'
+    you_already_in_private_chat: '<color:#ffff55>You are already in a private chat</color>'
+    you_can_not_invite_yourself: '<color:#ffff55>You can not invite yourself</color>'
+    you_can_not_kick_yourself: '<color:#ffff55>You can not kick yourself out</color>'
+    create_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55><group></color></b> <color:#55ffff>was successfully created</color>'
     chat_info: 'Show chat information'
-    delete_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>was deleted</color>'
+    delete_successfully: '<color:#55ffff>Private chat</color> <b><color:#ffff55><group></color></b> <color:#55ffff>was deleted</color>'
     info:
-      template: '<b><color:#55ffff>⏴-----</color><color:#ffff55>%group%</color><color:#55ffff>-----⏵</color></b>
-                <br><color:#aaaaaa>Members:</color> %count_members% <color:#aaaaaa>owned by</color> %owner%
-                <br><color:#ff5555>%leave_text%</color>   <color:#55ff55>%invite_text%</color>
+      template: '<b><color:#55ffff>⏴-----</color><color:#ffff55><group></color><color:#55ffff>-----⏵</color></b>
+                <br><color:#aaaaaa>Members:</color> <count_members> <color:#aaaaaa>owned by</color> <owner>
+                <br><color:#ff5555><leave_text></color>   <color:#55ff55><invite_text></color>
                 <br><b><color:#55ffff>⏴---------------⏵</color></b>'
       leave_text: '← Leave'
       leave_hover_text: 'Leave private chat'
       invite_text: '✉ Invite'
       invite_hover_text: 'Invite a player'
-    leave_successfully: '<color:#55ffff>You have successfully left the</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>group</color>'
-    leave_notification: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>left the private chat</color>'
-    kick_successfully: '<color:#55ffff>You have successfully kicked out</color> <b><color:#ffff55>%player%</color></b>'
-    kick_notification: '<color:#55ffff>You have been kicked from</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>private chat</color>'
-    kick_failed: '<color:#55ffff>Failed to kick out</color> <b><color:#ffff55>%player%</color></b>'
-    invite_successfully: '<color:#55ffff>Invitation to</color> <b><color:#ffff55>%player%</color></b> <color:#55ffff>successfully sent</color>'
+    leave_successfully: '<color:#55ffff>You have successfully left the</color> <b><color:#ffff55><group></color></b> <color:#55ffff>group</color>'
+    leave_notification: '<b><color:#ffff55><player></color></b> <color:#55ffff>left the private chat</color>'
+    kick_successfully: '<color:#55ffff>You have successfully kicked out</color> <b><color:#ffff55><player></color></b>'
+    kick_notification: '<color:#55ffff>You have been kicked from</color> <b><color:#ffff55><group></color></b> <color:#55ffff>private chat</color>'
+    kick_failed: '<color:#55ffff>Failed to kick out</color> <b><color:#ffff55><player></color></b>'
+    invite_successfully: '<color:#55ffff>Invitation to</color> <b><color:#ffff55><player></color></b> <color:#55ffff>successfully sent</color>'
     invite:
-      template: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>invited you to a private chat</color> <b><color:#ffff55>%group%</color></b>
-                <br><color:#55ff55>%accept_text%</color>'
+      template: '<b><color:#ffff55><player></color></b> <color:#55ffff>invited you to a private chat</color> <b><color:#ffff55><group></color></b>
+                <br><color:#55ff55><accept_text></color>'
       accept_text: '→ Join to private chat'
       accept_hover_text: 'Accept invitation'
-    join_successfully: '<color:#55ffff>You have successfully joined the</color> <b><color:#ffff55>%group%</color></b> <color:#55ffff>private chat</color>'
-    join_notification: '<b><color:#ffff55>%player%</color></b> <color:#55ffff>joined the private chat</color>'
+    join_successfully: '<color:#55ffff>You have successfully joined the</color> <b><color:#ffff55><group></color></b> <color:#55ffff>private chat</color>'
+    join_notification: '<b><color:#ffff55><player></color></b> <color:#55ffff>joined the private chat</color>'
     join_failed: '<color:#ffff55>Failed to join private chat</color>'
     usage:
       default: '<color:#ffff55>Usage: /privatechat <action> <arg>(if required)</color>'
@@ -104,209 +108,100 @@ messages:
       invite: '<color:#ffff55>Usage: /privatechat invite <player></color>'
       join: '<color:#ffff55>Usage: /privatechat join <group ID></color>'
 
-  msgproperties:
-    unknown_property: '<color:#ffff55>Unknown property</color>'
-    usage: '<color:#ffff55>Usage: /msgprop <property> <args></color>'
-    confirm_sending:
-      usage: '<color:#ffff55>Usage: /msgprop confirm_sending <on | off></color>'
-      property_set: '<color:#55ffff>Property</color> <b><color:#ffff55>%property%</color></b> <color:#55ffff>is set to</color> <b><color:#ffff55>%value%</color></b>'
+  blacklist:
+    yourself: '<color:#ffff55>You cannot add yourself to the blacklist</color>'
+    already_block: '<color:#ffff55>This player is already blocked</color>'
+    not_block: '<color:#ffff55>This player is not on the blacklist</color>'
+    success_block: '<color:#55ffff>The player was successfully blocked</color>'
+    success_unblock: '<color:#55ffff>The player has been successfully unblocked</color>'
+    empty: '<color:#ffff55>Your blacklist is empty</color>'
+    players: '<color:#55ffff>Players from your blacklist:</color> <color:#ffff55><blacklist></color>'
+    you_cannot_send: '<color:#ffff55>You cannot send messages to this player</color>'
+    you_have_blocked: '<color:#ffff55>You have blocked this player</color>'
 
-  msgnotification:
-    usage: '<color:#ffff55>Usage: /msgnotify <sound> <volume></color>'
-    soundmissing: '<color:#ff5555>Invalid sound value</color>'
-    volumemissing: '<color:#ff5555>Invalid volume value</color>'
-    success: '<color:#55ff55>The notification sound has been successfully changed</color>'
-
-  # In order to change the color of the message, you need to specify the '&' icon, followed by the color code in HEX format with '#' at the beginning
-  # You can also change the color using standard Minecraft colors by specifying '§' at the beginning
-  # The '§r' icon is used to reset the color and the '§l' icon is used to make the font bold
-  # All codes you can find here - https://minecraft.fandom.com/wiki/Formatting_codes
-  # Variables are indicated between '%' signs (I don't recommend changing them)
-
-  # Also, many messages use the MiniMessage format
-  # Here you can create a message template - https://webui.advntr.dev/
-
-helpmessages:
-  consolehelplist: '[SimpleMsg] ⏴-------SimpleMsgPlugin-------⏵
-                    
-                    [SimpleMsg] Command: msghelp
-                    
-                    [SimpleMsg] Description: This command allows you to display all possible plugin commands
-                    
-                    [SimpleMsg] Usage: /<command>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: msgrc
-                    
-                    [SimpleMsg] Description: This command allows you to reload the plugin config
-                    
-                    [SimpleMsg] Usage: /<command>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: msg
-                    
-                    [SimpleMsg] Description: This command allows you to send private messages to the player
-                    
-                    [SimpleMsg] Usage: /<command> <player> <message>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: reply
-                    
-                    [SimpleMsg] Description: This command allows you to send a private message to the last player who wrote to you
-                    
-                    [SimpleMsg] Usage: /<command> <message>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: acceptsend
-                    
-                    [SimpleMsg] Description: This command allows you to accept sending an offline message
-                    
-                    [SimpleMsg] Usage: /<command>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: msgnotify
-                    
-                    [SimpleMsg] Description: This command allows you to change the notification sound
-                    
-                    [SimpleMsg] Usage: /<command> <sound> <volume>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: addbl
-                    
-                    [SimpleMsg] Description: This command allows you to add players to the blacklist
-                    
-                    [SimpleMsg] Usage: /<command> <player>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: removebl
-                    
-                    [SimpleMsg] Description: This command allows you to remove players from the blacklist
-                    
-                    [SimpleMsg] Usage: /<command> <player>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: showbl
-                    
-                    [SimpleMsg] Description: This command allows you to display your blacklist
-                    
-                    [SimpleMsg] Usage: /<command>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: mail
-                    
-                    [SimpleMsg] Description: This command allows you to view unread messages
-                    
-                    [SimpleMsg] Usage: /<command>
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: privatechat
-                    
-                    [SimpleMsg] Description: This command allows you to interact with private chats
-                    
-                    [SimpleMsg] Usage: /<command> <action> <arg>(if required)
-                    
-                    [SimpleMsg]
-                    
-                    [SimpleMsg] Command: msgprop
-                    
-                    [SimpleMsg] Description: This command allows you to set player properties
-                    
-                    [SimpleMsg] Usage: /<command> <property> <arg>
-                    
-                    [SimpleMsg] ⏴----------------------------⏵'
-  playerhelplist: '§b§l⏴-------§r§e§lSimpleMsgPlugin§r§b§l-------⏵§r
+  help_message: '<b><color:#55ffff>⏴-------</color><color:#ffff55>SimpleMsgPlugin</color><color:#55ffff>-------⏵</color></b>
   
-                    §bCommand:§r §emsghelp§r
-                    
-                    §bDescription:§r §eThis command allows you to display all possible plugin commands§r
-                    
-                    §bUsage:§r §e/<command>§r
-                    
-                    
-                    §bCommand:§r §emsgrc§r
-                    
-                    §bDescription:§r §eThis command allows you to reload the plugin config§r
-                    
-                    §bUsage:§r §e/<command>§r
-                    
-                    
-                    §bCommand:§r §emsg§r
-                    
-                    §bDescription:§r §eThis command allows you to send private messages to the player§r
-                    
-                    §bUsage:§r §e/<command> <player> <message>§r
-                    
-                    
-                    §bCommand:§r §ereply§r
-                    
-                    §bDescription:§r §eThis command allows you to send a private message to the last player who wrote to you§r
-                    
-                    §bUsage:§r §e/<command> <message>§r
-                    
-                    
-                    §bCommand:§r §eacceptsend§r
-                    
-                    §bDescription:§r §eThis command allows you to accept sending an offline message§r
-                    
-                    §bUsage:§r §e/<command>§r
-                    
-                    
-                    §bCommand:§r §emsgnotify§r
-                    
-                    §bDescription:§r §eThis command allows you to change the notification sound§r
-                    
-                    §bUsage:§r §e/<command> <sound> <volume>§r
-                    
-                    
-                    §bCommand:§r §eaddbl§r
-                    
-                    §bDescription:§r §eThis command allows you to add players to the blacklist§r
-                    
-                    §bUsage:§r §e/<command> <player>§r
-                    
-                    
-                    §bCommand:§r §eremovebl§r
-                    
-                    §bDescription:§r §eThis command allows you to remove players from the blacklist§r
-                    
-                    §bUsage:§r §e/<command> <player>§r
-                    
-                    
-                    §bCommand:§r §eshowbl§r
-                    
-                    §bDescription:§r §eThis command allows you to display your blacklist§r
-                    
-                    §bUsage:§r §e/<command>§r
-                    
-                    
-                    §bCommand:§r §email§r
-                    
-                    §bDescription:§r §eThis command allows you to view unread messages§r
-                    
-                    §bUsage:§r §e/<command>§r
-                    
-                    
-                    §bCommand:§r §eprivatechatl§r
-                    
-                    §bDescription:§r §eThis command allows you to interact with private chats§r
-                    
-                    §bUsage:§r §e/<command> <action> <arg>(if required)§r
-                    
-                    
-                    §bCommand:§r §emsgprop§r
-                    
-                    §bDescription:§r §eThis command allows you to set player properties§r
-                    
-                    §bUsage:§r §e/<command> <property> <arg>§r
-                    
-                    §b§l⏴----------------------------⏵§r'
+  <color:#55ffff>Command:</color> <color:#ffff55>msghelp</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to display all possible plugin commands</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>msgrc</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to reload the plugin config</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>msg</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to send private messages to the player</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <player> <message></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>reply</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to send a private message to the last player who wrote to you</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <message></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>acceptsend</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to accept sending an offline message</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>msgnotify</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to change the notification sound</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <sound> <volume></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>addbl</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to add players to the blacklist</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <player></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>removebl</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to remove players from the blacklist</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <player></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>showbl</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to display your blacklist</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>mail</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to view unread messages</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command></color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>privatechatl</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to interact with private chats</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <action> <arg>(if required)</color>
+  
+  
+  <color:#55ffff>Command:</color> <color:#ffff55>msgprop</color>
+  
+  <color:#55ffff>Description:</color> <color:#ffff55>This command allows you to set player properties</color>
+  
+  <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <property> <arg></color>
+  
+  <b><color:#55ffff>⏴----------------------------⏵</color></b>'

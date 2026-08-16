@@ -1,17 +1,16 @@
 package com.mousejava.simplemsgplugin.command;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mousejava.simplemsgplugin.command.api.Cmd;
+import com.mousejava.simplemsgplugin.command.api.ICommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class ShowBlacklistCommand implements CommandExecutor {
+public class ShowBlacklistCommand implements ICommand {
     private final DatabaseDriver dbDriver;
 
     public ShowBlacklistCommand(DatabaseDriver dbDriver) {
@@ -19,32 +18,36 @@ public class ShowBlacklistCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player)) return true;
+    public LiteralCommandNode<CommandSourceStack> create() {
+        return Cmd.playerCommand("showblacklist", "simplemsgplugin.showblacklist", (ctx, player) -> {
+            UUID uuid = player.getUniqueId();
 
-        if (args.length >= 1) {
-            MessageUtils.sendColoredIfPresent(sender, "messages.incorrectcommand");
-            return true;
-        }
+            dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", rs -> {
+                List<String> blockedPlayers = new ArrayList<>();
+                for (Map<String, Object> i : rs) {
+                    blockedPlayers.add(i.get("blocked_player").toString());
+                }
 
-        Player player = (Player) sender;
-        UUID uuid = player.getUniqueId();
+                if (blockedPlayers.isEmpty()) {
+                    MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.empty");
+                    return;
+                }
 
-        dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", rs -> {
-            ArrayList<String> blockedPlayers = new ArrayList<>();
-            for (Map<String, Object> i : rs) {
-                blockedPlayers.add(i.get("blocked_player").toString());
-            }
+                MessageUtils.sendMiniMessageTransformed(player, "messages.blacklist.players",
+                        msg -> msg.replace("<blacklist>", String.join(", ", blockedPlayers)));
+                }, uuid);
 
-            if (blockedPlayers.isEmpty()) {
-                MessageUtils.sendColoredIfPresent(sender, "messages.emptybl");
-                return;
-            }
+            return Command.SINGLE_SUCCESS;
+        }).build();
+    }
 
-            MessageUtils.sendColoredTransformed(sender, "messages.playersbl",
-                    raw -> raw.replace("%blacklist%", String.join(", ", blockedPlayers)));
-        }, uuid);
+    @Override
+    public String description() {
+        return "This command allows you to display your blacklist";
+    }
 
-        return true;
+    @Override
+    public Set<String> aliases() {
+        return Set.of("showbl");
     }
 }

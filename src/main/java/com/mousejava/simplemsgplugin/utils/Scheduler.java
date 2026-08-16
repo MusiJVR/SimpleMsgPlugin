@@ -21,10 +21,6 @@ public final class Scheduler {
         isFolia = folia;
     }
 
-    private Scheduler(JavaPlugin plugin) {
-        Scheduler.plugin = plugin;
-    }
-
     public static void init(JavaPlugin plugin) {
         if (Scheduler.plugin != null)
             throw new IllegalStateException("Scheduler is already initialized!");
