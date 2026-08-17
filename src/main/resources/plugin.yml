@@ -15,10 +15,10 @@ permissions:
     description: Permission to use command helpmsg
     default: true
   simplemsgplugin.reloadmsg:
-    description: Permission to use command msgr
+    description: Permission to use command reloadmsg
     default: op
   simplemsgplugin.propertiesmsg:
-    description: Permission to use command propertiesmsg
+    description: Permission to use command propmsg
     default: true
   simplemsgplugin.playermsg:
     description: Permission to use command msg
@@ -33,7 +33,7 @@ permissions:
     description: Permission to use command mail
     default: true
   simplemsgplugin.notificationmsg:
-    description: Permission to use command notificationmsg
+    description: Permission to use command notify
     default: true
   simplemsgplugin.privatechat:
     description: Permission to use command privatechat

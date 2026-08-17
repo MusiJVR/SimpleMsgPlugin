@@ -16,74 +16,64 @@
 
 ## 🌐 Overview
 
-**SimpleMsgPlugin** adds the ability to send private messages to other players. The default sound value is `false`, but it can be changed to another existing sound, such as `ENTITY_PLAYER_LEVELUP`
+**SimpleMsgPlugin** adds the ability to send private messages to other players, set notification sounds, send offline messages, manage blacklists, and create groups.
 
 All technical settings and features presented here are for the latest version of the plugin and will not always work on older versions.
 
 ## 📜 Commands
 
 Here are all the commands that can be used in the plugin:
-* `/msghelp` - This command allows you to display all possible plugin commands
-* `/msgrc` - This command allows you to reload the plugin config
+* `/helpmsg` - This command allows you to display all possible plugin commands
+* `/reloadmsg` - This command allows you to reload the plugin config
+* `/propmsg <property> <args>` - This command allows you to set player properties
 * `/msg <player> <message>` - This command allows you to send private messages to the player
 * `/reply <message>` - This command allows you to send a private message to the last player who wrote to you
-* `/acceptsend` - This command allows you to accept sending an offline message
-* `/msgnotify <sound> <volume>` - This command allows you to change the notification sound
-* `/addbl <player>` - This command allows you to add players to the blacklist
-* `/removebl <player>` - This command allows you to remove players from the blacklist
-* `/showbl` - This command allows you to display your blacklist
 * `/mail` - This command allows you to view unread messages
+* `/acceptsend` - This command allows you to accept sending an offline message
+* `/notify <sound> <volume>` - This command allows you to change the notification sound
 * `/privatechat <action> <arg>(if required)` - This command allows you to interact with private chats
-* `/msgprop <property> <args>` - This command allows you to set player properties
+* `/blacklist <action> <args>` - This command allows you to manage the blacklist
 
 ## 🎵 Change default sound
 
 By default, the sound is turned off 'false', but you can change it. 
 It is necessary to indicate the name of the sound in uppercase and with underscores. 
-Example - `msgsound: 'entity.player.levelup'`
+Example - `default_sound: 'entity.player.levelup'`
 
-All sounds you can find [here](https://minecraft.fandom.com/wiki/Sounds.json/Bedrock_Edition_values).
+All sounds you can find [here](https://minecraft.fandom.com/wiki/Sounds.json/Java_Edition_values).
 Unfortunately not all of these sounds can be reproduced correctly.
 Therefore, if the sound doesn't work and gives an error, then you should change the sound.
 
 ## 🔊 Change default volume
 
-By default, the volume of notification sounds is set to `50`, but it can be changed.
+By default, the volume of notification sounds is set to `default_volume: 50`, but it can be changed.
 The volume value must be specified in the range from `0` to `100`.
 
-## 🎨 Change message color
+## 🎨 Change message style
 
-In order to change the color of the message, you need to specify the `&` icon, followed by the color code in HEX format with `#` at the beginning.
-You can also change the color using standard Minecraft colors by specifying `§` at the beginning.
-The `§r` icon is used to reset the color and the `§l` icon is used to make the font bold.
-All codes you can find [here](https://minecraft.fandom.com/wiki/Formatting_codes).
-Variables are indicated between `%` signs (I don't recommend changing them).
+All messages use the [MiniMessage](https://docs.advntr.dev/minimessage/index) format. [Here](https://webui.advntr.dev/) you can create a message template.
 
-Example: `&#55ff55Message` - <span style="color:green">Message</span>
-
-Also, many messages use the [MiniMessage](https://docs.advntr.dev/minimessage/index) format. [Here](https://webui.advntr.dev/) you can create a message template.
+Example: `<color:#ffff55>Message</color>` - <span style="color:#ffff55">Message</span>
 
 ## ⚙️ Settings for developers or administrators
 
-In the config you can configure sending messages to yourself `sendmsgyourself: false`.
+In the config you can configure sending messages to yourself `send_msg_yourself: false`.
 By default, the value is `false`, but can be changed to `true`
 
 The plugin has permissions:
 
 | **Permissions**                   | **Meaning**                             |
 |-----------------------------------|-----------------------------------------|
-| `simplemsgplugin.msghelp`         | Permission to use command `msghelp`     |
-| `simplemsgplugin.msgreloadconfig` | Permission to use command `msgrc`       |
+| `simplemsgplugin.helpmsg`         | Permission to use command `helpmsg`     |
+| `simplemsgplugin.reloadmsg`       | Permission to use command `reloadmsg`   |
+| `simplemsgplugin.propertiesmsg`   | Permission to use command `propmsg`     |
 | `simplemsgplugin.playermsg`       | Permission to use command `msg`         |
 | `simplemsgplugin.replymsg`        | Permission to use command `reply`       |
 | `simplemsgplugin.acceptsend`      | Permission to use command `acceptsend`  |
-| `simplemsgplugin.msgnotification` | Permission to use command `msgnotify`   |
-| `simplemsgplugin.addblacklist`    | Permission to use command `addbl`       |
-| `simplemsgplugin.removeblacklist` | Permission to use command `removebl`    |
-| `simplemsgplugin.showblacklist`   | Permission to use command `showbl`      |
-| `simplemsgplugin.msgmail`         | Permission to use command `mail`        |
+| `simplemsgplugin.mailmsg`         | Permission to use command `mail`        |
+| `simplemsgplugin.notificationmsg` | Permission to use command `notify`      |
 | `simplemsgplugin.privatechat`     | Permission to use command `privatechat` |
-| `simplemsgplugin.msgproperties`   | Permission to use command `msgprop`     |
+| `simplemsgplugin.blacklist`       | Permission to use command `blacklist`   |
 
 ## ❗ Issues
 
