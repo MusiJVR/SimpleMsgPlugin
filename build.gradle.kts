@@ -118,6 +118,23 @@ fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (plat
     else -> error("Unknown platform: $platform")
 }
 
+fun commonServerJvmArgs(javaVersion: Int): List<String> {
+    val args = mutableListOf(
+        "-Xms2G",
+        "-Xmx4G",
+        "-Dcom.mojang.eula.agree=true",
+        "-Dfile.encoding=UTF-8",
+        "-Dstdout.encoding=UTF-8",
+        "-Dstderr.encoding=UTF-8",
+        "-Dsun.stdout.encoding=UTF-8",
+        "-Dsun.stderr.encoding=UTF-8"
+    )
+    if (javaVersion >= 24) {
+        args.add("--sun-misc-unsafe-memory-access=allow")
+    }
+    return args
+}
+
 val runServersDir = providers.provider {
     layout.projectDirectory.dir("run")
 }
@@ -173,13 +190,7 @@ testMatrix.forEach { target ->
 
         classpath = files(serverDirProvider.map { it.file("server.jar") })
 
-        jvmArgs(
-            "-Xms2G", "-Xmx4G",
-            "-Dcom.mojang.eula.agree=true"
-        )
-        if (target.javaVersion >= 24) {
-            jvmArgs("--sun-misc-unsafe-memory-access=allow")
-        }
+        jvmArgs(commonServerJvmArgs(target.javaVersion))
         args("--nogui")
     }
 }
@@ -225,14 +236,7 @@ tasks {
             }
         )
 
-        jvmArgs(
-            "-Xms2G",
-            "-Xmx4G",
-            "-Dcom.mojang.eula.agree=true"
-        )
-        if (javaVersion >= 24) {
-            jvmArgs("--sun-misc-unsafe-memory-access=allow")
-        }
+        jvmArgs(commonServerJvmArgs(javaVersion))
         args("--nogui")
     }
 
