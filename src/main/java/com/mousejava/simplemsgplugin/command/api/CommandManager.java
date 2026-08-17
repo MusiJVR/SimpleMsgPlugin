@@ -21,9 +21,7 @@ public final class CommandManager {
                 new MailCommand(database),
                 new NotificationCommand(database),
                 new PrivateChatCommand(),
-                new AddBlacklistCommand(database),
-                new RemoveBlacklistCommand(database),
-                new ShowBlacklistCommand(database)
+                new BlacklistCommand(database)
         );
 
         plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {

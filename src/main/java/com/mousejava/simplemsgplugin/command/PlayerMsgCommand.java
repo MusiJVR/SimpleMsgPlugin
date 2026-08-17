@@ -118,7 +118,7 @@ public class PlayerMsgCommand implements ICommand {
 
         dbDriver.selectData("uuid", "sounds", "WHERE LOWER(player_name) = LOWER(?)", rsArgPlayer -> {
             if (rsArgPlayer.isEmpty()) {
-                notifySender(sender, "messages.playermsg.missing");
+                notifySender(sender, "messages.invalid_player");
                 return;
             }
             String uuidArgPlayer = (String) rsArgPlayer.get(0).get("uuid");
@@ -191,7 +191,7 @@ public class PlayerMsgCommand implements ICommand {
     private void handleOfflineTarget(Player sender, String playerNameInput, String message) {
         Optional<String> resolvedOffline = resolveOfflinePlayerName(playerNameInput);
         if (resolvedOffline.isEmpty()) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.missing");
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.invalid_player");
             return;
         }
 

@@ -38,12 +38,6 @@ permissions:
   simplemsgplugin.privatechat:
     description: Permission to use command privatechat
     default: true
-  simplemsgplugin.addblacklist:
-    description: Permission to use command addbl
-    default: true
-  simplemsgplugin.removeblacklist:
-    description: Permission to use command removebl
-    default: true
-  simplemsgplugin.showblacklist:
-    description: Permission to use command showbl
+  simplemsgplugin.blacklist:
+    description: Permission to use command blacklist
     default: true

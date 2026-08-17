@@ -60,22 +60,6 @@ public class PrivateChatCommand implements ICommand {
         return group != null && group.getOwner().getId().equals(player.getUniqueId());
     }
 
-    private SuggestionProvider<CommandSourceStack> groupMemberSuggestions() {
-        return (ctx, builder) -> {
-            String remaining = builder.getRemainingLowerCase();
-            if (ctx.getSource().getSender() instanceof Player player) {
-                Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
-                if (group != null) {
-                    group.getPlayers().stream()
-                            .map(GroupPlayer::getName)
-                            .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
-                            .forEach(builder::suggest);
-                }
-            }
-            return builder.buildFuture();
-        };
-    }
-
     private LiteralArgumentBuilder<CommandSourceStack> buildCreate() {
         return Cmd.playerCommand("create",
                 (ctx, player) -> {
@@ -249,6 +233,22 @@ public class PrivateChatCommand implements ICommand {
             MessageUtils.sendMiniMessageIfPresent(player, "messages.privatechat.you_not_in_private_chat");
         }
         return Command.SINGLE_SUCCESS;
+    }
+
+    private SuggestionProvider<CommandSourceStack> groupMemberSuggestions() {
+        return (ctx, builder) -> {
+            String remaining = builder.getRemainingLowerCase();
+            if (ctx.getSource().getSender() instanceof Player player) {
+                Group group = GroupManager.findGroupByPlayer(player.getUniqueId());
+                if (group != null) {
+                    group.getPlayers().stream()
+                            .map(GroupPlayer::getName)
+                            .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                            .forEach(builder::suggest);
+                }
+            }
+            return builder.buildFuture();
+        };
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> buildKick() {

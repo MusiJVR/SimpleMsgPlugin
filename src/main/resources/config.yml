@@ -24,6 +24,7 @@ confirm_sending: true
 
 messages:
   incorrect_command: '<color:#ffff55>The command is specified incorrectly</color>'
+  invalid_player: '<color:#ffff55>Invalid player value</color>'
 
   reloadmsg:
     reload_successfully: '<color:#55ffff>The plugin was successfully reloaded</color>'
@@ -37,7 +38,6 @@ messages:
 
   playermsg:
     usage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
-    missing: '<color:#ffff55>Invalid player value</color>'
     not_send_offline_from_console: '<color:#ffff55>You cannot send messages to offline players from the console</color>'
     not_send_youself: '<color:#ffff55>You cannot send message yourself</color>'
     sender_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
@@ -109,6 +109,7 @@ messages:
       join: '<color:#ffff55>Usage: /privatechat join <group ID></color>'
 
   blacklist:
+    usage: "<color:#ffff55><hover:show_text:'Click to manage blacklist'><click:suggest_command:'/blacklist '>Usage: /blacklist <action> <args></click></hover></color>"
     yourself: '<color:#ffff55>You cannot add yourself to the blacklist</color>'
     already_block: '<color:#ffff55>This player is already blocked</color>'
     not_block: '<color:#ffff55>This player is not on the blacklist</color>'
