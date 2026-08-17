@@ -15,14 +15,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class PropertyValueArgumentType implements CustomArgumentType<Object, String> {
-    public enum PropertyType {
-        BOOLEAN,
-        INTEGER,
-        DOUBLE,
-        FLOAT,
-        STRING
-    }
-
     private final Map<String, PropertyType> properties;
 
     private PropertyValueArgumentType(Map<String, PropertyType> properties) {

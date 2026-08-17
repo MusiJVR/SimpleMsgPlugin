@@ -1,26 +1,38 @@
 package com.mousejava.simplemsgplugin;
 
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
-import com.mousejava.simplemsgplugin.command.api.CommandManager;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.mousejava.simplemsgplugin.command.*;
+import com.mousejava.simplemsgplugin.command.api.ICommand;
+import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
+import com.mousejava.simplemsgplugin.database.DatabaseConfig;
+import com.mousejava.simplemsgplugin.database.DatabaseManager;
+import com.mousejava.simplemsgplugin.database.SchemaInitializer;
 import com.mousejava.simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
 import com.mousejava.simplemsgplugin.handler.PrivateChatHandler;
-import com.mousejava.simplemsgplugin.utils.DatabaseCacheManager;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
+import com.mousejava.simplemsgplugin.repository.*;
+import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
+import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
+import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
-public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
+@SuppressWarnings("UnstableApiUsage")
+public final class SimpleMsgPlugin extends JavaPlugin {
     private static SimpleMsgPlugin instance;
-    private DatabaseDriver dbDriver;
+    private DatabaseManager database;
     private DatabaseCacheManager cacheManager;
-    public Map<UUID, String> offlineReceiver = new ConcurrentHashMap<>();
-    public Map<UUID, String> offlineMessages = new ConcurrentHashMap<>();
-    public Map<String, String> latestRecipients = new ConcurrentHashMap<>();
+    private PlayersRepository playersRepository;
+    private PropertiesRepository propertiesRepository;
+    private OfflineMessagesRepository offlineMessagesRepository;
+    private BlacklistRepository blacklistRepository;
+    private final OfflineMessageStorage offlineMessageStorage = new OfflineMessageStorage();
+    private final LatestRecipientsStorage latestRecipientsStorage = new LatestRecipientsStorage();
+
+    public static SimpleMsgPlugin getInstance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -29,26 +41,58 @@ public final class SimpleMsgPlugin extends JavaPlugin implements Listener {
         Scheduler.init(this);
         MessageUtils.init(this);
 
-        dbDriver = new DatabaseDriver("jdbc:sqlite:" + getDataFolder() + "/smpdatabase.db");
-        dbDriver.createTable("properties", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "confirm_sending BOOLEAN NOT NULL DEFAULT 1");
-        dbDriver.createTable("sounds", "uuid TEXT NOT NULL PRIMARY KEY", "player_name TEXT", "sound TEXT", "volume INTEGER");
-        dbDriver.createTable("offline_msg", "sender TEXT", "receiver TEXT", "message TEXT");
-        dbDriver.createTable("blacklist", "uuid TEXT", "blocked_uuid TEXT", "blocked_player TEXT");
+        database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig()));
 
-        cacheManager = new DatabaseCacheManager(dbDriver);
+        playersRepository = new PlayersRepository(database);
+        propertiesRepository = new PropertiesRepository(database);
+        offlineMessagesRepository = new OfflineMessagesRepository(database);
+        blacklistRepository = new BlacklistRepository(database);
 
-        CommandManager.init(this, dbDriver, cacheManager);
+        new SchemaInitializer(List.of(
+                playersRepository,
+                propertiesRepository,
+                offlineMessagesRepository,
+                blacklistRepository
+        )).initialize();
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(this, dbDriver, cacheManager), this);
+        cacheManager = new DatabaseCacheManager(playersRepository);
+        cacheManager.refreshPlayerNames();
+        cacheManager.schedulePlayerNameRefresh(5 * 60 * 20L);
+
+        registerCommands();
+
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
     }
 
     @Override
     public void onDisable() {
-        dbDriver.closeConnection();
+        if (database != null && database.isRunning())
+            database.close();
+
+        if (cacheManager != null)
+            cacheManager.close();
+
+        offlineMessageStorage.clear();
+        latestRecipientsStorage.clear();
     }
 
-    public static SimpleMsgPlugin getInstance() {
-        return instance;
+    private void registerCommands() {
+        List<ICommand> commands = List.of(
+                new HelpCommand(this),
+                new ReloadCommand(this),
+                new PropertiesCommand(propertiesRepository),
+                new PlayerMsgCommand(this, playersRepository, propertiesRepository, offlineMessagesRepository, blacklistRepository, cacheManager, offlineMessageStorage, latestRecipientsStorage),
+                new ReplyMsgCommand(latestRecipientsStorage),
+                new AcceptSendCommand(offlineMessageStorage, offlineMessagesRepository, propertiesRepository),
+                new MailCommand(offlineMessagesRepository),
+                new NotificationCommand(propertiesRepository),
+                new PrivateChatCommand(),
+                new BlacklistCommand(blacklistRepository, playersRepository)
+        );
+
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            commands.forEach(command -> event.registrar().register(command.create(), command.description(), command.aliases()));
+        });
     }
 }

@@ -1,108 +1,67 @@
 package com.mousejava.simplemsgplugin.handler;
 
+import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
+import com.mousejava.simplemsgplugin.repository.OfflineMessagesRepository;
+import com.mousejava.simplemsgplugin.repository.PlayersRepository;
+import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
+import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
+import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
+import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.utils.DatabaseCacheManager;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Utils;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-public class PlayerJoinQuitEventHandlers implements Listener {
+public final class PlayerJoinQuitEventHandlers implements Listener {
     private final SimpleMsgPlugin plugin;
-    private final DatabaseDriver dbDriver;
-    private final DatabaseCacheManager cacheManager;
+    private final PlayersRepository players;
+    private final PropertiesRepository properties;
+    private final OfflineMessagesRepository offlineMessages;
+    private final DatabaseCacheManager cache;
+    private final LatestRecipientsStorage latestRecipients;
 
-    public PlayerJoinQuitEventHandlers(JavaPlugin plugin, DatabaseDriver dbDriver, DatabaseCacheManager cacheManager) {
+    public PlayerJoinQuitEventHandlers(
+            JavaPlugin plugin,
+            PlayersRepository players,
+            PropertiesRepository properties,
+            OfflineMessagesRepository offlineMessages,
+            DatabaseCacheManager cache,
+            LatestRecipientsStorage latestRecipients
+    ) {
         this.plugin = (SimpleMsgPlugin) plugin;
-        this.dbDriver = dbDriver;
-        this.cacheManager = cacheManager;
+        this.players = players;
+        this.properties = properties;
+        this.offlineMessages = offlineMessages;
+        this.cache = cache;
+        this.latestRecipients = latestRecipients;
     }
 
     @EventHandler
-    public void PlayerJoinEvent(PlayerJoinEvent playerJoin) {
-        Player player = playerJoin.getPlayer();
+    public void playerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        String playerName = player.getName();
 
-        dbDriver.selectData("player_name", "sounds", "WHERE uuid = ?", rs -> {
-            if (!rs.isEmpty()) {
-                String oldPlayerName = (String) rs.get(0).get("player_name");
-                if (!playerName.equals(oldPlayerName)) {
-                    Map<String, String> updates = Map.of(
-                            "sounds", "player_name",
-                            "offline_msg_sender", "sender",
-                            "offline_msg_receiver", "receiver",
-                            "blacklist", "blocked_player"
-                    );
+        players.upsert(uuid, player.getName());
 
-                    updates.forEach((tableKey, column) -> {
-                        String table = tableKey.contains("sender") || tableKey.contains("receiver") ? "offline_msg" : tableKey;
-                        String whereColumn = tableKey.contains("sender") ? "sender" :
-                                tableKey.contains("receiver") ? "receiver" :
-                                        tableKey.equals("blacklist") ? "blocked_uuid" : "uuid";
+        properties.set(uuid, "sound", properties.getString(uuid, "sound", plugin.getConfig().getString("default_sound", "false")));
+        properties.set(uuid, "volume", properties.getInt(uuid, "volume", plugin.getConfig().getInt("default_volume", 50)));
+        properties.set(uuid, "confirm_sending", properties.getBoolean(uuid, "confirm_sending", plugin.getConfig().getBoolean("confirm_sending", true)));
 
-                        dbDriver.updateData(
-                                table,
-                                Map.of(column, playerName),
-                                whereColumn + " = ?",
-                                (tableKey.equals("sounds") || tableKey.equals("blacklist")) ? uuid : oldPlayerName
-                        );
-                    });
+        cache.refreshPlayerNames();
 
-                    cacheManager.refreshCache("player_names", "player_name", "sounds", null);
-                }
-            }
-        }, uuid);
-
-        String sound = plugin.getConfig().getString("default_sound");
-        int volume = setDefaultValue(50, "default_volume", 0, 100);
-
-        dbDriver.selectData("uuid", "sounds", "WHERE uuid = ?", rs -> {
-            if (rs.isEmpty()) {
-                Map<String, Object> insertMap = new HashMap<>();
-                insertMap.put("uuid", uuid);
-                insertMap.put("player_name", playerName);
-                insertMap.put("sound", sound);
-                insertMap.put("volume", volume);
-                dbDriver.insertData("sounds", insertMap);
-            }
-        }, uuid);
-
-        dbDriver.selectData("sender, message", "offline_msg", "WHERE LOWER(receiver) = LOWER(?)", rs -> {
-            if (!rs.isEmpty()) {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
-                Utils.msgPlaySound(dbDriver, player);
-            }
-        }, player.getName());
+        if (!offlineMessages.findForReceiver(player.getName()).isEmpty()) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
+            Utils.msgPlaySound(properties, player);
+        }
     }
 
     @EventHandler
-    public void PlayerQuitEvent(PlayerQuitEvent playerQuit) {
-        Player player = playerQuit.getPlayer();
-        if (plugin.latestRecipients.containsKey(player.getName()) && plugin.latestRecipients.get(player.getName()) != null) {
-            plugin.latestRecipients.remove(player.getName());
-        }
-    }
-
-    private int setDefaultValue(int value, String pathConfig, int minValue, int maxValue) {
-        String valueDefaultConfig = plugin.getConfig().getString(pathConfig);
-        if (Utils.checkDigits(valueDefaultConfig)) {
-            int valueDefault = Integer.parseInt(valueDefaultConfig);
-
-            if (valueDefault >= minValue && valueDefault <= maxValue) {
-                value = valueDefault;
-            }
-        }
-
-        return value;
+    public void playerQuit(PlayerQuitEvent event) {
+        latestRecipients.remove(event.getPlayer().getName());
     }
 }

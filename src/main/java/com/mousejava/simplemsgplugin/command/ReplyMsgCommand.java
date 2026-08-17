@@ -8,17 +8,16 @@ import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
+import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
 import java.util.Set;
 
 public class ReplyMsgCommand implements ICommand {
-    private final SimpleMsgPlugin plugin;
+    private final LatestRecipientsStorage latestRecipients;
 
-    public ReplyMsgCommand(JavaPlugin plugin) {
-        this.plugin = (SimpleMsgPlugin) plugin;
+    public ReplyMsgCommand(LatestRecipientsStorage latestRecipients) {
+        this.latestRecipients = latestRecipients;
     }
 
     @Override
@@ -45,13 +44,14 @@ public class ReplyMsgCommand implements ICommand {
 
     private int executeReplyMsg(CommandContext<CommandSourceStack> ctx, Player player) {
         String name = player.getName();
-        if (!plugin.latestRecipients.containsKey(name) || plugin.latestRecipients.get(name) == null) {
+        String recipient = latestRecipients.find(name).orElse(null);
+        if (recipient == null) {
             MessageUtils.sendMiniMessageIfPresent(player, "messages.replymsg.no_last_recipient");
             return Command.SINGLE_SUCCESS;
         }
 
         String message = StringArgumentType.getString(ctx, "message").trim();
-        player.performCommand("playermsg %s %s".formatted(plugin.latestRecipients.get(name), message));
+        player.performCommand("playermsg %s %s".formatted(recipient, message));
 
         return Command.SINGLE_SUCCESS;
     }

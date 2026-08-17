@@ -1,10 +1,12 @@
 package com.mousejava.simplemsgplugin.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
@@ -22,21 +24,8 @@ public class HelpCommand implements ICommand {
 
     @Override
     public LiteralCommandNode<CommandSourceStack> create() {
-        return Cmd.senderCommand("helpmsg", "simplemsgplugin.helpmsg", (ctx, sender) -> {
-            if (sender instanceof Player) {
-                MessageUtils.sendMiniMessageIfPresent(sender, "messages.help_message");
-            }
-            else {
-                String prefix = plugin.getPluginMeta().getLoggerPrefix();
-                MessageUtils.sendMiniMessageTransformed(sender, "messages.help_message",
-                        msg -> Arrays.stream(msg.split("\n"))
-                                .map(line -> "[%s] %s".formatted(prefix, line))
-                                .collect(Collectors.joining("\n"))
-                );
-            }
-
-            return Command.SINGLE_SUCCESS;
-        }).build();
+        return Cmd.senderCommand("helpmsg", "simplemsgplugin.helpmsg", this::executeHelp)
+                .build();
     }
 
     @Override
@@ -47,5 +36,20 @@ public class HelpCommand implements ICommand {
     @Override
     public Set<String> aliases() {
         return Set.of("msghelp", "msgh");
+    }
+
+    private int executeHelp(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
+        if (sender instanceof Player) {
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.help_message");
+        } else {
+            String prefix = plugin.getPluginMeta().getLoggerPrefix();
+            MessageUtils.sendMiniMessageTransformed(sender, "messages.help_message",
+                    msg -> Arrays.stream(msg.split("\n"))
+                            .map(line -> "[%s] %s".formatted(prefix, line))
+                            .collect(Collectors.joining("\n"))
+            );
+        }
+
+        return Command.SINGLE_SUCCESS;
     }
 }

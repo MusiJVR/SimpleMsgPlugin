@@ -7,24 +7,24 @@ import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
+import com.mousejava.simplemsgplugin.repository.OfflineMessagesRepository;
+import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
+import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class AcceptSendCommand implements ICommand {
-    private final SimpleMsgPlugin plugin;
-    private final DatabaseDriver dbDriver;
+    private final OfflineMessageStorage offlineMessages;
+    private final OfflineMessagesRepository messages;
+    private final PropertiesRepository properties;
 
-    public AcceptSendCommand(JavaPlugin plugin, DatabaseDriver dbDriver) {
-        this.plugin = (SimpleMsgPlugin) plugin;
-        this.dbDriver = dbDriver;
+    public AcceptSendCommand(OfflineMessageStorage offlineMessages, OfflineMessagesRepository messages, PropertiesRepository properties) {
+        this.offlineMessages = offlineMessages;
+        this.messages = messages;
+        this.properties = properties;
     }
 
     @Override
@@ -46,22 +46,17 @@ public class AcceptSendCommand implements ICommand {
     private int executeAcceptSend(CommandContext<CommandSourceStack> ctx, Player player) {
         UUID uuid = player.getUniqueId();
 
-        if (plugin.offlineReceiver.containsKey(uuid) && plugin.offlineMessages.containsKey(uuid)) {
-            String playerReceiver = plugin.offlineReceiver.get(uuid);
-            String msgOffline = plugin.offlineMessages.get(uuid);
+        offlineMessages.find(uuid).ifPresent(pendingMessage -> {
+            String playerReceiver = pendingMessage.receiver();
+            String msgOffline = pendingMessage.message();
 
-            Map<String, Object> insertMap = new HashMap<>();
-            insertMap.put("sender", player.getName());
-            insertMap.put("receiver", playerReceiver);
-            insertMap.put("message", msgOffline);
-            dbDriver.insertData("offline_msg", insertMap);
+            messages.save(uuid, player.getName(), playerReceiver, msgOffline);
 
             MessageUtils.sendMiniMessageIfPresent(player, "messages.acceptsend.send_offline_successfully");
-            Utils.msgPlaySound(dbDriver, player);
+            Utils.msgPlaySound(properties, player);
 
-            plugin.offlineReceiver.remove(uuid, playerReceiver);
-            plugin.offlineMessages.remove(uuid, msgOffline);
-        }
+            offlineMessages.remove(uuid, pendingMessage);
+        });
 
         return Command.SINGLE_SUCCESS;
     }

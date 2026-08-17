@@ -1,5 +1,15 @@
 # Plugin version 1.7.5
 
+database:
+  ip: 'localhost'
+  dbname: 'dbname'
+  username: 'username'
+  password: 'password'
+  port: 3306
+  properties: 'verifyServerCertificate=false&useSSL=false&useUnicode=true&characterEncoding=utf8'
+  maximum_pool_size: 10
+  connection_timeout_ms: 10000
+
 send_msg_yourself: false
 # This item is needed to be able to send a message to yourself
 # Accepts only values 'true' and 'false'

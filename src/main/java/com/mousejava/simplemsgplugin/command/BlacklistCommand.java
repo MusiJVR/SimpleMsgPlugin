@@ -2,13 +2,14 @@ package com.mousejava.simplemsgplugin.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
+import com.mousejava.simplemsgplugin.repository.BlacklistRepository;
+import com.mousejava.simplemsgplugin.repository.PlayersRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
@@ -16,10 +17,12 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class BlacklistCommand implements ICommand {
-    private final DatabaseDriver dbDriver;
+    private final BlacklistRepository blacklist;
+    private final PlayersRepository players;
 
-    public BlacklistCommand(DatabaseDriver dbDriver) {
-        this.dbDriver = dbDriver;
+    public BlacklistCommand(BlacklistRepository blacklist, PlayersRepository players) {
+        this.blacklist = blacklist;
+        this.players = players;
     }
 
     @Override
@@ -52,32 +55,23 @@ public class BlacklistCommand implements ICommand {
     }
 
     private int executeAdd(CommandContext<CommandSourceStack> ctx, Player player) {
-        UUID uuid = player.getUniqueId();
-        String blockPlayerInput = StringArgumentType.getString(ctx, "player");
-        Optional<Player> resolved = Cmd.resolveOnlinePlayer(blockPlayerInput);
-        if (resolved.isEmpty()) {
+        Optional<Player> target = Cmd.resolveOnlinePlayer(StringArgumentType.getString(ctx, "player"));
+        if (target.isEmpty()) {
             MessageUtils.sendMiniMessageIfPresent(player, "messages.invalid_player");
             return Command.SINGLE_SUCCESS;
         }
 
-        Player blockPlayer = resolved.get();
-        if (blockPlayer.getUniqueId().equals(uuid)) {
+        if (target.get().getUniqueId().equals(player.getUniqueId())) {
             MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.yourself");
             return Command.SINGLE_SUCCESS;
         }
 
-        dbDriver.selectData("uuid", "blacklist", "WHERE uuid = ? AND blocked_uuid = ? AND blocked_player = ?", rs -> {
-            if (!rs.isEmpty()) {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.already_block");
-                return;
-            }
-            Map<String, Object> insertMap = new HashMap<>();
-            insertMap.put("uuid", uuid);
-            insertMap.put("blocked_uuid", blockPlayer.getUniqueId());
-            insertMap.put("blocked_player", blockPlayer.getName());
-            dbDriver.insertData("blacklist", insertMap);
+        if (blacklist.isBlocked(player.getUniqueId(), target.get().getUniqueId())) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.already_block");
+        } else {
+            blacklist.add(player.getUniqueId(), target.get().getUniqueId(), target.get().getName());
             MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.success_block");
-        }, uuid, blockPlayer.getUniqueId(), blockPlayer.getName());
+        }
 
         return Command.SINGLE_SUCCESS;
     }
@@ -85,43 +79,29 @@ public class BlacklistCommand implements ICommand {
     private SuggestionProvider<CommandSourceStack> blacklistSuggestions() {
         return (ctx, builder) -> {
             String remaining = builder.getRemainingLowerCase();
-            if (ctx.getSource().getSender() instanceof Player player) {
-                dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", rs -> {
-                    if (rs.isEmpty()) return;
-                    for (Map<String, Object> i : rs) {
-                        String name = (String) i.get("blocked_player");
-                        if (name.toLowerCase(Locale.ROOT).startsWith(remaining))
-                            builder.suggest(name);
-                    }
-                }, player.getUniqueId());
-            }
+            if (ctx.getSource().getSender() instanceof Player player)
+                blacklist.listNames(player.getUniqueId()).stream()
+                        .filter(n -> n.toLowerCase(Locale.ROOT).startsWith(remaining))
+                        .forEach(builder::suggest);
             return builder.buildFuture();
         };
     }
 
     private LiteralArgumentBuilder<CommandSourceStack> buildRemove() {
-        return Cmd.playerCommand("remove", "messages.invalid_player")
-                .then(
-                        Cmd.executesPlayer(
-                                Cmd.argument("player", StringArgumentType.word(), blacklistSuggestions()),
-                                this::executeRemove
-                        )
-                );
+        return Cmd.playerCommand("remove", "messages.invalid_player").then(Cmd.executesPlayer(
+                Cmd.argument("player", StringArgumentType.word(), blacklistSuggestions()), this::executeRemove));
     }
 
     private int executeRemove(CommandContext<CommandSourceStack> ctx, Player player) {
-        UUID uuid = player.getUniqueId();
-        String unblockPlayer = StringArgumentType.getString(ctx, "player");
+        String name = StringArgumentType.getString(ctx, "player");
+        Optional<String> uuid = players.findUuidByName(name);
 
-        dbDriver.selectData("blocked_uuid", "blacklist", "WHERE uuid = ? AND blocked_player = ?", rs -> {
-            if (rs.isEmpty()) {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.not_block");
-                return;
-            }
-
-            dbDriver.deleteData("blacklist", "uuid = ? AND blocked_player = ?", uuid, unblockPlayer);
+        if (uuid.isEmpty() || !blacklist.isBlocked(player.getUniqueId(), UUID.fromString(uuid.get()))) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.not_block");
+        } else {
+            blacklist.remove(player.getUniqueId(), UUID.fromString(uuid.get()));
             MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.success_unblock");
-        }, uuid, unblockPlayer);
+        }
 
         return Command.SINGLE_SUCCESS;
     }
@@ -131,21 +111,16 @@ public class BlacklistCommand implements ICommand {
     }
 
     private int executeShow(CommandContext<CommandSourceStack> ctx, Player player) {
-        UUID uuid = player.getUniqueId();
-        dbDriver.selectData("blocked_player", "blacklist", "WHERE uuid = ?", rs -> {
-            List<String> blockedPlayers = new ArrayList<>();
-            for (Map<String, Object> i : rs) {
-                blockedPlayers.add(i.get("blocked_player").toString());
-            }
+        List<String> names = blacklist.listNames(player.getUniqueId());
 
-            if (blockedPlayers.isEmpty()) {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.empty");
-                return;
-            }
-
+        if (names.isEmpty()) {
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.empty");
+        } else {
             MessageUtils.sendMiniMessageTransformed(player, "messages.blacklist.players",
-                    msg -> msg.replace("<blacklist>", String.join(", ", blockedPlayers)));
-        }, uuid);
+                    msg -> msg
+                            .replace("<blacklist>", String.join(", ", names))
+            );
+        }
 
         return Command.SINGLE_SUCCESS;
     }

@@ -12,7 +12,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
+import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
 import org.bukkit.entity.Player;
@@ -20,10 +20,10 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class NotificationCommand implements ICommand {
-    private final DatabaseDriver dbDriver;
+    private final PropertiesRepository properties;
 
-    public NotificationCommand(DatabaseDriver dbDriver) {
-        this.dbDriver = dbDriver;
+    public NotificationCommand(PropertiesRepository properties) {
+        this.properties = properties;
     }
 
     @Override
@@ -83,16 +83,12 @@ public class NotificationCommand implements ICommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        Map<String, Object> updateMap = new HashMap<>();
-        updateMap.put("sound", soundName);
-        if (volume != null) {
-            updateMap.put("volume", volume);
-        }
-
-        dbDriver.updateData("sounds", updateMap, "uuid = ?", uuid);
+        properties.set(uuid, "sound", soundName);
+        if (volume != null)
+            properties.set(uuid, "volume", volume);
 
         MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
-        Utils.msgPlaySound(dbDriver, player);
+        Utils.msgPlaySound(properties, player);
         return Command.SINGLE_SUCCESS;
     }
 

@@ -8,22 +8,21 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mousejava.simplemsgplugin.property.PropertyValueArgumentType;
 import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
+import com.mousejava.simplemsgplugin.property.PropertyDefinitions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import com.mousejava.simplemsgplugin.utils.DatabaseDriver;
+import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 public class PropertiesCommand implements ICommand {
-    private final DatabaseDriver dbDriver;
+    private final PropertiesRepository properties;
 
-    private static final Map<String, PropertyValueArgumentType.PropertyType> PROPERTIES = Map.of(
-            "confirm_sending", PropertyValueArgumentType.PropertyType.BOOLEAN
-    );
-
-    public PropertiesCommand(DatabaseDriver dbDriver) {
-        this.dbDriver = dbDriver;
+    public PropertiesCommand(PropertiesRepository properties) {
+        this.properties = properties;
     }
 
     @Override
@@ -35,7 +34,7 @@ public class PropertiesCommand implements ICommand {
                                 (ctx, player) -> Cmd.usage(player, "messages.propertiesmsg.usage")
                         ).then(
                                 Cmd.executesPlayer(
-                                        Cmd.argument("value", PropertyValueArgumentType.propertyValue(PROPERTIES)),
+                                        Cmd.argument("value", PropertyValueArgumentType.propertyValue(PropertyDefinitions.asMap())),
                                         this::executeProperties
                                 )
                         )
@@ -56,7 +55,7 @@ public class PropertiesCommand implements ICommand {
     private SuggestionProvider<CommandSourceStack> propertiesSuggestions() {
         return (ctx, builder) -> {
             String remaining = builder.getRemainingLowerCase();
-            PROPERTIES.keySet().forEach(value -> {
+            PropertyDefinitions.keySet().forEach(value -> {
                 if (value.toLowerCase(Locale.ROOT).startsWith(remaining))
                     builder.suggest(value);
             });
@@ -66,10 +65,9 @@ public class PropertiesCommand implements ICommand {
 
     private int executeProperties(CommandContext<CommandSourceStack> ctx, Player player) {
         UUID uuid = player.getUniqueId();
-        String playerName = player.getName();
         String propertyName = StringArgumentType.getString(ctx, "property").toLowerCase(Locale.ROOT);
 
-        if (!PROPERTIES.containsKey(propertyName)) {
+        if (!PropertyDefinitions.contains(propertyName)) {
             MessageUtils.sendMiniMessageIfPresent(player, "messages.propertiesmsg.unknown_property");
             return Command.SINGLE_SUCCESS;
         }
@@ -81,25 +79,12 @@ public class PropertiesCommand implements ICommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        Object finalValue = value;
-        dbDriver.selectData("uuid", "properties", "WHERE uuid = ?", rs -> {
-            if (rs.isEmpty()) {
-                Map<String, Object> insertMap = new HashMap<>();
-                insertMap.put("uuid", uuid);
-                insertMap.put("player_name", playerName);
-                insertMap.put(propertyName, finalValue);
-                dbDriver.insertData("properties", insertMap);
-            } else {
-                Map<String, Object> updateMap = new HashMap<>();
-                updateMap.put(propertyName, finalValue);
-                dbDriver.updateData("properties", updateMap, "uuid = ? AND player_name = ?", uuid, playerName);
-            }
-        }, uuid);
+        properties.set(uuid, propertyName, value);
 
         MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.confirm_sending.property_set",
                 msg -> msg
                         .replace("<property>", propertyName)
-                        .replace("<value>", String.valueOf(finalValue))
+                        .replace("<value>", String.valueOf(value))
         );
 
         return Command.SINGLE_SUCCESS;
