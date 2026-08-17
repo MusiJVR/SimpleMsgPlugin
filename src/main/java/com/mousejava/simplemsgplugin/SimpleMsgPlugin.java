@@ -1,5 +1,6 @@
 package com.mousejava.simplemsgplugin;
 
+import com.mousejava.simplemsgplugin.metrics.BStatsMetrics;
 import com.mousejava.simplemsgplugin.command.*;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
@@ -20,6 +21,8 @@ import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class SimpleMsgPlugin extends JavaPlugin {
+    private static final int SERVICE_ID = 33452;
+
     private static SimpleMsgPlugin instance;
     private DatabaseManager database;
     private DatabaseCacheManager cacheManager;
@@ -40,6 +43,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         saveDefaultConfig();
         Scheduler.init(this);
         MessageUtils.init(this);
+        BStatsMetrics.init(this, SERVICE_ID);
 
         database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig()));
 

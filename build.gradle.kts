@@ -18,6 +18,7 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("${libs.versions.minecraft.get()}-R0.1-SNAPSHOT")
 
+    implementation(libs.bstats)
     implementation(libs.hikaricp)
 }
 
@@ -204,6 +205,16 @@ tasks.shadowJar {
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("")
+
+    val libsPath = "${project.group}.libs"
+    val relocations = listOf(
+        "com.zaxxer.hikari",
+        "org.bstats"
+    )
+
+    relocations.forEach { pkg ->
+        relocate(pkg, "$libsPath.$pkg")
+    }
 }
 
 tasks.register("runServerMatrix") {
