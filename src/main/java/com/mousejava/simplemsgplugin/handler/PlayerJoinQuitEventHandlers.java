@@ -7,6 +7,7 @@ import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 import com.mousejava.simplemsgplugin.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,14 +26,7 @@ public final class PlayerJoinQuitEventHandlers implements Listener {
     private final DatabaseCacheManager cache;
     private final LatestRecipientsStorage latestRecipients;
 
-    public PlayerJoinQuitEventHandlers(
-            JavaPlugin plugin,
-            PlayersRepository players,
-            PropertiesRepository properties,
-            OfflineMessagesRepository offlineMessages,
-            DatabaseCacheManager cache,
-            LatestRecipientsStorage latestRecipients
-    ) {
+    public PlayerJoinQuitEventHandlers(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository offlineMessages, DatabaseCacheManager cache, LatestRecipientsStorage latestRecipients) {
         this.plugin = (SimpleMsgPlugin) plugin;
         this.players = players;
         this.properties = properties;
@@ -55,8 +49,10 @@ public final class PlayerJoinQuitEventHandlers implements Listener {
         cache.refreshPlayerNames();
 
         if (!offlineMessages.findForReceiver(player.getName()).isEmpty()) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
-            Utils.msgPlaySound(properties, player);
+            Scheduler.runForEntityLater(player, () -> {
+                MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
+                Utils.msgPlaySound(properties, player);
+            }, 40);
         }
     }
 
