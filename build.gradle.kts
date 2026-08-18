@@ -34,11 +34,11 @@ data class ServerTarget(
     val javaVersion: Int = libs.versions.java.runtime.get().toInt()
 )
 
-val testMatrixFile = file("test-matrix.json")
+val testMatrixFile = file("server-matrix.json")
 
 val testMatrix: List<ServerTarget> = run {
     if (!testMatrixFile.exists()) {
-        logger.warn("test-matrix.json not found, runs matrix is empty")
+        logger.warn("server-matrix.json not found, runs matrix is empty")
         emptyList()
     } else {
         @Suppress("UNCHECKED_CAST")

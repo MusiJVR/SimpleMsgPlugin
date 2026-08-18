@@ -25,7 +25,7 @@ hs_err_pid*
 .gradle
 gradle-app.setting
 !gradle-wrapper.jar
-!test-matrix.json
+!server-matrix.json
 
 # Cache of project
 .gradletasknamecache
