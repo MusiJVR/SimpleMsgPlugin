@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.handler;
+package com.mousejava.simplemsgplugin.listener;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -8,7 +8,7 @@ import com.mousejava.simplemsgplugin.chatgroups.Group;
 import com.mousejava.simplemsgplugin.chatgroups.GroupManager;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
-public class PrivateChatHandler implements Listener {
+public class PrivateChatListener implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
         String message = PlainTextComponentSerializer.plainText().serialize(event.message());

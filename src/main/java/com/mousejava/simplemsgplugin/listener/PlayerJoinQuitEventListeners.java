@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.handler;
+package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
 import com.mousejava.simplemsgplugin.repository.OfflineMessagesRepository;
@@ -18,7 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.UUID;
 
-public final class PlayerJoinQuitEventHandlers implements Listener {
+public class PlayerJoinQuitEventListeners implements Listener {
     private final SimpleMsgPlugin plugin;
     private final PlayersRepository players;
     private final PropertiesRepository properties;
@@ -26,7 +26,7 @@ public final class PlayerJoinQuitEventHandlers implements Listener {
     private final DatabaseCacheManager cache;
     private final LatestRecipientsStorage latestRecipients;
 
-    public PlayerJoinQuitEventHandlers(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository offlineMessages, DatabaseCacheManager cache, LatestRecipientsStorage latestRecipients) {
+    public PlayerJoinQuitEventListeners(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository offlineMessages, DatabaseCacheManager cache, LatestRecipientsStorage latestRecipients) {
         this.plugin = (SimpleMsgPlugin) plugin;
         this.players = players;
         this.properties = properties;

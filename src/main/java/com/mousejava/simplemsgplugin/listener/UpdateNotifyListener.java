@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.handler;
+package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.service.UpdateChecker;

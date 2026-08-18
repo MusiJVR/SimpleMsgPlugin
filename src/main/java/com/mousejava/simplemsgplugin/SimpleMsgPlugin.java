@@ -6,9 +6,9 @@ import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.database.DatabaseConfig;
 import com.mousejava.simplemsgplugin.database.DatabaseManager;
 import com.mousejava.simplemsgplugin.database.SchemaInitializer;
-import com.mousejava.simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
-import com.mousejava.simplemsgplugin.handler.PrivateChatHandler;
-import com.mousejava.simplemsgplugin.handler.UpdateNotifyListener;
+import com.mousejava.simplemsgplugin.listener.PlayerJoinQuitEventListeners;
+import com.mousejava.simplemsgplugin.listener.PrivateChatListener;
+import com.mousejava.simplemsgplugin.listener.UpdateNotifyListener;
 import com.mousejava.simplemsgplugin.metrics.BStatsMetrics;
 import com.mousejava.simplemsgplugin.repository.*;
 import com.mousejava.simplemsgplugin.service.UpdateChecker;
@@ -69,8 +69,8 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
         registerCommands();
 
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage), this);
-        getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventListeners(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage), this);
+        getServer().getPluginManager().registerEvents(new PrivateChatListener(), this);
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this, propertiesRepository), this);
     }
 
