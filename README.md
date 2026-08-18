@@ -62,18 +62,19 @@ By default, the value is `false`, but can be changed to `true`
 
 The plugin has permissions:
 
-| **Permissions**                   | **Meaning**                             |
-|-----------------------------------|-----------------------------------------|
-| `simplemsgplugin.helpmsg`         | Permission to use command `helpmsg`     |
-| `simplemsgplugin.reloadmsg`       | Permission to use command `reloadmsg`   |
-| `simplemsgplugin.propertiesmsg`   | Permission to use command `propmsg`     |
-| `simplemsgplugin.playermsg`       | Permission to use command `msg`         |
-| `simplemsgplugin.replymsg`        | Permission to use command `reply`       |
-| `simplemsgplugin.acceptsend`      | Permission to use command `acceptsend`  |
-| `simplemsgplugin.mailmsg`         | Permission to use command `mail`        |
-| `simplemsgplugin.notificationmsg` | Permission to use command `notify`      |
-| `simplemsgplugin.privatechat`     | Permission to use command `privatechat` |
-| `simplemsgplugin.blacklist`       | Permission to use command `blacklist`   |
+| **Permissions**                   | **Meaning**                                |
+|-----------------------------------|--------------------------------------------|
+| `simplemsgplugin.helpmsg`         | Permission to use command `helpmsg`        |
+| `simplemsgplugin.reloadmsg`       | Permission to use command `reloadmsg`      |
+| `simplemsgplugin.propertiesmsg`   | Permission to use command `propmsg`        |
+| `simplemsgplugin.playermsg`       | Permission to use command `msg`            |
+| `simplemsgplugin.replymsg`        | Permission to use command `reply`          |
+| `simplemsgplugin.acceptsend`      | Permission to use command `acceptsend`     |
+| `simplemsgplugin.mailmsg`         | Permission to use command `mail`           |
+| `simplemsgplugin.notificationmsg` | Permission to use command `notify`         |
+| `simplemsgplugin.privatechat`     | Permission to use command `privatechat`    |
+| `simplemsgplugin.blacklist`       | Permission to use command `blacklist`      |
+| `simplemsgplugin.update_listener` | Permission to receive update notifications |
 
 ## ❗ Issues
 
