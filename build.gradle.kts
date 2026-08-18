@@ -199,12 +199,16 @@ testMatrix.forEach { target ->
 tasks.jar {
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
+
+    from(rootProject.file("LICENSE"))
 }
 
 tasks.shadowJar {
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version.toString())
     archiveClassifier.set("")
+
+    from(rootProject.file("LICENSE"))
 
     val libsPath = "${project.group}.libs"
     val relocations = listOf(
