@@ -89,5 +89,7 @@ Please leave messages about any errors you find [here](https://github.com/MusiJV
 ## 📊 Metrics
 
 <div align="center">
-<img src="https://api.mousejava.com/api/plugin/metrics/33452" alt="bStats stats" width="820">
+
+[![Metrics](https://api.mousejava.com/api/plugin/metrics/33452)](https://bstats.org/plugin/bukkit/SimpleMsgPlugin/33452)
+
 </div>
