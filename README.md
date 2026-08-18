@@ -4,7 +4,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/MusiJVR/SimpleMsgPlugin?style=for-the-badge)](https://github.com/MusiJVR/SimpleMsgPlugin/releases)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/kspBne7T?style=for-the-badge&label=Modrinth)](https://modrinth.com/plugin/simplemsgplugin)
-[![GitHub License](https://img.shields.io/github/license/MusiJVR/SimpleMsgPlugin?style=for-the-badge)](https://github.com/MusiJVR/SimpleMsgPlugin/blob/main/LICENSE.md)
+[![GitHub License](https://img.shields.io/github/license/MusiJVR/SimpleMsgPlugin?style=for-the-badge)](https://github.com/MusiJVR/SimpleMsgPlugin/blob/main/LICENSE)
 
 [![Bukkit](https://badges.penpow.dev/badges/supported/bukkit/compact-minimal.svg)](https://bukkit.org/)
 [![Spigot](https://badges.penpow.dev/badges/supported/spigot/compact-minimal.svg)](https://spigotmc.org/)
