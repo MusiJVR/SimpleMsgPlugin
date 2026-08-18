@@ -1,6 +1,5 @@
 package com.mousejava.simplemsgplugin;
 
-import com.mousejava.simplemsgplugin.metrics.BStatsMetrics;
 import com.mousejava.simplemsgplugin.command.*;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
@@ -9,7 +8,10 @@ import com.mousejava.simplemsgplugin.database.DatabaseManager;
 import com.mousejava.simplemsgplugin.database.SchemaInitializer;
 import com.mousejava.simplemsgplugin.handler.PlayerJoinQuitEventHandlers;
 import com.mousejava.simplemsgplugin.handler.PrivateChatHandler;
+import com.mousejava.simplemsgplugin.handler.UpdateNotifyListener;
+import com.mousejava.simplemsgplugin.metrics.BStatsMetrics;
 import com.mousejava.simplemsgplugin.repository.*;
+import com.mousejava.simplemsgplugin.service.UpdateChecker;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
@@ -22,6 +24,7 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public final class SimpleMsgPlugin extends JavaPlugin {
     private static final int SERVICE_ID = 33452;
+    private static final String PROJECT_ID = "simplemsgplugin";
 
     private static SimpleMsgPlugin instance;
     private DatabaseManager database;
@@ -44,6 +47,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         Scheduler.init(this);
         MessageUtils.init(this);
         BStatsMetrics.init(this, SERVICE_ID);
+        UpdateChecker.init(this, PROJECT_ID);
 
         database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig()));
 
@@ -67,6 +71,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventHandlers(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage), this);
         getServer().getPluginManager().registerEvents(new PrivateChatHandler(), this);
+        getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this, propertiesRepository), this);
     }
 
     @Override

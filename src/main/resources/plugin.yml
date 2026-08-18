@@ -41,3 +41,6 @@ permissions:
   simplemsgplugin.blacklist:
     description: Permission to use command blacklist
     default: true
+  simplemsgplugin.update_listener:
+    description: Permission to receive update notifications
+    default: op

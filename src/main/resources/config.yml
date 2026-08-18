@@ -10,31 +10,39 @@ database:
   maximum_pool_size: 10
   connection_timeout_ms: 10000
 
-send_msg_yourself: false
 # This item is needed to be able to send a message to yourself
 # Accepts only values 'true' and 'false'
+send_msg_yourself: false
 
-default_sound: 'false'
 # By default, the sound is turned off 'false', but you can change it
 # It is necessary to indicate the name of the sound in uppercase and with underscores
 # Example - msgsound: 'entity.player.levelup'
 # All sounds you can find here - https://minecraft.fandom.com/wiki/Sounds.json/Bedrock_Edition_values
 # Unfortunately not all of these sounds can be reproduced correctly
 # Therefore, if the sound doesn't work and gives an error, then you should change the sound
+default_sound: 'false'
 
-default_volume: 50
 # By default, the volume of notification sounds is set to '50', but it can be changed
 # The volume value must be specified in the range from '0' to '100'
+default_volume: 50
 
-privatechat_start_char: '?'
 # Start character for sending messages to private chat
+privatechat_start_char: '?'
 
-confirm_sending: true
 # Confirmation of sending an offline message
+confirm_sending: true
+
+# Notify players with 'simplemsgplugin.update_listener' permission about plugin updates
+send_update_notifications: true
 
 messages:
   incorrect_command: '<color:#ffff55>The command is specified incorrectly</color>'
   invalid_player: '<color:#ffff55>Invalid player value</color>'
+  new_version_available: "<b><color:#ffff55>SimpleMsgPlugin</color></b> <color:#55ffff>has been updated!</color>
+  <br><color:#55ffff>New version:</color> <click:open_url:'<url>'><hover:show_text:'<new_version_hover_text>'><b><color:#ffff55><new_version></color></b></hover></click>
+  <br><color:#55ffff>Current version:</color> <b><color:#ffff55><current_version></color></b>
+  "
+  new_version_hover_text: 'Visit Modrinth page'
 
   reloadmsg:
     reload_successfully: '<color:#55ffff>The plugin was successfully reloaded</color>'
