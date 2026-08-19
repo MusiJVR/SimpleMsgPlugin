@@ -20,7 +20,7 @@ public final class SkinsRepository implements SchemaRepository {
                     player_uuid CHAR(36) NOT NULL,
                     skin_base64 TEXT,
                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    PRIMARY KEY (player_uuid)
+                    PRIMARY KEY (player_uuid),
                     CONSTRAINT fk_smp_player_skins_player FOREIGN KEY (player_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE
                 )
                 """);

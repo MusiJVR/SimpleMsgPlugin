@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
-public final class UpdateChecker {
+public final class UpdateCheckerService {
     private static final String API_URL_TEMPLATE = "https://api.modrinth.com/v2/project/%s/version";
     private static final String DOWNLOAD_URL_TEMPLATE = "https://modrinth.com/plugin/%s/version/%s";
 
@@ -31,11 +31,11 @@ public final class UpdateChecker {
     private static String versionsApiUrl;
 
     public static void init(JavaPlugin plugin, String projectId) {
-        UpdateChecker.plugin = plugin;
-        UpdateChecker.projectId = projectId;
-        UpdateChecker.versionsApiUrl = API_URL_TEMPLATE.formatted(projectId);
+        UpdateCheckerService.plugin = plugin;
+        UpdateCheckerService.projectId = projectId;
+        UpdateCheckerService.versionsApiUrl = API_URL_TEMPLATE.formatted(projectId);
 
-        Scheduler.runTimer(UpdateChecker::checkForUpdate, 5 * 20, 6 * 60 * 60 * 20);
+        Scheduler.runTimer(UpdateCheckerService::checkForUpdate, 5 * 20, 6 * 60 * 60 * 20);
     }
 
     private static void checkForUpdate() {

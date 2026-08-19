@@ -10,10 +10,10 @@ import com.mousejava.simplemsgplugin.listener.PlayerJoinQuitEventListeners;
 import com.mousejava.simplemsgplugin.listener.PlayerSkinListener;
 import com.mousejava.simplemsgplugin.listener.PrivateChatListener;
 import com.mousejava.simplemsgplugin.listener.UpdateNotifyListener;
-import com.mousejava.simplemsgplugin.metrics.BStatsMetrics;
 import com.mousejava.simplemsgplugin.repository.*;
+import com.mousejava.simplemsgplugin.service.BStatsMetricsService;
 import com.mousejava.simplemsgplugin.service.SkinService;
-import com.mousejava.simplemsgplugin.service.UpdateChecker;
+import com.mousejava.simplemsgplugin.service.UpdateCheckerService;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
@@ -50,8 +50,8 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         saveDefaultConfig();
         Scheduler.init(this);
         MessageUtils.init(this);
-        BStatsMetrics.init(this, SERVICE_ID);
-        UpdateChecker.init(this, PROJECT_ID);
+        BStatsMetricsService.init(this, SERVICE_ID);
+        UpdateCheckerService.init(this, PROJECT_ID);
 
         database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig()));
 

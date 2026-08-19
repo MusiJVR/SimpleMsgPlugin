@@ -1,7 +1,7 @@
 package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
-import com.mousejava.simplemsgplugin.service.UpdateChecker;
+import com.mousejava.simplemsgplugin.service.UpdateCheckerService;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
 import com.mousejava.simplemsgplugin.utils.Utils;
@@ -30,7 +30,7 @@ public class UpdateNotifyListener implements Listener {
         if (!player.hasPermission("simplemsgplugin.update_listener"))
             return;
 
-        if (!UpdateChecker.isUpdateAvailable())
+        if (!UpdateCheckerService.isUpdateAvailable())
             return;
 
         Scheduler.runForEntityLater(player, () -> sendUpdateMessage(player), 40);
@@ -38,8 +38,8 @@ public class UpdateNotifyListener implements Listener {
 
     private void sendUpdateMessage(Player player) {
         String current = plugin.getPluginMeta().getVersion();
-        String latest = UpdateChecker.getLatestVersion();
-        String url = UpdateChecker.getDownloadUrl();
+        String latest = UpdateCheckerService.getLatestVersion();
+        String url = UpdateCheckerService.getDownloadUrl();
         String hoverText = MessageUtils.optionalPlain("messages.new_version_hover_text").orElse("");
 
         MessageUtils.sendMiniMessageTransformed(player, "messages.new_version_available",
