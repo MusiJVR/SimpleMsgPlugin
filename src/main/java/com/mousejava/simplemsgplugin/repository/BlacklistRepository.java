@@ -29,7 +29,7 @@ public final class BlacklistRepository implements SchemaRepository {
     }
 
     public boolean isBlocked(UUID owner, UUID blocked) {
-        return database.queryOne("SELECT 1 FROM blacklist WHERE owner_uuid = ? AND blocked_uuid = ?",
+        return database.queryOne("SELECT 1 FROM smp_blacklist WHERE owner_uuid = ? AND blocked_uuid = ?",
                 rs -> true, owner.toString(), blocked.toString()
         ).orElse(false);
     }
