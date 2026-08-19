@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public final class OfflineMessagesRepository implements SchemaRepository {
-    public record OfflineMessage(String senderName, String receiverName, String message) { }
+    public record OfflineMessage(String senderUuid, String senderName, String receiverName, String message) { }
 
     private final DatabaseManager database;
 
@@ -38,8 +38,8 @@ public final class OfflineMessagesRepository implements SchemaRepository {
     }
 
     public List<OfflineMessage> findForReceiver(String receiverName) {
-        return database.query("SELECT sender_name, receiver_name, message FROM smp_offline_messages WHERE LOWER(receiver_name) = LOWER(?) ORDER BY created_at, id",
-                rs -> new OfflineMessage(rs.getString("sender_name"), rs.getString("receiver_name"), rs.getString("message")), receiverName
+        return database.query("SELECT sender_uuid, sender_name, receiver_name, message FROM smp_offline_messages WHERE LOWER(receiver_name) = LOWER(?) ORDER BY created_at, id",
+                rs -> new OfflineMessage(rs.getString("sender_uuid"), rs.getString("sender_name"), rs.getString("receiver_name"), rs.getString("message")), receiverName
         );
     }
 

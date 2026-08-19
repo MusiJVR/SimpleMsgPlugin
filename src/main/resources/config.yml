@@ -58,8 +58,9 @@ messages:
     usage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
     not_send_offline_from_console: '<color:#ffff55>You cannot send messages to offline players from the console</color>'
     not_send_youself: '<color:#ffff55>You cannot send message yourself</color>'
-    sender_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
-    receiver_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    sender_pattern: '<b><color:#55ffff>[</color></b><sender_head> <color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <receiver_head> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    receiver_pattern: '<b><color:#55ffff>[</color></b><sender_head> <color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <receiver_head> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    console_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
     click_send_reply: 'Click to send reply message'
     player_missing: '<color:#ffff55>This player is not on the server</color>'
     send_offline: '<color:#ffff55>Send this player an offline message?</color>'
@@ -73,7 +74,7 @@ messages:
     send_offline_successfully: '<color:#55ffff>You have successfully sent an offline message</color>'
 
   mailmsg:
-    offline_pattern: '<b><color:#55ffff>[</color></b><color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
+    offline_pattern: '<b><color:#55ffff>[</color></b><sender_head> <color:#ffff55><sender></color> <b><color:#55ffff>-></color></b> <receiver_head> <color:#ffff55><receiver></color><b><color:#55ffff>]</color></b> <color:#ffff55><message></color>'
     have_unread: "<color:#55ffff><hover:show_text:'Click to read messages'><click:run_command:'/mail'>You have unread messages (/mail - to read)</click></hover></color>"
     your_unread: '<color:#55ffff>Your unread messages:</color>'
     no_unread: '<color:#55ffff>You have no unread messages</color>'

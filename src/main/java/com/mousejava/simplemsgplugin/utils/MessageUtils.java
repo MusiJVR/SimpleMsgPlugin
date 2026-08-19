@@ -2,6 +2,7 @@ package com.mousejava.simplemsgplugin.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,6 +100,14 @@ public final class MessageUtils {
         optionalMiniMessage(path, defaultMessage).ifPresent(sender::sendMessage);
     }
 
+    public static void sendMiniMessageIfPresent(CommandSender sender, String path, Function<String, String> transformer, TagResolver tagResolver, UnaryOperator<Component> componentModifier) {
+        optionalPlain(path)
+                .map(transformer)
+                .map(msg -> MINI.deserialize(msg, tagResolver))
+                .map(componentModifier)
+                .ifPresent(sender::sendMessage);
+    }
+
     public static void sendMiniMessageIfPresent(CommandSender sender, String path, Function<String, String> transformer, UnaryOperator<Component> componentModifier) {
         optionalPlain(path)
                 .map(transformer)
@@ -110,6 +119,13 @@ public final class MessageUtils {
     public static void sendMiniMessageComponent(CommandSender sender, String path, UnaryOperator<Component> componentModifier) {
         optionalMiniMessage(path)
                 .map(componentModifier)
+                .ifPresent(sender::sendMessage);
+    }
+
+    public static void sendMiniMessageTransformed(CommandSender sender, String path, Function<String, String> transformer, TagResolver tagResolver) {
+        optionalPlain(path)
+                .map(transformer)
+                .map(msg -> MINI.deserialize(msg, tagResolver))
                 .ifPresent(sender::sendMessage);
     }
 

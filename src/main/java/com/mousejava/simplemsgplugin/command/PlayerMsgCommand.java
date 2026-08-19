@@ -13,12 +13,16 @@ import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.repository.*;
+import com.mousejava.simplemsgplugin.service.SkinService;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
 import com.mousejava.simplemsgplugin.utils.*;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,8 +41,9 @@ public class PlayerMsgCommand implements ICommand {
     private final DatabaseCacheManager cache;
     private final OfflineMessageStorage offlineMessages;
     private final LatestRecipientsStorage latestRecipients;
+    private final SkinService skinService;
 
-    public PlayerMsgCommand(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository messages, BlacklistRepository blacklist, DatabaseCacheManager cache, OfflineMessageStorage offlineMessages, LatestRecipientsStorage latestRecipients) {
+    public PlayerMsgCommand(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository messages, BlacklistRepository blacklist, DatabaseCacheManager cache, OfflineMessageStorage offlineMessages, LatestRecipientsStorage latestRecipients, SkinService skinService) {
         this.plugin = (SimpleMsgPlugin) plugin;
         this.players = players;
         this.properties = properties;
@@ -47,6 +52,7 @@ public class PlayerMsgCommand implements ICommand {
         this.cache = cache;
         this.offlineMessages = offlineMessages;
         this.latestRecipients = latestRecipients;
+        this.skinService = skinService;
     }
 
     @Override
@@ -126,28 +132,49 @@ public class PlayerMsgCommand implements ICommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        deliverMessage(sender, target, message); return Command.SINGLE_SUCCESS;
+        deliverMessage(sender, target, message);
+        return Command.SINGLE_SUCCESS;
     }
 
     private void deliverMessage(CommandSender sender, Player target, String message) {
         String senderName = sender.getName();
         String targetName = target.getName();
 
-        MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.sender_pattern",
-                msg -> msg
-                        .replace("<sender>", senderName)
-                        .replace("<receiver>", targetName)
-                        .replace("<message>", message),
-                component -> component
-                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
-                        .clickEvent(ClickEvent.suggestCommand("/msg " + targetName + " "))
+        Component senderHead = sender instanceof Player p
+                ? skinService.resolveHeadComponent(p.getUniqueId())
+                : Component.empty();
+        Component targetHead = skinService.resolveHeadComponent(target.getUniqueId());
+
+        TagResolver heads = TagResolver.resolver(
+                Placeholder.component("sender_head", senderHead),
+                Placeholder.component("receiver_head", targetHead)
         );
+        if (sender instanceof Player) {
+            MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.sender_pattern",
+                    msg -> msg
+                            .replace("<sender>", senderName)
+                            .replace("<receiver>", targetName)
+                            .replace("<message>", message),
+                    heads,
+                    component -> component
+                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
+                            .clickEvent(ClickEvent.suggestCommand("/msg " + targetName + " "))
+            );
+        } else {
+            MessageUtils.sendMiniMessageTransformed(sender, "messages.playermsg.console_pattern",
+                    msg -> msg
+                            .replace("<sender>", senderName)
+                            .replace("<receiver>", targetName)
+                            .replace("<message>", message)
+            );
+        }
 
         MessageUtils.sendMiniMessageIfPresent(target, "messages.playermsg.receiver_pattern",
                 msg -> msg
                         .replace("<sender>", senderName)
                         .replace("<receiver>", targetName)
                         .replace("<message>", message),
+                heads,
                 component -> component
                         .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
                         .clickEvent(ClickEvent.suggestCommand("/msg " + senderName + " "))
