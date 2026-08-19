@@ -17,19 +17,19 @@ public final class PlayersRepository implements SchemaRepository {
     @Override
     public void initializeSchema() {
         database.execute("""
-                CREATE TABLE IF NOT EXISTS players (
+                CREATE TABLE IF NOT EXISTS smp_players (
                     uuid CHAR(36) NOT NULL,
                     nickname VARCHAR(16) NOT NULL,
                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     PRIMARY KEY (uuid),
-                    UNIQUE KEY uk_players_nickname (nickname)
+                    UNIQUE KEY uk_smp_players_nickname (nickname)
                 )
                 """);
     }
 
     public void upsert(UUID uuid, String nickname) {
         database.execute("""
-                        INSERT INTO players (uuid, nickname) VALUES (?, ?)
+                        INSERT INTO smp_players (uuid, nickname) VALUES (?, ?)
                         ON DUPLICATE KEY UPDATE nickname = VALUES(nickname)
                         """,
                 uuid.toString(), nickname
@@ -37,19 +37,19 @@ public final class PlayersRepository implements SchemaRepository {
     }
 
     public Optional<String> findUuidByName(String nickname) {
-        return database.queryOne("SELECT uuid FROM players WHERE LOWER(nickname) = LOWER(?)",
+        return database.queryOne("SELECT uuid FROM smp_players WHERE LOWER(nickname) = LOWER(?)",
                 rs -> rs.getString("uuid"), nickname
         );
     }
 
     public Optional<String> findName(UUID uuid) {
-        return database.queryOne("SELECT nickname FROM players WHERE uuid = ?",
+        return database.queryOne("SELECT nickname FROM smp_players WHERE uuid = ?",
                 rs -> rs.getString("nickname"), uuid.toString()
         );
     }
 
     public List<String> findAllNames() {
-        return database.query("SELECT nickname FROM players ORDER BY nickname",
+        return database.query("SELECT nickname FROM smp_players ORDER BY nickname",
                 rs -> rs.getString("nickname")
         );
     }

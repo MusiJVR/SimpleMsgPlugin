@@ -17,20 +17,20 @@ public final class PropertiesRepository implements SchemaRepository {
     @Override
     public void initializeSchema() {
         database.execute("""
-                CREATE TABLE IF NOT EXISTS properties (
+                CREATE TABLE IF NOT EXISTS smp_properties (
                     player_uuid CHAR(36) NOT NULL,
                     property_key VARCHAR(64) NOT NULL,
                     value_type VARCHAR(16) NOT NULL,
                     value TEXT NULL,
                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     PRIMARY KEY (player_uuid, property_key),
-                    CONSTRAINT fk_properties_player FOREIGN KEY (player_uuid) REFERENCES players(uuid) ON DELETE CASCADE
+                    CONSTRAINT fk_smp_properties_player FOREIGN KEY (player_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE
                 )
                 """);
     }
 
     public Optional<Property> find(UUID uuid, String key) {
-        return database.queryOne("SELECT value_type, value FROM properties WHERE player_uuid = ? AND property_key = ?",
+        return database.queryOne("SELECT value_type, value FROM smp_properties WHERE player_uuid = ? AND property_key = ?",
                 rs -> new Property(rs.getString("value_type"), rs.getString("value")), uuid.toString(), normalize(key)
         );
     }
@@ -71,7 +71,7 @@ public final class PropertiesRepository implements SchemaRepository {
         String type = typeOf(value);
         String encoded = value == null ? null : String.valueOf(value);
         database.execute("""
-                        INSERT INTO properties (player_uuid, property_key, value_type, value) VALUES (?, ?, ?, ?)
+                        INSERT INTO smp_properties (player_uuid, property_key, value_type, value) VALUES (?, ?, ?, ?)
                         ON DUPLICATE KEY UPDATE value_type = VALUES(value_type), value = VALUES(value)
                         """,
                 uuid.toString(), normalize(key), type, encoded

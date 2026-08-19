@@ -18,7 +18,7 @@ public final class OfflineMessagesRepository implements SchemaRepository {
     @Override
     public void initializeSchema() {
         database.execute("""
-                CREATE TABLE IF NOT EXISTS offline_messages (
+                CREATE TABLE IF NOT EXISTS smp_offline_messages (
                     id BIGINT NOT NULL AUTO_INCREMENT,
                     sender_uuid CHAR(36) NULL,
                     sender_name VARCHAR(16) NOT NULL,
@@ -26,25 +26,25 @@ public final class OfflineMessagesRepository implements SchemaRepository {
                     message TEXT NOT NULL,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (id),
-                    INDEX ix_offline_receiver (receiver_name)
+                    INDEX ix_smp_offline_receiver (receiver_name)
                 )
                 """);
     }
 
     public void save(UUID senderUuid, String senderName, String receiverName, String message) {
-        database.execute("INSERT INTO offline_messages (sender_uuid, sender_name, receiver_name, message) VALUES (?, ?, ?, ?)",
+        database.execute("INSERT INTO smp_offline_messages (sender_uuid, sender_name, receiver_name, message) VALUES (?, ?, ?, ?)",
                 senderUuid == null ? null : senderUuid.toString(), senderName, receiverName, message
         );
     }
 
     public List<OfflineMessage> findForReceiver(String receiverName) {
-        return database.query("SELECT sender_name, receiver_name, message FROM offline_messages WHERE LOWER(receiver_name) = LOWER(?) ORDER BY created_at, id",
+        return database.query("SELECT sender_name, receiver_name, message FROM smp_offline_messages WHERE LOWER(receiver_name) = LOWER(?) ORDER BY created_at, id",
                 rs -> new OfflineMessage(rs.getString("sender_name"), rs.getString("receiver_name"), rs.getString("message")), receiverName
         );
     }
 
     public void deleteForReceiver(String receiverName) {
-        database.execute("DELETE FROM offline_messages WHERE LOWER(receiver_name) = LOWER(?)",
+        database.execute("DELETE FROM smp_offline_messages WHERE LOWER(receiver_name) = LOWER(?)",
                 receiverName
         );
     }

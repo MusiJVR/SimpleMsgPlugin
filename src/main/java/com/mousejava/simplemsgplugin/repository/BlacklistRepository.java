@@ -16,14 +16,14 @@ public final class BlacklistRepository implements SchemaRepository {
     @Override
     public void initializeSchema() {
         database.execute("""
-                CREATE TABLE IF NOT EXISTS blacklist (
+                CREATE TABLE IF NOT EXISTS smp_blacklist (
                     owner_uuid CHAR(36) NOT NULL,
                     blocked_uuid CHAR(36) NOT NULL,
                     blocked_name VARCHAR(16) NOT NULL,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (owner_uuid, blocked_uuid),
-                    CONSTRAINT fk_blacklist_owner FOREIGN KEY (owner_uuid) REFERENCES players(uuid) ON DELETE CASCADE,
-                    CONSTRAINT fk_blacklist_blocked FOREIGN KEY (blocked_uuid) REFERENCES players(uuid) ON DELETE CASCADE
+                    CONSTRAINT fk_smp_blacklist_owner FOREIGN KEY (owner_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE,
+                    CONSTRAINT fk_smp_blacklist_blocked FOREIGN KEY (blocked_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE
                 )
                 """);
     }
@@ -40,7 +40,7 @@ public final class BlacklistRepository implements SchemaRepository {
 
     public void add(UUID owner, UUID blocked, String name) {
         database.execute("""
-                        INSERT INTO blacklist (owner_uuid, blocked_uuid, blocked_name) VALUES (?, ?, ?)
+                        INSERT INTO smp_blacklist (owner_uuid, blocked_uuid, blocked_name) VALUES (?, ?, ?)
                         ON DUPLICATE KEY UPDATE blocked_name = VALUES(blocked_name)
                         """,
                 owner.toString(), blocked.toString(), name
@@ -48,13 +48,13 @@ public final class BlacklistRepository implements SchemaRepository {
     }
 
     public void remove(UUID owner, UUID blocked) {
-        database.execute("DELETE FROM blacklist WHERE owner_uuid = ? AND blocked_uuid = ?",
+        database.execute("DELETE FROM smp_blacklist WHERE owner_uuid = ? AND blocked_uuid = ?",
                 owner.toString(), blocked.toString()
         );
     }
 
     public List<String> listNames(UUID owner) {
-        return database.query("SELECT blocked_name FROM blacklist WHERE owner_uuid = ? ORDER BY blocked_name",
+        return database.query("SELECT blocked_name FROM smp_blacklist WHERE owner_uuid = ? ORDER BY blocked_name",
                 rs -> rs.getString("blocked_name"), owner.toString()
         );
     }
