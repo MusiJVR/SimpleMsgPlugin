@@ -75,13 +75,13 @@ public class PropertiesCommand implements ICommand {
         Object value = PropertyValueArgumentType.getValue(ctx, "value");
 
         if (value == null) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.propertiesmsg.confirm_sending.usage");
+            MessageUtils.sendMiniMessageIfPresent(player, "messages.propertiesmsg.invalid_value");
             return Command.SINGLE_SUCCESS;
         }
 
         properties.set(uuid, propertyName, value);
 
-        MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.confirm_sending.property_set",
+        MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.property_set",
                 msg -> msg
                         .replace("<property>", propertyName)
                         .replace("<value>", String.valueOf(value))

@@ -48,11 +48,10 @@ messages:
     reload_successfully: '<color:#55ffff>The plugin was successfully reloaded</color>'
 
   propertiesmsg:
-    unknown_property: '<color:#ffff55>Unknown property</color>'
     usage: '<color:#ffff55>Usage: /propmsg <property> <value></color>'
-    confirm_sending:
-      usage: '<color:#ffff55>Usage: /msgprop confirm_sending <on | off></color>'
-      property_set: '<color:#55ffff>Property</color> <b><color:#ffff55><property></color></b> <color:#55ffff>is set to</color> <b><color:#ffff55><value></color></b>'
+    unknown_property: '<color:#ffff55>Unknown property</color>'
+    invalid_value: '<color:#ffff55>Invalid value</color>'
+    property_set: '<color:#55ffff>Property</color> <b><color:#ffff55><property></color></b> <color:#55ffff>is set to</color> <b><color:#ffff55><value></color></b>'
 
   playermsg:
     usage: "<color:#ffff55><hover:show_text:'Click to send a message'><click:suggest_command:'/msg '>Usage: /msg <player> <message></click></hover></color>"
@@ -224,4 +223,5 @@ messages:
   
   <color:#55ffff>Usage:</color> <color:#ffff55>/<command> <property> <arg></color>
   
-  <b><color:#55ffff>⏴----------------------------⏵</color></b>'
+  <b><color:#55ffff>⏴----------------------------⏵</color></b>
+  '
