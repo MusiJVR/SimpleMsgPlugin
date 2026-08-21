@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 public final class SkinService {
-    private static final Component STEVE_SKIN = GsonComponentSerializer.gson().deserialize("{\"player\":{\"name\":\"\"}}");
+    private static final String STEVE_SKIN = "{\"player\":{\"name\":\"\"}}";
 
     private final SkinsRepository skinsRepository;
 
@@ -37,7 +37,7 @@ public final class SkinService {
             return Component.empty();
 
         if (base64 == null || base64.isBlank())
-            return STEVE_SKIN;
+            return GsonComponentSerializer.gson().deserialize(STEVE_SKIN);
 
         String json = "{\"player\":{\"properties\":[{\"name\":\"textures\",\"value\":\"%s\"}]}}".formatted(base64);
         return GsonComponentSerializer.gson().deserialize(json);
