@@ -95,7 +95,7 @@ fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (plat
         @Suppress("UNCHECKED_CAST")
         val builds = httpGetJson("https://fill.papermc.io/v3/projects/$platform/versions/$mcVersion/builds") as List<Map<String, Any?>>
 
-        val build = builds.lastOrNull { (it["channel"] as? String) in listOf("STABLE", "RECOMMENDED", "BETA", "ALPHA") }
+        val build = builds.firstOrNull { it["channel"] == "STABLE" }
             ?: error("There are no builds for $platform $mcVersion")
 
         @Suppress("UNCHECKED_CAST")
@@ -261,7 +261,7 @@ tasks {
             "prefix" to project.property("prefix"),
             "description" to project.description,
             "version" to version,
-            "apiVersion" to libs.versions.minecraft.get(),
+            "apiVersion" to project.property("api.version"),
             "authors" to project.property("authors")
         )
 
