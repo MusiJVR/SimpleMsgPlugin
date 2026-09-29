@@ -2,6 +2,8 @@ package com.mousejava.simplemsgplugin.utils;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -68,24 +70,39 @@ public final class Scheduler {
     }
 
     public static void runForEntity(Entity entity, Runnable runnable) {
-        if (isFolia)
-            entity.getScheduler().run(getPlugin(), t -> runnable.run(), null);
-        else
-            entity.getScheduler().run(getPlugin(), t -> runnable.run(), null);
+        entity.getScheduler().run(getPlugin(), t -> runnable.run(), null);
     }
 
     public static Task runForEntityLater(Entity entity, Runnable runnable, long delay) {
-        if (isFolia)
-            return new Task(entity.getScheduler().runDelayed(getPlugin(), t -> runnable.run(), null, delay));
-        else
-            return new Task(entity.getScheduler().runDelayed(getPlugin(), t -> runnable.run(), null, delay));
+        return new Task(entity.getScheduler().runDelayed(getPlugin(), t -> runnable.run(), null, delay));
     }
 
     public static Task runForEntityTimer(Entity entity, Runnable runnable, long delay, long period) {
-        if (isFolia)
-            return new Task(entity.getScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), null, delay < 1 ? 1 : delay, period));
-        else
-            return new Task(entity.getScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), null, delay < 1 ? 1 : delay, period));
+        return new Task(entity.getScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), null, delay < 1 ? 1 : delay, period));
+    }
+
+    public static void runAtLocation(Location location, Runnable runnable) {
+        Bukkit.getRegionScheduler().execute(getPlugin(), location, runnable);
+    }
+
+    public static void runAtLocation(World world, int chunkX, int chunkZ, Runnable runnable) {
+        Bukkit.getRegionScheduler().execute(getPlugin(), world, chunkX, chunkZ, runnable);
+    }
+
+    public static Task runAtLocationLater(Location location, Runnable runnable, long delay) {
+        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), location, t -> runnable.run(), delay < 1 ? 1 : delay));
+    }
+
+    public static Task runAtLocationLater(World world, int chunkX, int chunkZ, Runnable runnable, long delay) {
+        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), delay < 1 ? 1 : delay));
+    }
+
+    public static Task runAtLocationTimer(Location location, Runnable runnable, long delay, long period) {
+        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), location, t -> runnable.run(), delay < 1 ? 1 : delay, period));
+    }
+
+    public static Task runAtLocationTimer(World world, int chunkX, int chunkZ, Runnable runnable, long delay, long period) {
+        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), delay < 1 ? 1 : delay, period));
     }
 
     public static class Task {
