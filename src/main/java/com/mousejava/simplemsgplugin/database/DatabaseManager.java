@@ -63,6 +63,27 @@ public final class DatabaseManager implements AutoCloseable {
         return !dataSource.isClosed();
     }
 
+    public <T> T transaction(Transaction<T> transaction) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                T result = transaction.execute(connection);
+                connection.commit();
+                return result;
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        } catch (SQLException exception) {
+            throw new DatabaseException("Failed to execute a database transaction", exception);
+        }
+    }
+
+    @FunctionalInterface
+    public interface Transaction<T> {
+        T execute(Connection connection) throws SQLException;
+    }
+
     @Override
     public void close() {
         dataSource.close();

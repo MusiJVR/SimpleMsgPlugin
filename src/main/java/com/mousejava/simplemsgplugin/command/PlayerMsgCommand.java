@@ -104,6 +104,7 @@ public class PlayerMsgCommand implements ICommand {
             return CompletableFuture.completedFuture(new Suggestions(range, suggestions));
         };
     }
+
     private int executePlayerMsg(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
         String input = StringArgumentType.getString(ctx, "player");
         String message = StringArgumentType.getString(ctx, "message").trim();
