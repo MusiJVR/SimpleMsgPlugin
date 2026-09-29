@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle("${libs.versions.minecraft.get()}-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle(libs.versions.paper.get())
 
     implementation(libs.bstats)
     implementation(libs.hikaricp)
