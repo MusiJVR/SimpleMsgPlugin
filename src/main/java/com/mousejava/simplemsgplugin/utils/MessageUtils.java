@@ -51,11 +51,13 @@ public final class MessageUtils {
     }
 
     public static void sendPlainIfPresent(CommandSender sender, String path) {
-        optionalPlain(path).ifPresent(sender::sendMessage);
+        optionalPlain(path)
+                .ifPresent(sender::sendMessage);
     }
 
     public static void sendPlainIfPresent(CommandSender sender, String path, String defaultMessage) {
-        optionalPlain(path, defaultMessage).ifPresent(sender::sendMessage);
+        optionalPlain(path, defaultMessage)
+                .ifPresent(sender::sendMessage);
     }
 
     public static Optional<String> optionalColored(String path) {
@@ -68,11 +70,13 @@ public final class MessageUtils {
     }
 
     public static void sendColoredIfPresent(CommandSender sender, String path) {
-        optionalColored(path).ifPresent(sender::sendMessage);
+        optionalColored(path)
+                .ifPresent(sender::sendMessage);
     }
 
     public static void sendColoredIfPresent(CommandSender sender, String path, String defaultMessage) {
-        optionalColored(path, defaultMessage).ifPresent(sender::sendMessage);
+        optionalColored(path, defaultMessage)
+                .ifPresent(sender::sendMessage);
     }
 
     public static void sendColoredTransformed(CommandSender sender, String path, Function<String, String> transformer) {
@@ -91,7 +95,14 @@ public final class MessageUtils {
     }
 
     public static void sendMiniMessageIfPresent(CommandSender sender, String path) {
-        optionalMiniMessage(path).ifPresent(sender::sendMessage);
+        optionalMiniMessage(path)
+                .ifPresent(sender::sendMessage);
+    }
+
+    public static void sendMiniMessageIfPresent(CommandSender sender, String path, TagResolver resolver) {
+        optionalPlain(path)
+                .map(message -> MINI.deserialize(message, resolver))
+                .ifPresent(sender::sendMessage);
     }
 
     public static void sendMiniMessageIfPresent(CommandSender sender, String path, String defaultMessage) {
