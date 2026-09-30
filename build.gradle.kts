@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -22,6 +23,10 @@ dependencies {
     implementation(libs.hikaricp)
 }
 
+configurations.runtimeClasspath {
+    exclude(group = "org.slf4j", module = "slf4j-api")
+}
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(libs.versions.java.compile.get().toInt())
 }
@@ -30,7 +35,7 @@ val toolchainService = project.extensions.getByType(JavaToolchainService::class.
 
 data class ServerTarget(
     val platform: String,
-    val mcVersion: String,
+    val version: String,
     val javaVersion: Int = libs.versions.java.runtime.get().toInt()
 )
 
@@ -52,7 +57,7 @@ val testMatrix: List<ServerTarget> = run {
             versions.map { versionEntry ->
                 ServerTarget(
                     platform = platform,
-                    mcVersion = versionEntry["mcVersion"] as String,
+                    version = versionEntry["version"] as String,
                     javaVersion = (versionEntry["javaVersion"] as? Number)?.toInt()
                         ?: libs.versions.java.runtime.get().toInt()
                 )
@@ -90,13 +95,13 @@ fun asBuildsList(parsed: Any?): List<Map<String, Any?>> {
     }
 }
 
-fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (platform) {
+fun resolveDownloadUrl(platform: String, version: String): String = when (platform) {
     "paper", "folia" -> {
         @Suppress("UNCHECKED_CAST")
-        val builds = httpGetJson("https://fill.papermc.io/v3/projects/$platform/versions/$mcVersion/builds") as List<Map<String, Any?>>
+        val builds = httpGetJson("https://fill.papermc.io/v3/projects/$platform/versions/$version/builds") as List<Map<String, Any?>>
 
         val build = builds.firstOrNull { it["channel"] == "STABLE" }
-            ?: error("There are no builds for $platform $mcVersion")
+            ?: error("There are no builds for $platform $version")
 
         @Suppress("UNCHECKED_CAST")
         val downloads = build["downloads"] as Map<String, Any?>
@@ -106,15 +111,15 @@ fun resolveDownloadUrl(platform: String, mcVersion: String): String = when (plat
 
         server["url"] as String
     }
-    "purpur" -> "https://api.purpurmc.org/v2/purpur/$mcVersion/latest/download"
+    "purpur" -> "https://api.purpurmc.org/v2/purpur/$version/latest/download"
     "leaf" -> {
-        val builds = asBuildsList(httpGetJson("https://api.leafmc.one/v2/projects/leaf/versions/$mcVersion/builds"))
+        val builds = asBuildsList(httpGetJson("https://api.leafmc.one/v2/projects/leaf/versions/$version/builds"))
 
         val latest = builds.maxByOrNull { (it["build"] as Number).toInt() }
-            ?: error("There are no Leaf builds $mcVersion")
+            ?: error("There are no Leaf builds $version")
 
         val buildNum = (latest["build"] as Number).toInt()
-        "https://api.leafmc.one/v2/projects/leaf/versions/$mcVersion/builds/$buildNum/downloads/leaf-$mcVersion-$buildNum.jar"
+        "https://api.leafmc.one/v2/projects/leaf/versions/$version/builds/$buildNum/downloads/leaf-$version-$buildNum.jar"
     }
     else -> error("Unknown platform: $platform")
 }
@@ -140,10 +145,10 @@ val runServersDir = providers.provider {
     layout.projectDirectory.dir("run")
 }
 
-val shadowJar = tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar")
+val shadowJar = tasks.named<ShadowJar>("shadowJar")
 
 testMatrix.forEach { target ->
-    val safeVersion = target.mcVersion.replace(Regex("[.\\-]"), "_")
+    val safeVersion = target.version.replace(Regex("[.\\-]"), "_")
     val id = "${target.platform}_$safeVersion"
     val serverDirProvider = runServersDir.map { it.dir(id) }
 
@@ -154,8 +159,8 @@ testMatrix.forEach { target ->
             val dest = outFile.get().asFile
             dest.parentFile.mkdirs()
             if (!dest.exists()) {
-                val url = resolveDownloadUrl(target.platform, target.mcVersion)
-                logger.lifecycle("Downloading ${target.platform} ${target.mcVersion}: $url")
+                val url = resolveDownloadUrl(target.platform, target.version)
+                logger.lifecycle("Downloading ${target.platform} ${target.version}: $url")
                 URI(url).toURL().openStream().use { input ->
                     dest.outputStream().use { output -> input.copyTo(output) }
                 }
@@ -165,7 +170,7 @@ testMatrix.forEach { target ->
 
     tasks.register<JavaExec>("runServer_$id") {
         group = "run server matrix"
-        description = "Launches ${target.platform} ${target.mcVersion} with plugin"
+        description = "Launches ${target.platform} ${target.version} with plugin"
         dependsOn(downloadServerJar, shadowJar)
         notCompatibleWithConfigurationCache("Interactive server process, nothing to cache")
 
@@ -210,20 +215,13 @@ tasks.shadowJar {
 
     from(rootProject.file("LICENSE"))
 
-    val libsPath = "${project.group}.libs"
-    val relocations = listOf(
-        "com.zaxxer.hikari",
-        "org.bstats"
-    )
-
-    relocations.forEach { pkg ->
-        relocate(pkg, "$libsPath.$pkg")
-    }
+    enableAutoRelocation = true
+    relocationPrefix = "${project.group}.libs"
 }
 
 tasks.register("runServerMatrix") {
     group = "run server matrix"
-    dependsOn(testMatrix.map { "runServer_${it.platform}_${it.mcVersion.replace(Regex("[.\\-]"), "_")}" })
+    dependsOn(testMatrix.map { "runServer_${it.platform}_${it.version.replace(Regex("[.\\-]"), "_")}" })
 }
 
 tasks.register<Delete>("cleanTestServers") {

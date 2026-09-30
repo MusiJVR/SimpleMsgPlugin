@@ -8,7 +8,7 @@ api-version: '${apiVersion}'
 folia-supported: true
 load: POSTWORLD
 
-authors: ${authors}
+authors: [ ${authors} ]
 
 permissions:
   simplemsgplugin.helpmsg:
