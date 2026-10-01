@@ -21,19 +21,11 @@ public final class PropertiesRepository implements SchemaRepository {
 
     @Override
     public void initializeSchema() {
-        database.execute("""
-                CREATE TABLE IF NOT EXISTS smp_properties (
-                    player_uuid CHAR(36) NOT NULL,
-                    properties LONGTEXT NOT NULL,
-                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    PRIMARY KEY (player_uuid),
-                    FOREIGN KEY (player_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE
-                )
-                """);
+        database.dialect().propertiesSchema().forEach(database::execute);
     }
 
     public Optional<Property> find(UUID uuid, String key) {
-        return database.queryOne("SELECT properties FROM smp_properties WHERE player_uuid = ?",
+        return database.queryOne(database.dialect().propertiesFind(),
                 rs -> GSON.fromJson(rs.getString("properties"), JsonObject.class), uuid.toString())
                 .map(properties -> GSON.fromJson(properties.get(normalize(key)), Property.class));
     }
@@ -74,16 +66,13 @@ public final class PropertiesRepository implements SchemaRepository {
         String type = typeOf(value);
         String encoded = value == null ? null : String.valueOf(value);
         database.transaction(connection -> {
-            try (var insert = connection.prepareStatement("""
-                    INSERT INTO smp_properties (player_uuid, properties) VALUES (?, '{}')
-                    ON DUPLICATE KEY UPDATE player_uuid = VALUES(player_uuid)
-                    """)) {
+            try (var insert = connection.prepareStatement(database.dialect().propertiesInsertIfAbsent())) {
                 insert.setString(1, uuid.toString());
                 insert.executeUpdate();
             }
 
             JsonObject properties;
-            try (var select = connection.prepareStatement("SELECT properties FROM smp_properties WHERE player_uuid = ? FOR UPDATE")) {
+            try (var select = connection.prepareStatement(database.dialect().propertiesFindForUpdate())) {
                 select.setString(1, uuid.toString());
                 try (var rows = select.executeQuery()) {
                     if (!rows.next()) {
@@ -94,7 +83,7 @@ public final class PropertiesRepository implements SchemaRepository {
             }
 
             properties.add(normalize(key), GSON.toJsonTree(new Property(type, encoded)));
-            try (var update = connection.prepareStatement("UPDATE smp_properties SET properties = ? WHERE player_uuid = ?")) {
+            try (var update = connection.prepareStatement(database.dialect().propertiesUpdate())) {
                 update.setString(1, GSON.toJson(properties));
                 update.setString(2, uuid.toString());
                 update.executeUpdate();

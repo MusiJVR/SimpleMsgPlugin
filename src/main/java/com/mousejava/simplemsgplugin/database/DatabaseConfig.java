@@ -2,23 +2,27 @@ package com.mousejava.simplemsgplugin.database;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-public record DatabaseConfig(String host, int port, String database, String username, String password, String properties, int maximumPoolSize, long connectionTimeoutMs) {
-    public static DatabaseConfig from(FileConfiguration config) {
+import java.io.File;
+
+public record DatabaseConfig(DatabaseType type, File sqliteFile, String host, int port, String database, String username, String password, String properties, int maximumPoolSize, long connectionTimeoutMs) {
+    public static DatabaseConfig from(FileConfiguration config, File dataFolder) {
+        DatabaseType type = DatabaseType.parse(config.getString("database.type"));
         return new DatabaseConfig(
+                type,
+                new File(dataFolder, "database.db"),
                 config.getString("database.ip", "localhost"),
                 config.getInt("database.port", 3306),
                 config.getString("database.dbname", ""),
                 config.getString("database.username", ""),
                 config.getString("database.password", ""),
                 config.getString("database.properties", "verifyServerCertificate=false&useSSL=false&useUnicode=true&characterEncoding=utf8"),
-                positive(config.getInt("database.maximum_pool_size", 10), "database.maximum_pool_size"),
+                type == DatabaseType.SQLITE ? 1 : positive(config.getInt("database.maximum_pool_size", 10), "database.maximum_pool_size"),
                 positive(config.getLong("database.connection_timeout_ms", 10_000L), "database.connection_timeout_ms")
         );
     }
 
     public String jdbcUrl() {
-        String query = properties == null || properties.isBlank() ? "" : "?" + properties;
-        return "jdbc:mysql://" + host + ":" + port + "/" + database + query;
+        return type.jdbcUrl(this);
     }
 
     private static int positive(int value, String path) {

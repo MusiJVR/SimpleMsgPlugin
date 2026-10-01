@@ -15,29 +15,18 @@ public final class SkinsRepository implements SchemaRepository {
 
     @Override
     public void initializeSchema() {
-        database.execute("""
-                CREATE TABLE IF NOT EXISTS smp_player_skins (
-                    player_uuid CHAR(36) NOT NULL,
-                    skin_base64 TEXT,
-                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    PRIMARY KEY (player_uuid),
-                    CONSTRAINT fk_smp_player_skins_player FOREIGN KEY (player_uuid) REFERENCES smp_players(uuid) ON DELETE CASCADE
-                )
-                """);
+        database.dialect().skinsSchema().forEach(database::execute);
     }
 
     public void upsert(UUID uuid, String skinBase64) {
         if (skinBase64 == null) return;
-        database.execute("""
-                INSERT INTO smp_player_skins (player_uuid, skin_base64) VALUES (?, ?)
-                ON DUPLICATE KEY UPDATE skin_base64 = VALUES(skin_base64)
-                """,
+        database.execute(database.dialect().skinsUpsert(),
                 uuid.toString(), skinBase64
         );
     }
 
     public Optional<String> findSkin(UUID uuid) {
-        return database.queryOne("SELECT skin_base64 FROM smp_player_skins WHERE player_uuid = ?",
+        return database.queryOne(database.dialect().skinsFindSkin(),
                 rs -> rs.getString("skin_base64"), uuid.toString()
         );
     }

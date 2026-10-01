@@ -1,6 +1,7 @@
 # Plugin version 1.8.0
 
 database:
+  type: 'sqlite' # Available types: sqlite, mysql
   ip: 'localhost'
   dbname: 'dbname'
   username: 'username'

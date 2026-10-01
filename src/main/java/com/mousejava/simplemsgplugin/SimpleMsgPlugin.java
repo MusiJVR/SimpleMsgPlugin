@@ -53,7 +53,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         BStatsMetricsService.init(this, SERVICE_ID);
         UpdateCheckerService.init(this, PROJECT_ID);
 
-        database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig()));
+        database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig(), getDataFolder()));
 
         playersRepository = new PlayersRepository(database);
         propertiesRepository = new PropertiesRepository(database);

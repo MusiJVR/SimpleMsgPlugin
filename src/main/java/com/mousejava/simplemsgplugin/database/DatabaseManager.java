@@ -2,7 +2,10 @@ package com.mousejava.simplemsgplugin.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,18 +16,29 @@ import java.util.List;
 
 public final class DatabaseManager implements AutoCloseable {
     private final HikariDataSource dataSource;
+    private final SqlDialect dialect;
 
     public DatabaseManager(String poolName, DatabaseConfig databaseConfig) {
+        dialect = databaseConfig.type().dialect();
+        if (databaseConfig.type() == DatabaseType.SQLITE) {
+            try {
+                Files.createDirectories(databaseConfig.sqliteFile().toPath().toAbsolutePath().getParent());
+            } catch (IOException exception) {
+                throw new DatabaseException("Failed to create the SQLite data directory", exception);
+            }
+        }
+
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setPoolName(poolName);
-        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
         hikariConfig.setJdbcUrl(databaseConfig.jdbcUrl());
-        hikariConfig.setUsername(databaseConfig.username());
-        hikariConfig.setPassword(databaseConfig.password());
-        hikariConfig.setMaximumPoolSize(databaseConfig.maximumPoolSize());
+        databaseConfig.type().configure(hikariConfig, databaseConfig);
         hikariConfig.setConnectionTimeout(databaseConfig.connectionTimeoutMs());
 
         dataSource = new HikariDataSource(hikariConfig);
+    }
+
+    public SqlDialect dialect() {
+        return dialect;
     }
 
     public void execute(String sql, Object... parameters) {
