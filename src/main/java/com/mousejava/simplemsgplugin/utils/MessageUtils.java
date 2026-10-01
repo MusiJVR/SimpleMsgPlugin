@@ -3,6 +3,7 @@ package com.mousejava.simplemsgplugin.utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -10,13 +11,31 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class MessageUtils {
     private static final MiniMessage MINI = MiniMessage.miniMessage();
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static JavaPlugin plugin;
 
     public static void init(JavaPlugin plugin) {
         MessageUtils.plugin = plugin;
+    }
+
+    public static String translateColorCodes(String text) {
+        if (text == null || text.isEmpty()) return text;
+
+        Matcher matcher = HEX_PATTERN.matcher(text);
+        StringBuffer buffer = new StringBuffer(text.length() + 32);
+        while (matcher.find()) {
+            String replacement = net.md_5.bungee.api.ChatColor.of("#" + matcher.group(1)).toString();
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+        }
+
+        matcher.appendTail(buffer);
+
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
     public static @Nullable String getPlain(String path) {
@@ -66,7 +85,7 @@ public final class MessageUtils {
 
     public static Optional<String> optionalColored(String path, String defaultMessage) {
         return optionalPlain(path, defaultMessage)
-                .map(ColorUtils::translateColorCodes);
+                .map(MessageUtils::translateColorCodes);
     }
 
     public static void sendColoredIfPresent(CommandSender sender, String path) {
@@ -106,7 +125,8 @@ public final class MessageUtils {
     }
 
     public static void sendMiniMessageIfPresent(CommandSender sender, String path, String defaultMessage) {
-        optionalMiniMessage(path, defaultMessage).ifPresent(sender::sendMessage);
+        optionalMiniMessage(path, defaultMessage)
+                .ifPresent(sender::sendMessage);
     }
 
     public static void sendMiniMessageIfPresent(CommandSender sender, String path, Function<String, String> transformer, TagResolver tagResolver, UnaryOperator<Component> componentModifier) {
