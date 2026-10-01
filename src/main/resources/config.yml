@@ -1,4 +1,4 @@
-# Plugin version 1.8.0
+# Plugin version 1.8.1
 
 database:
   type: 'sqlite' # Available types: sqlite, mysql
