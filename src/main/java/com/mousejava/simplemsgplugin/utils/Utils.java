@@ -18,16 +18,4 @@ public final class Utils {
             } catch (Throwable ignored) {}
         }
     }
-
-    public static boolean checkDigits(String string) {
-        if (string == null || string.isEmpty())
-            return false;
-
-        for (int i = 0; i < string.length(); i++) {
-            if (!Character.isDigit(string.charAt(i)))
-                return false;
-        }
-
-        return true;
-    }
 }
