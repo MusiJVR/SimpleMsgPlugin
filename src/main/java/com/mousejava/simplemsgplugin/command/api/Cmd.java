@@ -96,8 +96,8 @@ public final class Cmd {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> senderCommand(String name, String permission, String message) {
-        return executesSender(literal(name, permission), ((ctx, player) -> {
-            MessageUtils.sendMiniMessageIfPresent(player, message);
+        return executesSender(literal(name, permission), ((ctx, sender) -> {
+            MessageUtils.sendMiniMessageIfPresent(sender, message);
             return Command.SINGLE_SUCCESS;
         }));
     }
