@@ -1,6 +1,8 @@
 package com.mousejava.simplemsgplugin.utils;
 
+import io.papermc.paper.ServerBuildInfo;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,19 +11,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 public final class Scheduler {
-    private static final boolean isFolia;
-    private static JavaPlugin plugin;
+    @SuppressWarnings("UnstableApiUsage")
+    private static final boolean IS_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
 
-    static {
-        boolean folia;
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            folia = true;
-        } catch (ClassNotFoundException e) {
-            folia = false;
-        }
-        isFolia = folia;
-    }
+    private static JavaPlugin plugin;
 
     public static void init(JavaPlugin plugin) {
         if (Scheduler.plugin != null)
@@ -38,32 +31,32 @@ public final class Scheduler {
     }
 
     public static boolean isFolia() {
-        return isFolia;
+        return IS_FOLIA;
     }
 
     public static void run(Runnable runnable) {
-        if (isFolia)
+        if (IS_FOLIA)
             Bukkit.getGlobalRegionScheduler().execute(getPlugin(), runnable);
         else
             Bukkit.getScheduler().runTask(getPlugin(), runnable);
     }
 
     public static Task runLater(Runnable runnable, long delay) {
-        if (isFolia)
+        if (IS_FOLIA)
             return new Task(Bukkit.getGlobalRegionScheduler().runDelayed(getPlugin(), t -> runnable.run(), delay));
         else
             return new Task(Bukkit.getScheduler().runTaskLater(getPlugin(), runnable, delay));
     }
 
     public static Task runTimer(Runnable runnable, long delay, long period) {
-        if (isFolia)
+        if (IS_FOLIA)
             return new Task(Bukkit.getGlobalRegionScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), delay < 1 ? 1 : delay, period));
         else
             return new Task(Bukkit.getScheduler().runTaskTimer(getPlugin(), runnable, delay, period));
     }
 
     public static void runAsync(Runnable runnable) {
-        if (isFolia)
+        if (IS_FOLIA)
             Bukkit.getAsyncScheduler().runNow(getPlugin(), t -> runnable.run());
         else
             Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), runnable);
