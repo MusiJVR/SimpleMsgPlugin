@@ -23,6 +23,7 @@ public final class MessageUtils {
         MessageUtils.plugin = plugin;
     }
 
+    @SuppressWarnings("deprecation")
     public static String translateColorCodes(String text) {
         if (text == null || text.isEmpty()) return text;
 
