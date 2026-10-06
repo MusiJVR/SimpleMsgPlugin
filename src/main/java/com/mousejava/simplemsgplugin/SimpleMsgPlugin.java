@@ -13,7 +13,10 @@ import com.mousejava.simplemsgplugin.service.*;
 import com.mousejava.simplemsgplugin.storage.*;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -70,12 +73,8 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         cacheManager.refreshPlayerNames();
         cacheManager.schedulePlayerNameRefresh(5 * 60 * 20L);
 
+        registerListeners();
         registerCommands();
-
-        getServer().getPluginManager().registerEvents(new PlayerJoinQuitEventListeners(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage), this);
-        getServer().getPluginManager().registerEvents(new PrivateChatListener(), this);
-        getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this, propertiesRepository), this);
-        getServer().getPluginManager().registerEvents(new PlayerSkinListener(skinsRepository, skinService), this);
     }
 
     @Override
@@ -100,6 +99,18 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         return new DatabaseManager<>(getName() + "Pool", config, dialect);
     }
 
+    private void registerListeners() {
+        List<Listener> listeners = List.of(
+                new PlayerJoinQuitEventListeners(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage),
+                new PrivateChatListener(),
+                new UpdateNotifyListener(this, propertiesRepository),
+                new PlayerSkinListener(skinsRepository, skinService)
+        );
+
+        PluginManager pluginManager = getServer().getPluginManager();
+        listeners.forEach(listener -> pluginManager.registerEvents(listener, this));
+    }
+
     private void registerCommands() {
         List<ICommand> commands = List.of(
                 new HelpCommand(this),
@@ -115,7 +126,8 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         );
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            commands.forEach(command -> event.registrar().register(command.create(), command.description(), command.aliases()));
+            Commands registrar = event.registrar();
+            commands.forEach(command -> registrar.register(command.create(), command.description(), command.aliases()));
         });
     }
 }
