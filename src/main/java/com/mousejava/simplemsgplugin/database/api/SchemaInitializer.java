@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.database;
+package com.mousejava.simplemsgplugin.database.api;
 
 import java.util.List;
 

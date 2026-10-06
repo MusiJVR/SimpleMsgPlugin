@@ -1,7 +1,8 @@
-package com.mousejava.simplemsgplugin.repository;
+package com.mousejava.simplemsgplugin.database.repository;
 
-import com.mousejava.simplemsgplugin.database.DatabaseManager;
-import com.mousejava.simplemsgplugin.database.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
+import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
 import java.util.List;
 import java.util.UUID;
@@ -9,9 +10,9 @@ import java.util.UUID;
 public final class OfflineMessagesRepository implements SchemaRepository {
     public record OfflineMessage(String senderUuid, String senderName, String receiverName, String message) { }
 
-    private final DatabaseManager database;
+    private final DatabaseManager<SqlDialect> database;
 
-    public OfflineMessagesRepository(DatabaseManager database) {
+    public OfflineMessagesRepository(DatabaseManager<SqlDialect> database) {
         this.database = database;
     }
 

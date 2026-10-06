@@ -1,6 +1,6 @@
 package com.mousejava.simplemsgplugin.listener;
 
-import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
+import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.service.UpdateCheckerService;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;

@@ -1,14 +1,11 @@
-package com.mousejava.simplemsgplugin.database;
+package com.mousejava.simplemsgplugin.database.api;
 
-import com.mousejava.simplemsgplugin.database.dialect.MySqlDialect;
-import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
-import com.mousejava.simplemsgplugin.database.dialect.SqliteDialect;
 import com.zaxxer.hikari.HikariConfig;
 
 import java.util.Locale;
 
 public enum DatabaseType {
-    SQLITE(new SqliteDialect()) {
+    SQLITE() {
         @Override
         String jdbcUrl(DatabaseConfig config) {
             return "jdbc:sqlite:" + config.sqliteFile().getAbsolutePath();
@@ -23,7 +20,7 @@ public enum DatabaseType {
             pool.addDataSourceProperty("journal_mode", "WAL");
         }
     },
-    MYSQL(new MySqlDialect()) {
+    MYSQL() {
         @Override
         String jdbcUrl(DatabaseConfig config) {
             String query = config.properties() == null || config.properties().isBlank() ? "" : "?" + config.properties();
@@ -39,22 +36,14 @@ public enum DatabaseType {
         }
     };
 
-    private final SqlDialect dialect;
-
-    DatabaseType(SqlDialect dialect) {
-        this.dialect = dialect;
-    }
-
-    public SqlDialect dialect() {
-        return dialect;
-    }
-
     abstract String jdbcUrl(DatabaseConfig config);
 
     abstract void configure(HikariConfig pool, DatabaseConfig config);
 
     public static DatabaseType parse(String value) {
-        if (value == null) return SQLITE;
+        if (value == null)
+            return SQLITE;
+
         try {
             return valueOf(value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {

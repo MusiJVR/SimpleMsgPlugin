@@ -1,10 +1,10 @@
 package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.repository.OfflineMessagesRepository;
-import com.mousejava.simplemsgplugin.repository.PlayersRepository;
-import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
+import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
+import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
+import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;

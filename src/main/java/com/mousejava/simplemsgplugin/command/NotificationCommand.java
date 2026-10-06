@@ -12,7 +12,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
-import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
+import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
 import org.bukkit.entity.Player;

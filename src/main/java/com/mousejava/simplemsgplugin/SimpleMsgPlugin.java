@@ -3,19 +3,16 @@ package com.mousejava.simplemsgplugin;
 import com.mousejava.simplemsgplugin.command.*;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
-import com.mousejava.simplemsgplugin.database.DatabaseConfig;
-import com.mousejava.simplemsgplugin.database.DatabaseManager;
-import com.mousejava.simplemsgplugin.database.SchemaInitializer;
-import com.mousejava.simplemsgplugin.listener.PlayerJoinQuitEventListeners;
-import com.mousejava.simplemsgplugin.listener.PlayerSkinListener;
-import com.mousejava.simplemsgplugin.listener.PrivateChatListener;
-import com.mousejava.simplemsgplugin.listener.UpdateNotifyListener;
-import com.mousejava.simplemsgplugin.repository.*;
-import com.mousejava.simplemsgplugin.service.BStatsMetricsService;
-import com.mousejava.simplemsgplugin.service.SkinService;
-import com.mousejava.simplemsgplugin.service.UpdateCheckerService;
-import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
-import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
+import com.mousejava.simplemsgplugin.database.api.DatabaseConfig;
+import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
+import com.mousejava.simplemsgplugin.database.api.SchemaInitializer;
+import com.mousejava.simplemsgplugin.database.dialect.MySqlDialect;
+import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
+import com.mousejava.simplemsgplugin.database.dialect.SqliteDialect;
+import com.mousejava.simplemsgplugin.database.repository.*;
+import com.mousejava.simplemsgplugin.listener.*;
+import com.mousejava.simplemsgplugin.service.*;
+import com.mousejava.simplemsgplugin.storage.*;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -29,7 +26,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
     private static final String PROJECT_ID = "simplemsgplugin";
 
     private static SimpleMsgPlugin instance;
-    private DatabaseManager database;
+    private DatabaseManager<SqlDialect> database;
     private DatabaseCacheManager cacheManager;
     private PlayersRepository playersRepository;
     private PropertiesRepository propertiesRepository;
@@ -53,7 +50,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         BStatsMetricsService.init(this, SERVICE_ID);
         UpdateCheckerService.init(this, PROJECT_ID);
 
-        database = new DatabaseManager(getName() + "Pool", DatabaseConfig.from(getConfig(), getDataFolder()));
+        database = initializeDatabase();
 
         playersRepository = new PlayersRepository(database);
         propertiesRepository = new PropertiesRepository(database);
@@ -93,6 +90,16 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
         offlineMessageStorage.clear();
         latestRecipientsStorage.clear();
+    }
+
+    private DatabaseManager<SqlDialect> initializeDatabase() {
+        DatabaseConfig config = DatabaseConfig.from(getConfig(), getDataFolder());
+        SqlDialect dialect = switch (config.type()) {
+            case SQLITE -> new SqliteDialect();
+            case MYSQL -> new MySqlDialect();
+        };
+
+        return new DatabaseManager<>(getName() + "Pool", config, dialect);
     }
 
     private void registerCommands() {

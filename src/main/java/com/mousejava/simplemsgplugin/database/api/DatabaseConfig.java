@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.database;
+package com.mousejava.simplemsgplugin.database.api;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

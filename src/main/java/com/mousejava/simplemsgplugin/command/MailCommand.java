@@ -13,7 +13,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
-import com.mousejava.simplemsgplugin.repository.OfflineMessagesRepository;
+import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
 import java.util.List;

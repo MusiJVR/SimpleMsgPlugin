@@ -1,8 +1,8 @@
 package com.mousejava.simplemsgplugin.utils;
 
+import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
 import java.util.UUID;
 
 public final class Utils {

@@ -1,6 +1,6 @@
 package com.mousejava.simplemsgplugin.database;
 
-import com.mousejava.simplemsgplugin.repository.PlayersRepository;
+import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
 
 import java.util.List;

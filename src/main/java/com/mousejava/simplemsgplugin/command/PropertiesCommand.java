@@ -11,7 +11,7 @@ import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.property.PropertyDefinitions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import com.mousejava.simplemsgplugin.repository.PropertiesRepository;
+import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 
 import java.util.Locale;

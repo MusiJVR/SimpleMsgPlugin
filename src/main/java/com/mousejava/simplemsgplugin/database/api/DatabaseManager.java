@@ -1,8 +1,7 @@
-package com.mousejava.simplemsgplugin.database;
+package com.mousejava.simplemsgplugin.database.api;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,15 +13,16 @@ import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DatabaseManager implements AutoCloseable {
+public final class DatabaseManager<D> implements AutoCloseable {
     private final HikariDataSource dataSource;
-    private final SqlDialect dialect;
+    private final D dialect;
 
-    public DatabaseManager(String poolName, DatabaseConfig databaseConfig) {
-        dialect = databaseConfig.type().dialect();
-        if (databaseConfig.type() == DatabaseType.SQLITE) {
+    public DatabaseManager(String poolName, DatabaseConfig config, D dialect) {
+        this.dialect = dialect;
+
+        if (config.type() == DatabaseType.SQLITE) {
             try {
-                Files.createDirectories(databaseConfig.sqliteFile().toPath().toAbsolutePath().getParent());
+                Files.createDirectories(config.sqliteFile().toPath().toAbsolutePath().getParent());
             } catch (IOException exception) {
                 throw new DatabaseException("Failed to create the SQLite data directory", exception);
             }
@@ -30,14 +30,14 @@ public final class DatabaseManager implements AutoCloseable {
 
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setPoolName(poolName);
-        hikariConfig.setJdbcUrl(databaseConfig.jdbcUrl());
-        databaseConfig.type().configure(hikariConfig, databaseConfig);
-        hikariConfig.setConnectionTimeout(databaseConfig.connectionTimeoutMs());
+        hikariConfig.setJdbcUrl(config.jdbcUrl());
+        config.type().configure(hikariConfig, config);
+        hikariConfig.setConnectionTimeout(config.connectionTimeoutMs());
 
         dataSource = new HikariDataSource(hikariConfig);
     }
 
-    public SqlDialect dialect() {
+    public D dialect() {
         return dialect;
     }
 
@@ -91,11 +91,6 @@ public final class DatabaseManager implements AutoCloseable {
         } catch (SQLException exception) {
             throw new DatabaseException("Failed to execute a database transaction", exception);
         }
-    }
-
-    @FunctionalInterface
-    public interface Transaction<T> {
-        T execute(Connection connection) throws SQLException;
     }
 
     @Override

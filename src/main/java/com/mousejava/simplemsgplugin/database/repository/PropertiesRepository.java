@@ -1,10 +1,11 @@
-package com.mousejava.simplemsgplugin.repository;
+package com.mousejava.simplemsgplugin.database.repository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.mousejava.simplemsgplugin.database.DatabaseManager;
-import com.mousejava.simplemsgplugin.database.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
+import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
 import java.sql.SQLException;
 import java.util.Locale;
@@ -13,9 +14,9 @@ import java.util.UUID;
 
 public final class PropertiesRepository implements SchemaRepository {
     private static final Gson GSON = new GsonBuilder().serializeNulls().create();
-    private final DatabaseManager database;
+    private final DatabaseManager<SqlDialect> database;
 
-    public PropertiesRepository(DatabaseManager database) {
+    public PropertiesRepository(DatabaseManager<SqlDialect> database) {
         this.database = database;
     }
 

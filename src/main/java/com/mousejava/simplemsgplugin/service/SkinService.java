@@ -2,7 +2,7 @@ package com.mousejava.simplemsgplugin.service;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import com.mousejava.simplemsgplugin.repository.SkinsRepository;
+import com.mousejava.simplemsgplugin.database.repository.SkinsRepository;
 import com.mousejava.simplemsgplugin.utils.ServerVersionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;

@@ -1,16 +1,17 @@
-package com.mousejava.simplemsgplugin.repository;
+package com.mousejava.simplemsgplugin.database.repository;
 
-import com.mousejava.simplemsgplugin.database.DatabaseManager;
-import com.mousejava.simplemsgplugin.database.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
+import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public final class PlayersRepository implements SchemaRepository {
-    private final DatabaseManager database;
+    private final DatabaseManager<SqlDialect> database;
 
-    public PlayersRepository(DatabaseManager database) {
+    public PlayersRepository(DatabaseManager<SqlDialect> database) {
         this.database = database;
     }
 

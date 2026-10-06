@@ -1,6 +1,6 @@
 package com.mousejava.simplemsgplugin.listener;
 
-import com.mousejava.simplemsgplugin.repository.SkinsRepository;
+import com.mousejava.simplemsgplugin.database.repository.SkinsRepository;
 import com.mousejava.simplemsgplugin.service.SkinService;
 import com.mousejava.simplemsgplugin.utils.Scheduler;
 import org.bukkit.entity.Player;
