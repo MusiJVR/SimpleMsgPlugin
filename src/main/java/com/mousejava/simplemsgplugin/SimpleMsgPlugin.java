@@ -5,10 +5,8 @@ import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.database.api.DatabaseConfig;
 import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
-import com.mousejava.simplemsgplugin.database.api.SchemaInitializer;
-import com.mousejava.simplemsgplugin.database.dialect.MySqlDialect;
-import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
-import com.mousejava.simplemsgplugin.database.dialect.SqliteDialect;
+import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
+import com.mousejava.simplemsgplugin.database.dialect.*;
 import com.mousejava.simplemsgplugin.database.repository.*;
 import com.mousejava.simplemsgplugin.listener.*;
 import com.mousejava.simplemsgplugin.service.*;
@@ -58,15 +56,15 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         blacklistRepository = new BlacklistRepository(database);
         skinsRepository = new SkinsRepository(database);
 
-        skinService = new SkinService(skinsRepository);
-
-        new SchemaInitializer(List.of(
+        List.of(
                 playersRepository,
                 propertiesRepository,
                 offlineMessagesRepository,
                 blacklistRepository,
                 skinsRepository
-        )).initialize();
+        ).forEach(SchemaRepository::initializeSchema);
+
+        skinService = new SkinService(skinsRepository);
 
         cacheManager = new DatabaseCacheManager(playersRepository);
         cacheManager.refreshPlayerNames();
