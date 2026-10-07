@@ -68,6 +68,8 @@ public class PlayerJoinQuitEventListeners implements Listener {
 
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        latestRecipients.remove(event.getPlayer().getName());
+        Player player = event.getPlayer();
+        latestRecipients.remove(player.getName());
+        properties.invalidate(player.getUniqueId());
     }
 }
