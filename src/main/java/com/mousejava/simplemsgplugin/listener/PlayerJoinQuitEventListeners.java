@@ -16,6 +16,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerJoinQuitEventListeners implements Listener {
@@ -39,21 +41,29 @@ public class PlayerJoinQuitEventListeners implements Listener {
     public void playerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
+        String name = player.getName();
 
-        players.upsert(uuid, player.getName());
+        Map<String, Object> defaults = new LinkedHashMap<>();
+        defaults.put("sound", plugin.getConfig().getString("default_sound", "false"));
+        defaults.put("volume", plugin.getConfig().getInt("default_volume", 50));
+        defaults.put("confirm_sending", plugin.getConfig().getBoolean("confirm_sending", true));
 
-        properties.set(uuid, "sound", properties.getString(uuid, "sound", plugin.getConfig().getString("default_sound", "false")));
-        properties.set(uuid, "volume", properties.getInt(uuid, "volume", plugin.getConfig().getInt("default_volume", 50)));
-        properties.set(uuid, "confirm_sending", properties.getBoolean(uuid, "confirm_sending", plugin.getConfig().getBoolean("confirm_sending", true)));
+        Scheduler.runAsync(() -> {
+            try {
+                players.upsert(uuid, name);
+                properties.setDefaults(uuid, defaults);
+                cache.refreshPlayerNames();
 
-        cache.refreshPlayerNames();
-
-        if (!offlineMessages.findForReceiver(player.getName()).isEmpty()) {
-            Scheduler.runForEntityLater(player, () -> {
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
-                Utils.msgPlaySound(properties, player);
-            }, 40);
-        }
+                if (!offlineMessages.findForReceiver(name).isEmpty() && player.isOnline()) {
+                    Scheduler.runForEntityLater(player, () -> {
+                        MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
+                        Utils.msgPlaySound(properties, player);
+                    }, 40);
+                }
+            } catch (Exception e) {
+                plugin.getLogger().log(java.util.logging.Level.SEVERE, "Failed to process join for " + name, e);
+            }
+        });
     }
 
     @EventHandler

@@ -9,6 +9,7 @@ import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
 
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,9 +77,9 @@ public final class PropertiesRepository implements SchemaRepository {
             try (var select = connection.prepareStatement(database.dialect().propertiesFindForUpdate())) {
                 select.setString(1, uuid.toString());
                 try (var rows = select.executeQuery()) {
-                    if (!rows.next()) {
+                    if (!rows.next())
                         throw new SQLException("Missing properties row for " + uuid);
-                    }
+
                     properties = GSON.fromJson(rows.getString("properties"), JsonObject.class);
                 }
             }
@@ -89,6 +90,47 @@ public final class PropertiesRepository implements SchemaRepository {
                 update.setString(2, uuid.toString());
                 update.executeUpdate();
             }
+
+            return null;
+        });
+    }
+
+    public void setDefaults(UUID uuid, Map<String, Object> defaults) {
+        database.transaction(connection -> {
+            try (var insert = connection.prepareStatement(database.dialect().propertiesInsertIfAbsent())) {
+                insert.setString(1, uuid.toString());
+                insert.executeUpdate();
+            }
+
+            JsonObject properties;
+            try (var select = connection.prepareStatement(database.dialect().propertiesFindForUpdate())) {
+                select.setString(1, uuid.toString());
+                try (var rows = select.executeQuery()) {
+                    if (!rows.next())
+                        throw new SQLException("Missing properties row for " + uuid);
+
+                    properties = GSON.fromJson(rows.getString("properties"), JsonObject.class);
+                }
+            }
+
+            boolean changed = false;
+            for (var entry : defaults.entrySet()) {
+                String key = normalize(entry.getKey());
+                if (!properties.has(key)) {
+                    Object v = entry.getValue();
+                    properties.add(key, GSON.toJsonTree(new Property(typeOf(v), v == null ? null : String.valueOf(v))));
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                try (var update = connection.prepareStatement(database.dialect().propertiesUpdate())) {
+                    update.setString(1, GSON.toJson(properties));
+                    update.setString(2, uuid.toString());
+                    update.executeUpdate();
+                }
+            }
+
             return null;
         });
     }
