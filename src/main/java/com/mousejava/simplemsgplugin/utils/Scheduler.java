@@ -10,6 +10,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.concurrent.TimeUnit;
+
 public final class Scheduler {
     @SuppressWarnings("UnstableApiUsage")
     private static final boolean IS_FOLIA = ServerBuildInfo.buildInfo().isBrandCompatible(Key.key("papermc", "folia"));
@@ -60,6 +62,20 @@ public final class Scheduler {
             Bukkit.getAsyncScheduler().runNow(getPlugin(), t -> runnable.run());
         else
             Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), runnable);
+    }
+
+    public static Task runAsyncLater(Runnable runnable, long delay) {
+        if (IS_FOLIA)
+            return new Task(Bukkit.getAsyncScheduler().runDelayed(getPlugin(), t -> runnable.run(), delay * 50L, TimeUnit.MILLISECONDS));
+        else
+            return new Task(Bukkit.getScheduler().runTaskLaterAsynchronously(getPlugin(), runnable, delay));
+    }
+
+    public static Task runAsyncTimer(Runnable runnable, long delay, long period) {
+        if (IS_FOLIA)
+            return new Task(Bukkit.getAsyncScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), delay * 50L, period * 50L, TimeUnit.MILLISECONDS));
+        else
+            return new Task(Bukkit.getScheduler().runTaskTimerAsynchronously(getPlugin(), runnable, delay, period));
     }
 
     public static void runForEntity(Entity entity, Runnable runnable) {
