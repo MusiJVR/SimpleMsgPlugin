@@ -1,7 +1,6 @@
 package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
-import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
 import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
@@ -25,15 +24,13 @@ public class PlayerJoinQuitEventListeners implements Listener {
     private final PlayersRepository players;
     private final PropertiesRepository properties;
     private final OfflineMessagesRepository offlineMessages;
-    private final DatabaseCacheManager cache;
     private final LatestRecipientsStorage latestRecipients;
 
-    public PlayerJoinQuitEventListeners(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository offlineMessages, DatabaseCacheManager cache, LatestRecipientsStorage latestRecipients) {
+    public PlayerJoinQuitEventListeners(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository offlineMessages, LatestRecipientsStorage latestRecipients) {
         this.plugin = (SimpleMsgPlugin) plugin;
         this.players = players;
         this.properties = properties;
         this.offlineMessages = offlineMessages;
-        this.cache = cache;
         this.latestRecipients = latestRecipients;
     }
 
@@ -52,7 +49,7 @@ public class PlayerJoinQuitEventListeners implements Listener {
             try {
                 players.upsert(uuid, name);
                 properties.setDefaults(uuid, defaults);
-                cache.refreshPlayerNames();
+                players.refreshPlayerNames();
 
                 if (!offlineMessages.findForReceiver(name).isEmpty() && player.isOnline()) {
                     Scheduler.runForEntityLater(player, () -> {

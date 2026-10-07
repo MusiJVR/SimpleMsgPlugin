@@ -11,7 +11,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mousejava.simplemsgplugin.SimpleMsgPlugin;
 import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
-import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.database.repository.BlacklistRepository;
 import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
 import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
@@ -41,18 +40,16 @@ public class PlayerMsgCommand implements ICommand {
     private final PropertiesRepository properties;
     private final OfflineMessagesRepository messages;
     private final BlacklistRepository blacklist;
-    private final DatabaseCacheManager cache;
     private final OfflineMessageStorage offlineMessages;
     private final LatestRecipientsStorage latestRecipients;
     private final SkinService skinService;
 
-    public PlayerMsgCommand(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository messages, BlacklistRepository blacklist, DatabaseCacheManager cache, OfflineMessageStorage offlineMessages, LatestRecipientsStorage latestRecipients, SkinService skinService) {
+    public PlayerMsgCommand(JavaPlugin plugin, PlayersRepository players, PropertiesRepository properties, OfflineMessagesRepository messages, BlacklistRepository blacklist, OfflineMessageStorage offlineMessages, LatestRecipientsStorage latestRecipients, SkinService skinService) {
         this.plugin = (SimpleMsgPlugin) plugin;
         this.players = players;
         this.properties = properties;
         this.messages = messages;
         this.blacklist = blacklist;
-        this.cache = cache;
         this.offlineMessages = offlineMessages;
         this.latestRecipients = latestRecipients;
         this.skinService = skinService;
@@ -95,7 +92,7 @@ public class PlayerMsgCommand implements ICommand {
                     .filter(n -> n.toLowerCase(Locale.ROOT).startsWith(remaining))
                     .collect(Collectors.toCollection(() -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER)));
 
-            List<String> offline = cache.getPlayerNames().stream()
+            List<String> offline = players.findAllNames().stream()
                     .filter(n -> !online.contains(n) && n.toLowerCase(Locale.ROOT).startsWith(remaining))
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .toList();
@@ -192,7 +189,7 @@ public class PlayerMsgCommand implements ICommand {
     }
 
     private void handleOfflineTarget(Player sender, String input, String message) {
-        Optional<String> resolved = cache.getPlayerNames().stream()
+        Optional<String> resolved = players.findAllNames().stream()
                 .filter(n -> n.equalsIgnoreCase(input))
                 .findFirst();
 

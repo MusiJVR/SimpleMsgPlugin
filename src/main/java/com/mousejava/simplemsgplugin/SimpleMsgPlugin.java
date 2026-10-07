@@ -2,7 +2,6 @@ package com.mousejava.simplemsgplugin;
 
 import com.mousejava.simplemsgplugin.command.*;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
-import com.mousejava.simplemsgplugin.database.DatabaseCacheManager;
 import com.mousejava.simplemsgplugin.database.api.DatabaseConfig;
 import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
 import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
@@ -28,7 +27,6 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
     private static SimpleMsgPlugin instance;
     private DatabaseManager<SqlDialect> database;
-    private DatabaseCacheManager cacheManager;
     private PlayersRepository playersRepository;
     private PropertiesRepository propertiesRepository;
     private OfflineMessagesRepository offlineMessagesRepository;
@@ -69,9 +67,8 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
         skinService = new SkinService(skinsRepository);
 
-        cacheManager = new DatabaseCacheManager(playersRepository);
-        cacheManager.refreshPlayerNames();
-        cacheManager.schedulePlayerNameRefresh(5 * 60 * 20L);
+        playersRepository.refreshPlayerNames();
+        playersRepository.schedulePlayerNameRefresh(5 * 60 * 20L);
 
         registerListeners();
         registerCommands();
@@ -79,11 +76,11 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (playersRepository != null)
+            playersRepository.close();
+
         if (database != null && database.isRunning())
             database.close();
-
-        if (cacheManager != null)
-            cacheManager.close();
 
         offlineMessageStorage.clear();
         latestRecipientsStorage.clear();
@@ -101,7 +98,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
 
     private void registerListeners() {
         List<Listener> listeners = List.of(
-                new PlayerJoinQuitEventListeners(this, playersRepository, propertiesRepository, offlineMessagesRepository, cacheManager, latestRecipientsStorage),
+                new PlayerJoinQuitEventListeners(this, playersRepository, propertiesRepository, offlineMessagesRepository, latestRecipientsStorage),
                 new PrivateChatListener(),
                 new UpdateNotifyListener(this, propertiesRepository),
                 new PlayerSkinListener(skinsRepository, skinService)
@@ -116,7 +113,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
                 new HelpCommand(this),
                 new ReloadCommand(this),
                 new PropertiesCommand(propertiesRepository),
-                new PlayerMsgCommand(this, playersRepository, propertiesRepository, offlineMessagesRepository, blacklistRepository, cacheManager, offlineMessageStorage, latestRecipientsStorage, skinService),
+                new PlayerMsgCommand(this, playersRepository, propertiesRepository, offlineMessagesRepository, blacklistRepository, offlineMessageStorage, latestRecipientsStorage, skinService),
                 new ReplyMsgCommand(latestRecipientsStorage),
                 new AcceptSendCommand(offlineMessageStorage, offlineMessagesRepository, propertiesRepository),
                 new MailCommand(offlineMessagesRepository, skinService),
