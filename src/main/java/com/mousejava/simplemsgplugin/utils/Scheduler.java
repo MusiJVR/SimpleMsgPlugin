@@ -45,16 +45,16 @@ public final class Scheduler {
 
     public static Task runLater(Runnable runnable, long delay) {
         if (IS_FOLIA)
-            return new Task(Bukkit.getGlobalRegionScheduler().runDelayed(getPlugin(), t -> runnable.run(), delay));
+            return new Task(Bukkit.getGlobalRegionScheduler().runDelayed(getPlugin(), t -> runnable.run(), normalizeDelay(delay)));
         else
-            return new Task(Bukkit.getScheduler().runTaskLater(getPlugin(), runnable, delay));
+            return new Task(Bukkit.getScheduler().runTaskLater(getPlugin(), runnable, normalizeDelay(delay)));
     }
 
     public static Task runTimer(Runnable runnable, long delay, long period) {
         if (IS_FOLIA)
-            return new Task(Bukkit.getGlobalRegionScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), delay < 1 ? 1 : delay, period));
+            return new Task(Bukkit.getGlobalRegionScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), normalizeDelay(delay), normalizePeriod(period)));
         else
-            return new Task(Bukkit.getScheduler().runTaskTimer(getPlugin(), runnable, delay, period));
+            return new Task(Bukkit.getScheduler().runTaskTimer(getPlugin(), runnable, normalizeDelay(delay), normalizePeriod(period)));
     }
 
     public static void runAsync(Runnable runnable) {
@@ -66,16 +66,16 @@ public final class Scheduler {
 
     public static Task runAsyncLater(Runnable runnable, long delay) {
         if (IS_FOLIA)
-            return new Task(Bukkit.getAsyncScheduler().runDelayed(getPlugin(), t -> runnable.run(), delay * 50L, TimeUnit.MILLISECONDS));
+            return new Task(Bukkit.getAsyncScheduler().runDelayed(getPlugin(), t -> runnable.run(), normalizeDelay(delay) * 50L, TimeUnit.MILLISECONDS));
         else
-            return new Task(Bukkit.getScheduler().runTaskLaterAsynchronously(getPlugin(), runnable, delay));
+            return new Task(Bukkit.getScheduler().runTaskLaterAsynchronously(getPlugin(), runnable, normalizeDelay(delay)));
     }
 
     public static Task runAsyncTimer(Runnable runnable, long delay, long period) {
         if (IS_FOLIA)
-            return new Task(Bukkit.getAsyncScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), delay * 50L, period * 50L, TimeUnit.MILLISECONDS));
+            return new Task(Bukkit.getAsyncScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), normalizeDelay(delay) * 50L, normalizePeriod(period) * 50L, TimeUnit.MILLISECONDS));
         else
-            return new Task(Bukkit.getScheduler().runTaskTimerAsynchronously(getPlugin(), runnable, delay, period));
+            return new Task(Bukkit.getScheduler().runTaskTimerAsynchronously(getPlugin(), runnable, normalizeDelay(delay), normalizePeriod(period)));
     }
 
     public static void runForEntity(Entity entity, Runnable runnable) {
@@ -83,11 +83,11 @@ public final class Scheduler {
     }
 
     public static Task runForEntityLater(Entity entity, Runnable runnable, long delay) {
-        return new Task(entity.getScheduler().runDelayed(getPlugin(), t -> runnable.run(), null, delay));
+        return new Task(entity.getScheduler().runDelayed(getPlugin(), t -> runnable.run(), null, normalizeDelay(delay)));
     }
 
     public static Task runForEntityTimer(Entity entity, Runnable runnable, long delay, long period) {
-        return new Task(entity.getScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), null, delay < 1 ? 1 : delay, period));
+        return new Task(entity.getScheduler().runAtFixedRate(getPlugin(), t -> runnable.run(), null, normalizeDelay(delay), normalizePeriod(period)));
     }
 
     public static void runAtLocation(Location location, Runnable runnable) {
@@ -99,38 +99,63 @@ public final class Scheduler {
     }
 
     public static Task runAtLocationLater(Location location, Runnable runnable, long delay) {
-        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), location, t -> runnable.run(), delay < 1 ? 1 : delay));
+        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), location, t -> runnable.run(), normalizeDelay(delay)));
     }
 
     public static Task runAtLocationLater(World world, int chunkX, int chunkZ, Runnable runnable, long delay) {
-        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), delay < 1 ? 1 : delay));
+        return new Task(Bukkit.getRegionScheduler().runDelayed(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), normalizeDelay(delay)));
     }
 
     public static Task runAtLocationTimer(Location location, Runnable runnable, long delay, long period) {
-        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), location, t -> runnable.run(), delay < 1 ? 1 : delay, period));
+        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), location, t -> runnable.run(), normalizeDelay(delay), normalizePeriod(period)));
     }
 
     public static Task runAtLocationTimer(World world, int chunkX, int chunkZ, Runnable runnable, long delay, long period) {
-        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), delay < 1 ? 1 : delay, period));
+        return new Task(Bukkit.getRegionScheduler().runAtFixedRate(getPlugin(), world, chunkX, chunkZ, t -> runnable.run(), normalizeDelay(delay), normalizePeriod(period)));
     }
 
-    public static class Task {
-        private Object foliaTask;
-        private BukkitTask bukkitTask;
+    private static long normalizeDelay(long delay) {
+        return normalize(0, delay);
+    }
 
-        public Task(Object foliaTask) {
-            this.foliaTask = foliaTask;
-        }
+    private static long normalizePeriod(long period) {
+        return normalize(1, period);
+    }
+
+    private static long normalize(long min, long value) {
+        return Math.max(min, value);
+    }
+
+    public static final class Task {
+        private final BukkitTask bukkitTask;
+        private final ScheduledTask foliaTask;
 
         public Task(BukkitTask bukkitTask) {
             this.bukkitTask = bukkitTask;
+            this.foliaTask = null;
+        }
+
+        public Task(ScheduledTask foliaTask) {
+            this.bukkitTask = null;
+            this.foliaTask = foliaTask;
+        }
+
+        public boolean isCancelled() {
+            if (bukkitTask != null)
+                return bukkitTask.isCancelled();
+
+            if (foliaTask != null)
+                return foliaTask.isCancelled();
+
+            return true;
         }
 
         public void cancel() {
-            if (foliaTask != null)
-                ((ScheduledTask) foliaTask).cancel();
-            else
+            if (bukkitTask != null)
                 bukkitTask.cancel();
+
+            if (foliaTask != null)
+                foliaTask.cancel();
         }
     }
 }
