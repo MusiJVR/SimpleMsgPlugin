@@ -8,14 +8,17 @@ import java.util.UUID;
 public final class Utils {
     public static void msgPlaySound(PropertiesRepository properties, Player player) {
         if (!player.isOnline()) return;
-        UUID uuid = player.getUniqueId();
-        String messageSound = properties.getString(uuid, "sound", "false");
-        int volumeSound = properties.getInt(uuid, "volume", 50);
 
-        if (!messageSound.equalsIgnoreCase("false")) {
-            try {
-                player.playSound(player, Sound.valueOf(messageSound.toUpperCase()), (float) volumeSound / 100, 1.0f);
-            } catch (Throwable ignored) {}
-        }
+        UUID uuid = player.getUniqueId();
+        Scheduler.runAsync(() -> {
+            String sound = properties.getString(uuid, "sound", "false");
+            int volume = properties.getInt(uuid, "volume", 50);
+            Scheduler.runForEntity(player, () -> {
+                if (!player.isOnline() || sound.equalsIgnoreCase("false")) return;
+                try {
+                    player.playSound(player, Sound.valueOf(sound.toUpperCase()), (float) volume / 100, 1.0f);
+                } catch (Throwable ignored) { }
+            });
+        });
     }
 }

@@ -15,6 +15,7 @@ import org.bukkit.Sound;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -83,12 +84,21 @@ public class NotificationCommand implements ICommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        properties.set(uuid, "sound", soundName);
-        if (volume != null)
-            properties.set(uuid, "volume", volume);
+        Scheduler.runAsync(() -> {
+            synchronized (properties) {
+                properties.set(uuid, "sound", soundName);
+                if (volume != null)
+                    properties.set(uuid, "volume", volume);
+            }
 
-        MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
-        Utils.msgPlaySound(properties, player);
+            Scheduler.runForEntity(player, () -> {
+                if (!player.isOnline()) return;
+
+                MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
+                Utils.msgPlaySound(properties, player);
+            });
+        });
+
         return Command.SINGLE_SUCCESS;
     }
 

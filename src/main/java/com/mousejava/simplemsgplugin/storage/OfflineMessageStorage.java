@@ -1,7 +1,6 @@
 package com.mousejava.simplemsgplugin.storage;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -9,6 +8,7 @@ public final class OfflineMessageStorage {
     public record PendingMessage(String receiver, String message) { }
 
     private final ConcurrentMap<UUID, PendingMessage> messages = new ConcurrentHashMap<>();
+    private final Set<PendingMessage> sending = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
 
     public void put(UUID sender, String receiver, String message) {
         messages.put(sender, new PendingMessage(receiver, message));
@@ -28,5 +28,13 @@ public final class OfflineMessageStorage {
 
     public void clear() {
         messages.clear();
+    }
+
+    public boolean beginSending(PendingMessage message) {
+        return sending.add(message);
+    }
+
+    public void finishSending(PendingMessage message) {
+        sending.remove(message);
     }
 }

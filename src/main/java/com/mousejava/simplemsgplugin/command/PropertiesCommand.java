@@ -13,6 +13,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 
 import java.util.Locale;
 import java.util.Set;
@@ -79,13 +80,16 @@ public class PropertiesCommand implements ICommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        properties.set(uuid, propertyName, value);
+        Scheduler.runAsync(() -> {
+            properties.set(uuid, propertyName, value);
+            Scheduler.runForEntity(player, () -> {
+                if (!player.isOnline()) return;
 
-        MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.property_set",
-                msg -> msg
-                        .replace("<property>", propertyName)
-                        .replace("<value>", String.valueOf(value))
-        );
+                MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.property_set",
+                        msg -> msg.replace("<property>", propertyName)
+                                .replace("<value>", String.valueOf(value)));
+            });
+        });
 
         return Command.SINGLE_SUCCESS;
     }

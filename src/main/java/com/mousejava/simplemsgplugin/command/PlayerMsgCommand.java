@@ -115,25 +115,38 @@ public class PlayerMsgCommand implements ICommand {
         }
 
         UUID senderUuid = sender instanceof Player p ? p.getUniqueId() : null;
-        Optional<String> targetUuid = players.findUuidByName(target.getName());
-        if (targetUuid.isEmpty()) {
-            notifySender(sender, "messages.invalid_player");
-            return Command.SINGLE_SUCCESS;
-        }
+        String targetName = target.getName();
+        boolean allowSelf = plugin.getConfig().getBoolean("send_msg_yourself");
+        Scheduler.runAsync(() -> {
+            Optional<String> targetUuid = players.findUuidByName(targetName);
+            String error = null;
+            if (targetUuid.isEmpty()) {
+                error = "messages.invalid_player";
+            } else if (senderUuid != null && senderUuid.toString().equals(targetUuid.get()) && !allowSelf) {
+                error = "messages.playermsg.not_send_youself";
+            } else if (senderUuid != null) {
+                UUID resolvedUuid = UUID.fromString(targetUuid.get());
+                synchronized (blacklist) {
+                    if (blacklist.isBlockedBy(senderUuid, resolvedUuid)) {
+                        error = "messages.blacklist.you_cannot_send";
+                    } else if (blacklist.isBlocked(senderUuid, resolvedUuid)) {
+                        error = "messages.blacklist.you_have_blocked";
+                    }
+                }
+            }
 
-        if (senderUuid != null && senderUuid.toString().equals(targetUuid.get()) && !plugin.getConfig().getBoolean("send_msg_yourself")) {
-            notifySender(sender, "messages.playermsg.not_send_youself");
-            return Command.SINGLE_SUCCESS;
-        }
+            String errorPath = error;
+            Scheduler.run(() -> {
+                if (sender instanceof Player player && !player.isOnline()) return;
 
-        if (senderUuid != null
-                && (blacklist.isBlockedBy(senderUuid, UUID.fromString(targetUuid.get()))
-                || blacklist.isBlocked(senderUuid, UUID.fromString(targetUuid.get())))) {
-            notifySender(sender, blacklist.isBlockedBy(senderUuid, UUID.fromString(targetUuid.get())) ? "messages.blacklist.you_cannot_send" : "messages.blacklist.you_have_blocked");
-            return Command.SINGLE_SUCCESS;
-        }
+                if (errorPath != null) {
+                    notifySender(sender, errorPath);
+                } else if (target.isOnline()) {
+                    deliverMessage(sender, target, message);
+                }
+            });
+        });
 
-        deliverMessage(sender, target, message);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -142,9 +155,9 @@ public class PlayerMsgCommand implements ICommand {
         String targetName = target.getName();
 
         Component senderHead = sender instanceof Player p
-                ? skinService.resolveHeadComponent(p.getUniqueId())
+                ? skinService.buildPlayerHeadComponent(skinService.getSkinBase64(p))
                 : Component.empty();
-        Component targetHead = skinService.resolveHeadComponent(target.getUniqueId());
+        Component targetHead = skinService.buildPlayerHeadComponent(skinService.getSkinBase64(target));
 
         TagResolver heads = TagResolver.resolver(
                 Placeholder.component("sender_head", senderHead),
@@ -199,11 +212,21 @@ public class PlayerMsgCommand implements ICommand {
         }
 
         UUID uuid = sender.getUniqueId();
-        offlineMessages.put(uuid, resolved.get(), message);
+        boolean defaultConfirm = plugin.getConfig().getBoolean("confirm_sending");
+        Scheduler.runAsync(() -> {
+            boolean confirm = properties.getBoolean(uuid, "confirm_sending", defaultConfirm);
+            Scheduler.runForEntity(sender, () -> {
+                if (!sender.isOnline()) return;
 
+                prepareOfflineMessage(sender, uuid, resolved.get(), message, confirm);
+            });
+        });
+    }
+
+    private void prepareOfflineMessage(Player sender, UUID uuid, String receiver, String message, boolean confirm) {
+        offlineMessages.put(uuid, receiver, message);
         MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.player_missing");
-
-        if (properties.getBoolean(uuid, "confirm_sending", plugin.getConfig().getBoolean("confirm_sending"))) {
+        if (confirm) {
             MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline");
             MessageUtils.sendMiniMessageComponent(sender, "messages.playermsg.accept_send",
                     component -> component
@@ -216,21 +239,35 @@ public class PlayerMsgCommand implements ICommand {
 
         Scheduler.runLater(() -> {
             offlineMessages.find(uuid)
-                    .filter(pendingMessage -> pendingMessage.receiver().equals(resolved.get()))
-                    .filter(pendingMessage -> pendingMessage.message().equals(message))
-                    .ifPresent(pendingMessage -> offlineMessages.remove(uuid, pendingMessage));
+                    .filter(pending -> pending.receiver().equals(receiver))
+                    .filter(pending -> pending.message().equals(message))
+                    .ifPresent(pending -> offlineMessages.remove(uuid, pending));
         }, 1200);
     }
 
     private void saveOffline(Player sender) {
         UUID uuid = sender.getUniqueId();
+        String senderName = sender.getName();
         offlineMessages.find(uuid).ifPresent(pendingMessage -> {
-            messages.save(uuid, sender.getName(), pendingMessage.receiver(), pendingMessage.message());
+            if (!offlineMessages.beginSending(pendingMessage)) return;
 
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline_successfully");
-            Utils.msgPlaySound(properties, sender);
+            Scheduler.runAsync(() -> {
+                try {
+                    synchronized (messages) {
+                        messages.save(uuid, senderName, pendingMessage.receiver(), pendingMessage.message());
+                        offlineMessages.remove(uuid, pendingMessage);
+                    }
 
-            offlineMessages.remove(uuid, pendingMessage);
+                    Scheduler.runForEntity(sender, () -> {
+                        if (!sender.isOnline()) return;
+
+                        MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline_successfully");
+                        Utils.msgPlaySound(properties, sender);
+                    });
+                } finally {
+                    offlineMessages.finishSending(pendingMessage);
+                }
+            });
         });
     }
 

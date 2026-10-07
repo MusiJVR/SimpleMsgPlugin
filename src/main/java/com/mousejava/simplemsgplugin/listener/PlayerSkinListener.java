@@ -26,7 +26,6 @@ public class PlayerSkinListener implements Listener {
         if (base64 == null) return;
 
         UUID uuid = player.getUniqueId();
-
-        Scheduler.run(() -> skinsRepository.upsert(uuid, base64));
+        Scheduler.runAsync(() -> skinsRepository.upsert(uuid, base64));
     }
 }

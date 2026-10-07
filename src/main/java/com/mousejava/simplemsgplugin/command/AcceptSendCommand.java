@@ -12,6 +12,7 @@ import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
 import com.mousejava.simplemsgplugin.utils.MessageUtils;
 import com.mousejava.simplemsgplugin.utils.Utils;
+import com.mousejava.simplemsgplugin.utils.Scheduler;
 
 import java.util.Set;
 import java.util.UUID;
@@ -45,17 +46,27 @@ public class AcceptSendCommand implements ICommand {
 
     private int executeAcceptSend(CommandContext<CommandSourceStack> ctx, Player player) {
         UUID uuid = player.getUniqueId();
-
+        String senderName = player.getName();
         offlineMessages.find(uuid).ifPresent(pendingMessage -> {
-            String playerReceiver = pendingMessage.receiver();
-            String msgOffline = pendingMessage.message();
+            if (!offlineMessages.beginSending(pendingMessage)) return;
 
-            messages.save(uuid, player.getName(), playerReceiver, msgOffline);
+            Scheduler.runAsync(() -> {
+                try {
+                    synchronized (messages) {
+                        messages.save(uuid, senderName, pendingMessage.receiver(), pendingMessage.message());
+                        offlineMessages.remove(uuid, pendingMessage);
+                    }
 
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.acceptsend.send_offline_successfully");
-            Utils.msgPlaySound(properties, player);
+                    Scheduler.runForEntity(player, () -> {
+                        if (!player.isOnline()) return;
 
-            offlineMessages.remove(uuid, pendingMessage);
+                        MessageUtils.sendMiniMessageIfPresent(player, "messages.acceptsend.send_offline_successfully");
+                        Utils.msgPlaySound(properties, player);
+                    });
+                } finally {
+                    offlineMessages.finishSending(pendingMessage);
+                }
+            });
         });
 
         return Command.SINGLE_SUCCESS;
