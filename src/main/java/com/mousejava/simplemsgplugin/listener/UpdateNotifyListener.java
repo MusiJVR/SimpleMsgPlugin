@@ -40,14 +40,12 @@ public class UpdateNotifyListener implements Listener {
         String current = plugin.getPluginMeta().getVersion();
         String latest = UpdateCheckerService.getLatestVersion();
         String url = UpdateCheckerService.getDownloadUrl();
-        String hoverText = MessageUtils.optionalPlain("messages.new_version_hover_text").orElse("");
 
         MessageUtils.sendMiniMessageTransformed(player, "messages.new_version_available",
                 msg -> msg
                         .replace("<current_version>", current)
                         .replace("<new_version>", latest)
                         .replace("<url>", url)
-                        .replace("<new_version_hover_text>", hoverText)
         );
 
         Utils.msgPlaySound(properties, player);
