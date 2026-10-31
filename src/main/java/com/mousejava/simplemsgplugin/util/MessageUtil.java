@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.utils;
+package com.mousejava.simplemsgplugin.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -14,13 +14,13 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class MessageUtils {
+public final class MessageUtil {
     private static final MiniMessage MINI = MiniMessage.miniMessage();
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static JavaPlugin plugin;
 
     public static void init(JavaPlugin plugin) {
-        MessageUtils.plugin = plugin;
+        MessageUtil.plugin = plugin;
     }
 
     @SuppressWarnings("deprecation")
@@ -45,7 +45,7 @@ public final class MessageUtils {
 
     public static @Nullable String getPlain(String path, String defaultMessage) {
         if (plugin == null)
-            throw new IllegalStateException("MessageUtils has not been initialized! Call MessageUtils.init(plugin) first.");
+            throw new IllegalStateException("MessageUtil has not been initialized! Call MessageUtil.init(plugin) first.");
 
         String raw = plugin.getConfig().getString(path);
         if (raw == null || raw.trim().isEmpty()) return defaultMessage;
@@ -86,7 +86,7 @@ public final class MessageUtils {
 
     public static Optional<String> optionalColored(String path, String defaultMessage) {
         return optionalPlain(path, defaultMessage)
-                .map(MessageUtils::translateColorCodes);
+                .map(MessageUtil::translateColorCodes);
     }
 
     public static void sendColoredIfPresent(CommandSender sender, String path) {

@@ -9,7 +9,7 @@ import com.mousejava.simplemsgplugin.command.api.ICommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
 
 import java.util.Set;
 
@@ -46,7 +46,7 @@ public class ReplyMsgCommand implements ICommand {
         String name = player.getName();
         String recipient = latestRecipients.find(name).orElse(null);
         if (recipient == null) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.replymsg.no_last_recipient");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.replymsg.no_last_recipient");
             return Command.SINGLE_SUCCESS;
         }
 

@@ -12,8 +12,8 @@ import com.mousejava.simplemsgplugin.property.PropertyDefinitions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 
 import java.util.Locale;
 import java.util.Set;
@@ -69,14 +69,14 @@ public class PropertiesCommand implements ICommand {
         String propertyName = StringArgumentType.getString(ctx, "property").toLowerCase(Locale.ROOT);
 
         if (!PropertyDefinitions.contains(propertyName)) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.propertiesmsg.unknown_property");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.propertiesmsg.unknown_property");
             return Command.SINGLE_SUCCESS;
         }
 
         Object value = PropertyValueArgumentType.getValue(ctx, "value");
 
         if (value == null) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.propertiesmsg.invalid_value");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.propertiesmsg.invalid_value");
             return Command.SINGLE_SUCCESS;
         }
 
@@ -85,7 +85,7 @@ public class PropertiesCommand implements ICommand {
             Scheduler.runForEntity(player, () -> {
                 if (!player.isOnline()) return;
 
-                MessageUtils.sendMiniMessageTransformed(player, "messages.propertiesmsg.property_set",
+                MessageUtil.sendMiniMessageTransformed(player, "messages.propertiesmsg.property_set",
                         msg -> msg.replace("<property>", propertyName)
                                 .replace("<value>", String.valueOf(value)));
             });

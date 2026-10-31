@@ -3,7 +3,7 @@ package com.mousejava.simplemsgplugin.database.repository;
 import com.mousejava.simplemsgplugin.database.api.DatabaseManager;
 import com.mousejava.simplemsgplugin.database.api.SchemaRepository;
 import com.mousejava.simplemsgplugin.database.dialect.SqlDialect;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 
 import java.util.List;
 import java.util.Optional;

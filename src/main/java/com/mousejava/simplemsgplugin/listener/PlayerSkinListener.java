@@ -2,7 +2,7 @@ package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.database.repository.SkinsRepository;
 import com.mousejava.simplemsgplugin.service.SkinService;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

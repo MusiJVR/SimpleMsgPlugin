@@ -10,8 +10,8 @@ import com.mousejava.simplemsgplugin.database.repository.*;
 import com.mousejava.simplemsgplugin.listener.*;
 import com.mousejava.simplemsgplugin.service.*;
 import com.mousejava.simplemsgplugin.storage.*;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.event.Listener;
@@ -45,7 +45,7 @@ public final class SimpleMsgPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         Scheduler.init(this);
-        MessageUtils.init(this);
+        MessageUtil.init(this);
         BStatsMetricsService.init(this, SERVICE_ID);
         UpdateCheckerService.init(this, PROJECT_ID);
 

@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.utils;
+package com.mousejava.simplemsgplugin.util;
 
 import org.bukkit.Bukkit;
 

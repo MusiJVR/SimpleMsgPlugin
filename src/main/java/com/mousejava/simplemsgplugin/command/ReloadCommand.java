@@ -8,7 +8,7 @@ import com.mousejava.simplemsgplugin.command.api.ICommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
 
 import java.util.Set;
 
@@ -37,7 +37,7 @@ public class ReloadCommand implements ICommand {
 
     private int executeReload(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
         plugin.reloadConfig();
-        MessageUtils.sendMiniMessageIfPresent(sender, "messages.reloadmsg.reload_successfully");
+        MessageUtil.sendMiniMessageIfPresent(sender, "messages.reloadmsg.reload_successfully");
         return Command.SINGLE_SUCCESS;
     }
 }

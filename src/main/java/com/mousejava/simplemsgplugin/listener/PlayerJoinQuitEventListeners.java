@@ -5,9 +5,9 @@ import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesReposito
 import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Utils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Utils;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -55,7 +55,7 @@ public class PlayerJoinQuitEventListeners implements Listener {
                     Scheduler.runForEntityLater(player, () -> {
                         if (!player.isOnline()) return;
 
-                        MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
+                        MessageUtil.sendMiniMessageIfPresent(player, "messages.mailmsg.have_unread");
                         Utils.msgPlaySound(properties, player);
                     }, 40);
                 }

@@ -13,9 +13,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Utils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Utils;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -80,7 +80,7 @@ public class NotificationCommand implements ICommand {
 
         String soundName = getValidSound(StringArgumentType.getString(ctx, "sound"));
         if (soundName == null) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.sound_missing");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.notificationmsg.sound_missing");
             return Command.SINGLE_SUCCESS;
         }
 
@@ -94,7 +94,7 @@ public class NotificationCommand implements ICommand {
             Scheduler.runForEntity(player, () -> {
                 if (!player.isOnline()) return;
 
-                MessageUtils.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
+                MessageUtil.sendMiniMessageIfPresent(player, "messages.notificationmsg.successfully_changed");
                 Utils.msgPlaySound(properties, player);
             });
         });

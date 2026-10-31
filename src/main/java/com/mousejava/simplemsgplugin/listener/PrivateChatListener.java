@@ -6,13 +6,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import com.mousejava.simplemsgplugin.chatgroups.Group;
 import com.mousejava.simplemsgplugin.chatgroups.GroupManager;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
 
 public class PrivateChatListener implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
         String message = PlainTextComponentSerializer.plainText().serialize(event.message());
-        String prefix = MessageUtils.optionalPlain("privatechat_start_char").orElse("?");
+        String prefix = MessageUtil.optionalPlain("privatechat_start_char").orElse("?");
 
         if (message.startsWith(prefix)) {
             String privateMessage = message.substring(prefix.length()).trim();

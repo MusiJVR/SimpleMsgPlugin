@@ -6,7 +6,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.service.SkinService;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -15,7 +15,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -90,11 +90,11 @@ public class MailCommand implements ICommand {
 
     private void displayMail(Player player, String playerName, List<OfflineMessagesRepository.OfflineMessage> unread, Component receiverHead, List<Component> senderHeads) {
         if (unread.isEmpty()) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.no_unread");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.mailmsg.no_unread");
             return;
         }
 
-        MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.your_unread");
+        MessageUtil.sendMiniMessageIfPresent(player, "messages.mailmsg.your_unread");
         for (int i = 0; i < unread.size(); i++) {
             var message = unread.get(i);
             String senderName = message.senderName();
@@ -104,14 +104,14 @@ public class MailCommand implements ICommand {
                     Placeholder.component("receiver_head", receiverHead)
             );
 
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.mailmsg.offline_pattern",
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.mailmsg.offline_pattern",
                     msg -> msg
                             .replace("<sender>", senderName)
                             .replace("<receiver>", playerName)
                             .replace("<message>", messageText),
                     heads,
                     component -> component
-                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
+                            .hoverEvent(HoverEvent.showText(MessageUtil.safeText("messages.playermsg.click_send_reply")))
                             .clickEvent(ClickEvent.suggestCommand("/msg " + senderName + " "))
             );
         }

@@ -11,8 +11,8 @@ import com.mousejava.simplemsgplugin.command.api.Cmd;
 import com.mousejava.simplemsgplugin.command.api.ICommand;
 import com.mousejava.simplemsgplugin.database.repository.BlacklistRepository;
 import com.mousejava.simplemsgplugin.database.repository.PlayersRepository;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
 
@@ -60,12 +60,12 @@ public class BlacklistCommand implements ICommand {
     private int executeAdd(CommandContext<CommandSourceStack> ctx, Player player) {
         Optional<Player> target = Cmd.resolveOnlinePlayer(StringArgumentType.getString(ctx, "player"));
         if (target.isEmpty()) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.invalid_player");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.invalid_player");
             return Command.SINGLE_SUCCESS;
         }
 
         if (target.get().getUniqueId().equals(player.getUniqueId())) {
-            MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.yourself");
+            MessageUtil.sendMiniMessageIfPresent(player, "messages.blacklist.yourself");
             return Command.SINGLE_SUCCESS;
         }
 
@@ -85,7 +85,7 @@ public class BlacklistCommand implements ICommand {
 
             Scheduler.runForEntity(player, () -> {
                 if (player.isOnline())
-                    MessageUtils.sendMiniMessageIfPresent(player, path);
+                    MessageUtil.sendMiniMessageIfPresent(player, path);
             });
         });
 
@@ -137,7 +137,7 @@ public class BlacklistCommand implements ICommand {
 
             Scheduler.runForEntity(player, () -> {
                 if (player.isOnline())
-                    MessageUtils.sendMiniMessageIfPresent(player, path);
+                    MessageUtil.sendMiniMessageIfPresent(player, path);
             });
         });
 
@@ -156,9 +156,9 @@ public class BlacklistCommand implements ICommand {
                 if (!player.isOnline()) return;
 
                 if (names.isEmpty()) {
-                    MessageUtils.sendMiniMessageIfPresent(player, "messages.blacklist.empty");
+                    MessageUtil.sendMiniMessageIfPresent(player, "messages.blacklist.empty");
                 } else {
-                    MessageUtils.sendMiniMessageTransformed(player, "messages.blacklist.players",
+                    MessageUtil.sendMiniMessageTransformed(player, "messages.blacklist.players",
                             msg -> msg.replace("<blacklist>", String.join(", ", names)));
                 }
             });

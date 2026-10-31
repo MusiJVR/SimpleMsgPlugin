@@ -18,7 +18,7 @@ import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.service.SkinService;
 import com.mousejava.simplemsgplugin.storage.LatestRecipientsStorage;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
-import com.mousejava.simplemsgplugin.utils.*;
+import com.mousejava.simplemsgplugin.util.*;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -110,7 +110,7 @@ public class PlayerMsgCommand implements ICommand {
         String message = StringArgumentType.getString(ctx, "message").trim();
         Player target = Cmd.resolveOnlinePlayer(input).orElse(null);
         if (target == null) {
-            if (sender instanceof Player p) handleOfflineTarget(p, input, message); else MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.not_send_offline_from_console");
+            if (sender instanceof Player p) handleOfflineTarget(p, input, message); else MessageUtil.sendMiniMessageIfPresent(sender, "messages.playermsg.not_send_offline_from_console");
             return Command.SINGLE_SUCCESS;
         }
 
@@ -164,18 +164,18 @@ public class PlayerMsgCommand implements ICommand {
                 Placeholder.component("receiver_head", targetHead)
         );
         if (sender instanceof Player) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.sender_pattern",
+            MessageUtil.sendMiniMessageIfPresent(sender, "messages.playermsg.sender_pattern",
                     msg -> msg
                             .replace("<sender>", senderName)
                             .replace("<receiver>", targetName)
                             .replace("<message>", message),
                     heads,
                     component -> component
-                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
+                            .hoverEvent(HoverEvent.showText(MessageUtil.safeText("messages.playermsg.click_send_reply")))
                             .clickEvent(ClickEvent.suggestCommand("/msg " + targetName + " "))
             );
         } else {
-            MessageUtils.sendMiniMessageTransformed(sender, "messages.playermsg.console_pattern",
+            MessageUtil.sendMiniMessageTransformed(sender, "messages.playermsg.console_pattern",
                     msg -> msg
                             .replace("<sender>", senderName)
                             .replace("<receiver>", targetName)
@@ -183,14 +183,14 @@ public class PlayerMsgCommand implements ICommand {
             );
         }
 
-        MessageUtils.sendMiniMessageIfPresent(target, "messages.playermsg.receiver_pattern",
+        MessageUtil.sendMiniMessageIfPresent(target, "messages.playermsg.receiver_pattern",
                 msg -> msg
                         .replace("<sender>", senderName)
                         .replace("<receiver>", targetName)
                         .replace("<message>", message),
                 heads,
                 component -> component
-                        .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_reply")))
+                        .hoverEvent(HoverEvent.showText(MessageUtil.safeText("messages.playermsg.click_send_reply")))
                         .clickEvent(ClickEvent.suggestCommand("/msg " + senderName + " "))
         );
 
@@ -207,7 +207,7 @@ public class PlayerMsgCommand implements ICommand {
                 .findFirst();
 
         if (resolved.isEmpty()) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.invalid_player");
+            MessageUtil.sendMiniMessageIfPresent(sender, "messages.invalid_player");
             return;
         }
 
@@ -225,12 +225,12 @@ public class PlayerMsgCommand implements ICommand {
 
     private void prepareOfflineMessage(Player sender, UUID uuid, String receiver, String message, boolean confirm) {
         offlineMessages.put(uuid, receiver, message);
-        MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.player_missing");
+        MessageUtil.sendMiniMessageIfPresent(sender, "messages.playermsg.player_missing");
         if (confirm) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline");
-            MessageUtils.sendMiniMessageComponent(sender, "messages.playermsg.accept_send",
+            MessageUtil.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline");
+            MessageUtil.sendMiniMessageComponent(sender, "messages.playermsg.accept_send",
                     component -> component
-                            .hoverEvent(HoverEvent.showText(MessageUtils.safeText("messages.playermsg.click_send_offline")))
+                            .hoverEvent(HoverEvent.showText(MessageUtil.safeText("messages.playermsg.click_send_offline")))
                             .clickEvent(ClickEvent.runCommand("acceptsend"))
             );
         } else {
@@ -261,7 +261,7 @@ public class PlayerMsgCommand implements ICommand {
                     Scheduler.runForEntity(sender, () -> {
                         if (!sender.isOnline()) return;
 
-                        MessageUtils.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline_successfully");
+                        MessageUtil.sendMiniMessageIfPresent(sender, "messages.playermsg.send_offline_successfully");
                         Utils.msgPlaySound(properties, sender);
                     });
                 } finally {
@@ -273,6 +273,6 @@ public class PlayerMsgCommand implements ICommand {
 
     private void notifySender(CommandSender sender, String path) {
         if (sender instanceof Player)
-            MessageUtils.sendMiniMessageIfPresent(sender, path);
+            MessageUtil.sendMiniMessageIfPresent(sender, path);
     }
 }

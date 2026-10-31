@@ -1,4 +1,4 @@
-package com.mousejava.simplemsgplugin.utils;
+package com.mousejava.simplemsgplugin.util;
 
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import org.bukkit.Sound;

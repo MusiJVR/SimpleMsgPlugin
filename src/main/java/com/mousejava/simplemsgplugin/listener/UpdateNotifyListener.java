@@ -2,9 +2,9 @@ package com.mousejava.simplemsgplugin.listener;
 
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.service.UpdateCheckerService;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
-import com.mousejava.simplemsgplugin.utils.Utils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Scheduler;
+import com.mousejava.simplemsgplugin.util.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,7 +41,7 @@ public class UpdateNotifyListener implements Listener {
         String latest = UpdateCheckerService.getLatestVersion();
         String url = UpdateCheckerService.getDownloadUrl();
 
-        MessageUtils.sendMiniMessageTransformed(player, "messages.new_version_available",
+        MessageUtil.sendMiniMessageTransformed(player, "messages.new_version_available",
                 msg -> msg
                         .replace("<current_version>", current)
                         .replace("<new_version>", latest)

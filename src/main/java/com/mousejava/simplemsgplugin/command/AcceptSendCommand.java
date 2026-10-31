@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 import com.mousejava.simplemsgplugin.database.repository.OfflineMessagesRepository;
 import com.mousejava.simplemsgplugin.database.repository.PropertiesRepository;
 import com.mousejava.simplemsgplugin.storage.OfflineMessageStorage;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
-import com.mousejava.simplemsgplugin.utils.Utils;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
+import com.mousejava.simplemsgplugin.util.Utils;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 
 import java.util.Set;
 import java.util.UUID;
@@ -60,7 +60,7 @@ public class AcceptSendCommand implements ICommand {
                     Scheduler.runForEntity(player, () -> {
                         if (!player.isOnline()) return;
 
-                        MessageUtils.sendMiniMessageIfPresent(player, "messages.acceptsend.send_offline_successfully");
+                        MessageUtil.sendMiniMessageIfPresent(player, "messages.acceptsend.send_offline_successfully");
                         Utils.msgPlaySound(properties, player);
                     });
                 } finally {

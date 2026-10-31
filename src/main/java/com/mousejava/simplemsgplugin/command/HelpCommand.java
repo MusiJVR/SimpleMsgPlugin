@@ -9,7 +9,7 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.mousejava.simplemsgplugin.utils.MessageUtils;
+import com.mousejava.simplemsgplugin.util.MessageUtil;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -40,10 +40,10 @@ public class HelpCommand implements ICommand {
 
     private int executeHelp(CommandContext<CommandSourceStack> ctx, CommandSender sender) {
         if (sender instanceof Player) {
-            MessageUtils.sendMiniMessageIfPresent(sender, "messages.help_message");
+            MessageUtil.sendMiniMessageIfPresent(sender, "messages.help_message");
         } else {
             String prefix = plugin.getPluginMeta().getLoggerPrefix();
-            MessageUtils.sendMiniMessageTransformed(sender, "messages.help_message",
+            MessageUtil.sendMiniMessageTransformed(sender, "messages.help_message",
                     msg -> Arrays.stream(msg.split("\n"))
                             .map(line -> "[%s] %s".formatted(prefix, line))
                             .collect(Collectors.joining("\n"))

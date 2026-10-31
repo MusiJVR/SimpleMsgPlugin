@@ -3,7 +3,7 @@ package com.mousejava.simplemsgplugin.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mousejava.simplemsgplugin.utils.Scheduler;
+import com.mousejava.simplemsgplugin.util.Scheduler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
